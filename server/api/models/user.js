@@ -27,21 +27,19 @@ const userSchema = new Schema({
     name: {
         type: String,
         trim: true,
-        required: [true, 'Name is required']
+        required: [true, 'name is required']
     },
     email: {
         type: String,
         trim: true,
         lowercase: true,
         unique: true,
-        required: [true, 'Email address is required'],
-        validate: [validator.isEmail, 'Invalid email'],
+        required: [true, 'email is required'],
+        validate: [(email) => validator.isEmail(email), 'invalid email'],
     },
     password: {
         type: String,
-        trim: true,
-        required: [true, 'Password is required'],
-        validate: [(pass) => validator.isHash(pass, 'sha512'), 'Invalid password (no sha512 hash)']
+        required: [true, 'password is required']
     },
     folderId: {
         type: Schema.Types.ObjectId
@@ -52,6 +50,7 @@ const userSchema = new Schema({
     },
     sessions: [sessionSchema]
 });
+
 
 const User = mongoose.model('User', userSchema);
 
