@@ -6,7 +6,11 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
-const privateKey = 'magmag';
+const bcrypt = require('bcrypt');
+const User = require('../models/user').User;
+
+const PRIVATE_KEY = 'magmag';
+const SALTING_ROUNDS = 10;
 
 
 /**
@@ -52,6 +56,33 @@ function logout(userId, sessionId) {
     throw new Error('Not implemented yet');
 }
 
-function createUser(name, email, password) {
-    throw new Error('Not implemented yet');
-}
+/**
+ * Creates new user by
+ * 1. hashing pw via bcrypt,
+ * 2. creating user instance,
+ * 3. saving user instance to db
+ * @param name
+ * @param email
+ * @param password
+ * @param cb fn(err, user)
+ */
+module.exports.createUser = (name, email, password, cb) => {
+    return bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
+        if (err)
+            return cb(err);
+
+        // TODO create root folder
+        const user = new User({
+            'name': name,
+            'email': email,
+            'password': hash
+        });
+
+        user.save((err, user) => {
+            if (err)
+                //return cb(new Error('user could not get created'))
+                return cb(err);
+            return cb(null, user);
+        });
+    });
+};
