@@ -49,6 +49,10 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now
     },
+    emailValidated: {
+        type: Boolean,
+        default: false
+    },
     sessions: [sessionSchema]
 });
 
