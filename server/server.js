@@ -11,7 +11,7 @@ const logger = require('morgan');
 const app = express();
 const port = process.env.PORT || 3000;
 const userRoutes = require('./api/routes/user');
-const db = require('mongo-init');
+const db = require('./mongo-init');
 
 
 // TODO change logger format depending on environment: https://github.com/expressjs/morgan
