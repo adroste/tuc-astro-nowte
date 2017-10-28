@@ -56,6 +56,7 @@ function logout(userId, sessionId) {
     throw new Error('Not implemented yet');
 }
 
+
 /**
  * Creates new user by
  * 1. checking password length (8 <= pw.len <= 100),
@@ -63,20 +64,30 @@ function logout(userId, sessionId) {
  * 2. creating user instance,
  * 3. saving user instance to db
  * and returning db entry
+ * and returning { "success": true }
  * @param name
  * @param email
  * @param password
- * @param cb fn(err, user)
+ * @param cb fn(err, success)
  */
 module.exports.createUser = (name, email, password, cb) => {
-    if (typeof password !== 'string')
-        return cb(new Error('password invalid type'));
-    if (password.length < 8 || password.length > 100)
-        return cb(new Error('password must be between 8 and 100 characters'));
+    if (typeof password !== 'string') {
+        const err = new Error('password invalid type');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    if (password.length < 8 || password.length > 100) {
+        const err = new Error('password must be between 8 and 100 characters');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
 
     bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
-        if (err)
-            return cb(new Error('password invalid type'));
+        if (err){
+            const err = new Error('password invalid type');
+            err.status = 400; // Bad Request
+            return cb(err);
+        }
 
         // TODO create root folder
         const user = new User({
@@ -85,11 +96,20 @@ module.exports.createUser = (name, email, password, cb) => {
             'password': hash
         });
 
-        user.save((err, user) => {
-            if (err)
-                //return cb(new Error('user could not get created'))
-                return cb(err);
-            return cb(null, user);
+        user.save((err, userEntry) => {
+            if (err) {
+                if (err.message.startsWith('User validation failed')) {
+                    err.status = 400; // Bad Request
+                    return cb(err);
+                }
+                // 11000: duplicate key (for email)
+                else if (err.name === 'MongoError' && err.code === 11000  && err.message.indexOf(user.email) !== -1) {
+                    const err = new Error('email already exists');
+                    err.status = 409; // Conflict
+                    return cb(err);
+                }
+            }
+            return cb(null, { success: true });
         });
     });
 };
