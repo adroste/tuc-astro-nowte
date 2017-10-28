@@ -58,18 +58,25 @@ function logout(userId, sessionId) {
 
 /**
  * Creates new user by
+ * 1. checking password length (8 <= pw.len <= 100),
  * 1. hashing pw via bcrypt,
  * 2. creating user instance,
  * 3. saving user instance to db
+ * and returning db entry
  * @param name
  * @param email
  * @param password
  * @param cb fn(err, user)
  */
 module.exports.createUser = (name, email, password, cb) => {
-    return bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
+    if (typeof password !== 'string')
+        return cb(new Error('password invalid type'));
+    if (password.length < 8 || password.length > 100)
+        return cb(new Error('password must be between 8 and 100 characters'));
+
+    bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
         if (err)
-            return cb(err);
+            return cb(new Error('password invalid type'));
 
         // TODO create root folder
         const user = new User({
