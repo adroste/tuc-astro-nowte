@@ -1,0 +1,13 @@
+.LabelledInputBox{
+    text-align: left;
+    display: block;
+}
+
+.LabelledInputBox > * {
+    display: block;
+}
+
+
+.LabelledInputBox > input {
+    width: 100%;
+}

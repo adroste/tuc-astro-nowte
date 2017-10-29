@@ -1,0 +1,8 @@
+.UserRegistrationForm {
+    text-align: right;
+    display: block;
+}
+
+.ErrorText {
+    color: red;
+}
