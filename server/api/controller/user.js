@@ -41,12 +41,12 @@ function createJwt(payload, expiresIn, cb) {
  * @param sessionId
  * @param cb fn(err, token)
  */
-module.exports.createSessionToken = (userId, sessionId, cb) => {
+function createSessionToken(userId, sessionId, cb) {
     createJwt({
         userId: userId,
         sessionId: sessionId
     }, null, cb);
-};
+}
 
 
 /**
@@ -54,11 +54,11 @@ module.exports.createSessionToken = (userId, sessionId, cb) => {
  * @param userId
  * @param cb fn(err, token)
  */
-module.exports.createEmailValidationToken = (userId, cb) => {
+function createEmailValidationToken(userId, cb) {
     createJwt({
         userId: userId
     }, '24h', cb);
-};
+}
 
 
 /**
@@ -66,13 +66,13 @@ module.exports.createEmailValidationToken = (userId, cb) => {
  * @param token
  * @param cb fn(err, decodedToken)
  */
-module.exports.extractJwt = (token, cb) => {
+function extractJwt(token, cb) {
     jwt.verify(token, PRIVATE_KEY, { algorithms: ['HS256'] }, (err, decodedToken) => {
         if (err)
             return cb(new Error('invalid token: ' + err.message));
         return cb(null, decodedToken);
     });
-};
+}
 
 
 function login(email, password) {
@@ -103,7 +103,7 @@ function logout(userId, sessionId) {
  * @param password
  * @param cb fn(err, success)
  */
-module.exports.createUser = (name, email, password, cb) => {
+function createUser(name, email, password, cb) {
     if (typeof password !== 'string') {
         const err = new Error('password invalid type');
         err.status = 400; // Bad Request
@@ -145,4 +145,10 @@ module.exports.createUser = (name, email, password, cb) => {
             return cb(null, user);
         });
     });
-};
+}
+
+// exports
+module.exports.createSessionToken = createSessionToken;
+module.exports.createEmailValidationToken = createEmailValidationToken;
+module.exports.extractJwt = extractJwt;
+module.exports.createUser = createUser;
