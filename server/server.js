@@ -5,13 +5,15 @@
 
 'use strict';
 
+const config = require('./config');
 const express = require('express');
 const jsonParser = require('body-parser').json;
 const logger = require('morgan');
-const app = express();
-const port = process.env.PORT || 3000;
 const userRoutes = require('./api/routes/user');
 const db = require('./mongo-init');
+
+const PORT =  config.get('server.http-port');
+const app = express();
 
 
 // TODO change logger format depending on environment: https://github.com/expressjs/morgan
@@ -41,8 +43,8 @@ app.use((err, req, res, next) => {
 });
 
 // start http server
-const server = app.listen(port, function() {
-    console.log('express listening on:', port);
+const server = app.listen(PORT, function() {
+    console.log('express listening on:', PORT);
 });
 
 

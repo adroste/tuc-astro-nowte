@@ -1,0 +1,10 @@
+{
+    "server": {
+        "http-port": 3000,
+        "mongo-url": "mongodb://localhost:27017/nowte-debug"
+    },
+    "user": {
+        "private-key": "K.8Lb6TNc0/m`1>2$m5WT\"o^J37A4|$P=%acTbWp@ww%,4g~`2E@IFFZ70C[&QU",
+        "password-salting-rounds": 10
+    }
+}

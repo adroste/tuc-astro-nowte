@@ -5,9 +5,12 @@
 
 'use strict';
 
-const mongoose = require("mongoose");
-const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/nowte-debug";
+const config = require('./config');
+const mongoose = require('mongoose');
+
+const MONGO_URL = config.get('server.mongo-url');
 mongoose.Promise = Promise;
+
 
 // mongodb connection
 mongoose.connect(MONGO_URL, {
@@ -22,5 +25,6 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
     console.log(`Connected to Mongo at: ${new Date()}`)
 });
+
 
 module.exports = db;

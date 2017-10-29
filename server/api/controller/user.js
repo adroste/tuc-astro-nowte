@@ -5,12 +5,13 @@
 
 'use strict';
 
+const config = require('../../config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user').User;
 
-const PRIVATE_KEY = 'K.8Lb6TNc0/m`1>2$m5WT"o^J37A4|$P=%acTbWp@ww%,4g~`2E@IFFZ70C[&QU';
-const SALTING_ROUNDS = 10;
+const SALTING_ROUNDS = config.get('user.password-salting-rounds');
+const PRIVATE_KEY = config.get('user.private-key');
 
 
 /**
