@@ -9,48 +9,81 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user').User;
 
-const PRIVATE_KEY = 'magmag';
+const PRIVATE_KEY = 'K.8Lb6TNc0/m`1>2$m5WT"o^J37A4|$P=%acTbWp@ww%,4g~`2E@IFFZ70C[&QU';
 const SALTING_ROUNDS = 10;
+
+
+/**
+ * Creates a JWT containing payload.
+ * @param payload
+ * @param expiresIn expressed in seconds or a string describing a time span. Eg: 60, "2 days", "10h", "7d" (null = unlimited)
+ * @param cb fn(err, token)
+ */
+function createJwt(payload, expiresIn, cb) {
+    const options = { algorithm: 'HS256' };
+    if (expiresIn)
+        Object.assign(options, { expiresIn: expiresIn });
+    jwt.sign(payload, PRIVATE_KEY, options, (err, token) => {
+        if (err) {
+            const err2 = new Error('could not create token: ' + err.message);
+            err2.status = 500; // Internal Server Error
+            return cb(err);
+        }
+        return cb(null, token);
+    });
+}
 
 
 /**
  * Creates a JWT containing userId and sessionId.
  * @param userId
  * @param sessionId
- * @returns {String} jwt
+ * @param cb fn(err, token)
  */
-function createJwt(userId, sessionId) {
-    return jwt.sign({
+module.exports.createSessionToken = (userId, sessionId, cb) => {
+    createJwt({
         userId: userId,
         sessionId: sessionId
-    }, privateKey, {
-        algorithm: 'HS256'
-    });
-}
+    }, null, cb);
+};
+
+
+/**
+ * Creates a JWT containing userId that expires in 24h (for email validation).
+ * @param userId
+ * @param cb fn(err, token)
+ */
+module.exports.createEmailValidationToken = (userId, cb) => {
+    createJwt({
+        userId: userId
+    }, '24h', cb);
+};
+
 
 /**
  * Verifies und returns the payload of a jwt. Content could be bullsh*t if private key got leaked.
- * @param jwt
- * @returns {{userID: String, sessionId: String}}
- * @throws error if jwt is invalid
+ * @param token
+ * @param cb fn(err, decodedToken)
  */
-function extractJwt(jwt) {
-    // does not verify
-    return jwt.verify(
-        jwt,
-        privateKey, {
-        algorithms: ['HS256']
+module.exports.extractJwt = (token, cb) => {
+    jwt.verify(token, PRIVATE_KEY, { algorithms: ['HS256'] }, (err, decodedToken) => {
+        if (err)
+            return cb(new Error('invalid token: ' + err.message));
+        return cb(null, decodedToken);
     });
-}
+};
+
 
 function login(email, password) {
     throw new Error('Not implemented yet');
     // return jwt
 }
 
+
 function validateSession(userId, sessionId) {
     throw new Error('Not implemented yet');
 }
+
 
 function logout(userId, sessionId) {
     throw new Error('Not implemented yet');
@@ -63,7 +96,6 @@ function logout(userId, sessionId) {
  * 1. hashing pw via bcrypt,
  * 2. creating user instance,
  * 3. saving user instance to db
- * and returning db entry
  * and returning { "success": true }
  * @param name
  * @param email

@@ -19,6 +19,47 @@ function clearUsers(done) {
 }
 
 
+describe('token handling', () => {
+    test('session token', done => {
+        user.createSessionToken('59f4b480459a8ac6a5aef44a', '59f4b480459a8ac6a5aef55a', (err, token) => {
+            user.extractJwt(token, (err, decoded) => {
+                expect(decoded.userId).toBe('59f4b480459a8ac6a5aef44a');
+                expect(decoded.sessionId).toBe('59f4b480459a8ac6a5aef55a');
+                done();
+            });
+        });
+    });
+
+    test('email validation token', done => {
+        user.createEmailValidationToken('59f4b480459a8ac6a5aef44a', (err, token) => {
+            user.extractJwt(token, (err, decoded) => {
+                expect(decoded.userId).toBe('59f4b480459a8ac6a5aef44a');
+                done();
+            });
+        });
+    });
+
+    // test fails if private key gets changed
+    test('expired email validation token', done => {
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1OWY0YjQ4MDQ1OWE4YWM2YTVhZWY0NGEiLCJpYXQiOjE1MDkyMTI4MzUsImV4cCI6MTUwOTIxMDIzNX0.XWNxKCvHFS7HS3n52mQPHwq92HfXSi6ZNNiaCzf8frE';
+        user.extractJwt(token, (err, decoded) => {
+            expect(err.message).toMatch('invalid token: jwt expired');
+            done();
+        });
+    });
+
+    test('invalid signature', done => {
+        user.createEmailValidationToken('59f4b480459a8ac6a5aef44a', (err, token) => {
+            const invalidSignature = token.substring(0, token.length - 2);
+            user.extractJwt(invalidSignature, (err, decoded) => {
+                expect(err.message).toMatch('invalid token: invalid signature');
+                done();
+            });
+        });
+    });
+});
+
+
 describe('user creation', () => {
     beforeAll(clearUsers);
 
