@@ -28,7 +28,8 @@ router.post('/create', (req, res, next) => {
     user.createUser(req.body['name'], req.body['email'], req.body['password'], (err, userEntry) => {
         if (err)
             return next(err);
-        return res.json(userEntry);
+        // do not return userEntry for obvious reasons
+        return res.json({ success: true });
     });
 });
 

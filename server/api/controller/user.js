@@ -142,7 +142,7 @@ module.exports.createUser = (name, email, password, cb) => {
                     return cb(err);
                 }
             }
-            return cb(null, { success: true });
+            return cb(null, user);
         });
     });
 };
