@@ -31,6 +31,7 @@ router.post('/create', (req, res, next) => {
         if (err)
             return next(err);
         // do not return userEntry for obvious reasons
+        res.status(201); // Created
         res.json({ success: true });
     });
 });
