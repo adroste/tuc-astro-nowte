@@ -97,9 +97,9 @@ function logout(userId, sessionId) {
 /**
  * Creates new user by
  * 1. checking password length (8 <= pw.len <= 100),
- * 1. hashing pw via bcrypt,
- * 2. creating user instance,
- * 3. saving user instance to db
+ * 2. hashing pw via bcrypt,
+ * 3. creating user instance,
+ * 4. saving user instance to db
  * and returning { "success": true }
  * @param name
  * @param email
@@ -112,12 +112,14 @@ function createUser(name, email, password, cb) {
         err.status = 400; // Bad Request
         return cb(err);
     }
+    // 1. checking pw length
     if (password.length < 8 || password.length > 100) {
         const err = new Error('password must be between 8 and 100 characters');
         err.status = 400; // Bad Request
         return cb(err);
     }
 
+    // 2. hashing pw
     bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
         if (err){
             const err = new Error('password invalid type');
@@ -125,6 +127,7 @@ function createUser(name, email, password, cb) {
             return cb(err);
         }
 
+        // 3. creating user instance
         // TODO create root folder
         const user = new User({
             'name': name,
@@ -132,6 +135,7 @@ function createUser(name, email, password, cb) {
             'password': hash
         });
 
+        // 4. saving user instance
         user.save((err, userEntry) => {
             if (err) {
                 if (err.message.startsWith('User validation failed')) {

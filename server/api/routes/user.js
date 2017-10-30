@@ -27,7 +27,7 @@ router.post('/logout', (req, res, next) => {
 
 
 router.post('/create', (req, res, next) => {
-    user.createUser(req.body['name'], req.body['email'], req.body['password'], (err, userEntry) => {
+    user.createUser(req.body['name'], req.body['email'], req.body['password'], (err) => {
         if (err)
             return next(err);
         // do not return userEntry for obvious reasons
