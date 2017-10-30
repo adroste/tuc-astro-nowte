@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LabelledInputBox from "./base/LabelledInputBox";
 import './UserRegistrationForm.css';
+import Button from "./base/Button";
 
 export default class UserRegistrationForm extends React.Component {
     /**
@@ -39,7 +40,7 @@ export default class UserRegistrationForm extends React.Component {
      * handler for the submit button
      * @param event click event
      */
-    onClickHandler = (event) => {
+    onClickHandler = () => {
         let success = true;
 
         if(!this.verifyName())
@@ -167,9 +168,8 @@ export default class UserRegistrationForm extends React.Component {
                     onChange={(value) => this.password2 = value}
                 />
                 <br/>
-                <input
-                    type="submit"
-                    value="Submit"
+                <Button
+                    label="Submit"
                     onClick={this.onClickHandler}
                 />
             </div>

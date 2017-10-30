@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LabelledInputBox from "./base/LabelledInputBox";
 import './UserLoginForm.css';
+import Button from "./base/Button";
 
 export default class UserLoginForm extends React.Component {
     /**
@@ -34,10 +35,7 @@ export default class UserLoginForm extends React.Component {
                     name="password"
                     child={<br/>}
                 />
-                <input
-                    type="submit"
-                    value="Submit"
-                />
+                <Button label="Login"/>
                 <br/>
                 <a href="#" onClick={this.props.onForgotPasswordClick}>forgot password</a>
                 <br/>
