@@ -41,6 +41,7 @@ function validateEmailHandler(req, res, next) {
     user.validateUserEmail(req.params.token, err => {
         if (err)
             return next(err);
+        res.status(200); // OK
         res.json({ success: true });
     });
 }
