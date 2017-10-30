@@ -102,7 +102,7 @@ describe('user creation', () => {
 describe('working on a user', () => {
     let testuser;
 
-    beforeAll(done => {
+    beforeEach(done => {
         clearUsers(() => {
             user.createUser('Schwanzus Longus', 'sw@example.com', 'password', (err, user) => {
                 testuser = user;
@@ -148,6 +148,18 @@ describe('working on a user', () => {
             user.createAndSendEmailValidationToken(testuser.email, (err) => {
                 expect(err.message).toMatch('user already validated');
                 done();
+            });
+        });
+    });
+
+    test('login', done => {
+        testuser.emailValidated = true;
+        testuser.save((err, userEntry) => {
+            user.login(testuser.email, 'password', (err, sessionToken) => {
+                user.extractJwt(sessionToken, (err, decoded) => {
+                    expect(decoded.userId).toMatch(testuser._id.toString());
+                    done();
+                });
             });
         });
     });

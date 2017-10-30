@@ -14,7 +14,7 @@ router.post('/login', (req, res, next) => {
     user.login(req.body['email'], req.body['password'], (err, sessionToken) => {
         if (err) {
             if (err.status === 401)
-                res.setHeader('WWW-Authenticate', 'emailValidation realm="emailValidation"');
+                res.setHeader('WWW-Authenticate', err.authHeader);
             return next(err);
         }
         res.status(201); // Created

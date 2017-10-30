@@ -8,6 +8,7 @@
 const config = require('../../config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 const User = require('../models/user').User;
 
 const SALTING_ROUNDS = config.get('user.password-salting-rounds');
@@ -78,9 +79,79 @@ function extractJwt(token, cb) {
 }
 
 
-function login(email, password) {
-    throw new Error('Not implemented yet');
-    // return jwt
+/**
+ * Authenticates user and creates session by
+ * 1. finding user by email,
+ * 2. comparing password and hash,
+ * 3. creating session,
+ * 4. creating session token
+ * and returning session token
+ * @param email
+ * @param password
+ * @param cb func(err, sessionToken)
+ */
+function login(email, password, cb) {
+    if (typeof email !== 'string') {
+        const err = new Error('email invalid type');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    if (typeof password !== 'string') {
+        const err = new Error('password invalid type');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+
+    // 1. find user by email
+    User.findOne({ email: email }, { _id: 1, emailValidated: 1, password: 1, sessions: 1 }, (err, userEntry) => {
+        if (err) {
+            return cb(new Error('unknown mongo error'));
+        }
+        if (userEntry === null) {
+            const err2 = new Error('user not found');
+            err2.authHeader = 'login realm="login"';
+            err2.status = 401; // Unauthorized
+            return cb(err2);
+        }
+        if (userEntry.emailValidated === false) {
+            const err2 = new Error('user account not validated');
+            err2.authHeader = 'emailValidation realm="emailValidation"';
+            err2.status = 401; // Unauthorized
+            return cb(err2);
+        }
+
+        // 2. compare passwords
+        bcrypt.compare(password, userEntry.password, (err, passwordsMatch) => {
+            if (err) {
+                console.error(err);
+                return cb(new Error('unknown error'));
+            }
+            if (!passwordsMatch) {
+                const err2 = new Error('invalid password');
+                err2.authHeader = 'login realm="login"';
+                err2.status = 401; // Unauthorized
+                return cb(err2);
+            }
+
+            // 3. create session
+            // TODO add expires and description fields
+            const newSession = userEntry.sessions.create({});
+            userEntry.sessions.push(newSession);
+            userEntry.save(err => {
+                if (err) {
+                    console.error(err);
+                    return cb(new Error('unknown mongo error'));
+                }
+
+                // 4. create session token
+                createSessionToken(userEntry._id.toString(), newSession._id.toString(), (err, sessionToken) => {
+                    if (err)
+                        return cb(new Error('could not create session token'));
+                    return cb(null, sessionToken);
+                });
+            });
+        });
+    });
 }
 
 
@@ -224,6 +295,7 @@ function validateUserEmail(token, cb) {
 module.exports.createSessionToken = createSessionToken;
 module.exports.createEmailValidationToken = createEmailValidationToken;
 module.exports.extractJwt = extractJwt;
+module.exports.login = login;
 module.exports.createUser = createUser;
 module.exports.createAndSendEmailValidationToken = createAndSendEmailValidationToken;
 module.exports.validateUserEmail = validateUserEmail;
