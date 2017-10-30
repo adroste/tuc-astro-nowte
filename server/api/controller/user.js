@@ -100,7 +100,7 @@ function logout(userId, sessionId) {
  * 2. hashing pw via bcrypt,
  * 3. creating user instance,
  * 4. saving user instance to db
- * and returning { "success": true }
+ * and returning user
  * @param name
  * @param email
  * @param password
@@ -158,6 +158,38 @@ function createUser(name, email, password, cb) {
 
 
 /**
+ * Creates email validation token for user with provided email and sends it to users email
+ * TODO implement send mail
+ * @param email
+ * @param cb func(err)
+ */
+function createAndSendEmailValidationToken(email, cb) {
+    User.findOne({ email: email }, { _id: 1, emailValidated: 1 }, (err, userEntry) => {
+        if (err)
+            return cb(new Error('unknown mongo error'));
+        if (userEntry === null) {
+            const err2 = new Error('user not found');
+            err2.status = 404; // Not Found
+            return cb(err2);
+        }
+        if (userEntry.emailValidated === true) {
+            const err2 = new Error('user already validated');
+            err2.status = 400; // Bad Request
+            return cb(err2);
+        }
+        createEmailValidationToken(userEntry._id.toString(), (err, token) => {
+            if (err)
+                return cb(new Error('could not create email validation token'));
+
+            // TODO send mail
+            console.error('not implemented yet');
+            throw new Error('not implemented yet');
+        });
+    });
+}
+
+
+/**
  * Marks user email as validated if given token is valid
  * @param token valid EmailValidationToken
  * @param cb func(err, validated) validated is a bool. true if ok, false if user was already validated
@@ -193,4 +225,5 @@ module.exports.createSessionToken = createSessionToken;
 module.exports.createEmailValidationToken = createEmailValidationToken;
 module.exports.extractJwt = extractJwt;
 module.exports.createUser = createUser;
+module.exports.createAndSendEmailValidationToken = createAndSendEmailValidationToken;
 module.exports.validateUserEmail = validateUserEmail;

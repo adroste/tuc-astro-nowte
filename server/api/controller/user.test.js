@@ -135,6 +135,23 @@ describe('working on a user', () => {
         });
     });
 
+    test('send email validation token (wrong email)', done => {
+        user.createAndSendEmailValidationToken('sw@examle.com', (err) => {
+            expect(err.message).toMatch('user not found');
+            done();
+        });
+    });
+
+    test('send email verification token (user already validated)', done => {
+        testuser.emailValidated = true;
+        testuser.save((err, userEntry) => {
+            user.createAndSendEmailValidationToken(testuser.email, (err) => {
+                expect(err.message).toMatch('user already validated');
+                done();
+            });
+        });
+    });
+
     afterAll(clearUsers);
 });
 

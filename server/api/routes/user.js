@@ -37,6 +37,7 @@ router.post('/create', (req, res, next) => {
             return next(err);
         res.status(204); // No Content
         res.json({});
+        // TODO maybe send email validation token right away
     });
 });
 
