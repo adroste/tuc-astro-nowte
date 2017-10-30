@@ -98,6 +98,7 @@ describe('user creation', () => {
     afterAll(clearUsers);
 });
 
+
 describe('working on a user', () => {
     let testuser;
 
@@ -119,8 +120,18 @@ describe('working on a user', () => {
         })
     });
 
+    test('email validation', done => {
+        user.createEmailValidationToken(testuser._id.toString(), (err, token) => {
+            user.validateUserEmail(token, (err) => {
+                expect(err).toBeNull();
+                done();
+            });
+        });
+    });
+
     afterAll(clearUsers);
 });
+
 
 afterAll(() => {
     db.close();
