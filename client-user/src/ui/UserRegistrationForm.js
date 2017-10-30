@@ -166,6 +166,7 @@ export default class UserRegistrationForm extends React.Component {
                     type="password"
                     onChange={(value) => this.password2 = value}
                 />
+                <br/>
                 <input
                     type="submit"
                     value="Submit"

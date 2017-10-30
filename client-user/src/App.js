@@ -2,25 +2,37 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import LabelledInputBox from './ui/base/LabelledInputBox';
 import UserRegistrationForm from "./ui/UserRegistrationForm";
+import LoginScreen from "./screens/LoginScreen";
+import RegistrationScreen from "./screens/RegistrationScreen";
 
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-            <LabelledInputBox label="Hi" maxLength="12"/>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-          <UserRegistrationForm/>
-      </div>
-    );
-  }
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            curState: "login"
+        };
+    }
+
+    onStateChangeHandler = (newState) => {
+        this.lastState = newState;
+        this.setState({
+           curState: newState
+        });
+    };
+
+    render() {
+        switch (this.state.curState){
+            case "login":
+                return <LoginScreen onStateChange={this.onStateChangeHandler}/>;
+            case "register":
+                return <RegistrationScreen onStateChange={this.onStateChangeHandler}/>
+            default:
+                return <h1>Invalid State: {this.state.curState}</h1>;
+        }
+    }
 }
 
 export default App;

@@ -8,13 +8,14 @@ import './LabelledInputBox.css';
 export default class LabelledInputBox extends React.Component {
     /**
      * propTypes
-     * @property {string} label - text above the input box
+     * @property {string} label text above the input box
      * @property {string} name name of the input box
      * @property {string} value value (text) of the input box
      * @property {function(text: string)} onChange callback when input box text was changed
      * @property {number} maxLength maximal character count
      * @property {string} type type of the input box. default is "text". See https://www.w3schools.com/tags/att_input_type.asp for more types.
      * @property {object} child a jsx object that will be displayed below the input box
+     * @property {string} placeholder string that will be displayed in the background
      */
     static get propTypes() {
         return {
@@ -24,12 +25,13 @@ export default class LabelledInputBox extends React.Component {
             onChange: PropTypes.func,
             maxLength: PropTypes.string,
             child: PropTypes.object,
+            placeholder: PropTypes.string
         };
     }
 
     static get defaultProps() {
         return {
-            maxLength: 10,
+            maxLength: "100",
             type: "text",
             // null will keep the last value from the input box
             value: null,
@@ -53,12 +55,14 @@ export default class LabelledInputBox extends React.Component {
             <div className="LabelledInputBox">
                 {this.props.label}
                 <input
+                    className="InputBox"
                     type={this.props.type}
                     name={this.props.name}
                     onChange={this.onChangeHandler}
                     maxLength={this.props.maxLength}
 
                     value={this.props.value? this.props.value: this.value}
+                    placeholder={this.props.placeholder}
                 />
                 {this.props.child}
             </div>
