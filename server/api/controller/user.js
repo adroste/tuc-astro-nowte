@@ -104,7 +104,7 @@ function logout(userId, sessionId) {
  * @param name
  * @param email
  * @param password
- * @param cb func(err, success)
+ * @param cb func(err, user)
  */
 function createUser(name, email, password, cb) {
     if (typeof password !== 'string') {
@@ -160,7 +160,7 @@ function createUser(name, email, password, cb) {
 /**
  * Marks user email as validated if given token is valid
  * @param token valid EmailValidationToken
- * @param cb func(err)
+ * @param cb func(err, validated) validated is a bool. true if ok, false if user was already validated
  */
 function validateUserEmail(token, cb) {
     if (typeof token !== 'string')
@@ -180,7 +180,9 @@ function validateUserEmail(token, cb) {
                 err2.status = 404; // Not Found
                 return cb(err2);
             }
-            return cb(null);
+            if (rawResponse.nModified === 0)
+                return cb(null, false);
+            return cb(null, true);
         });
     });
 }
