@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import LabelledInputBox from "./base/LabelledInputBox";
 import './UserRegistrationForm.css';
 import Button from "./base/Button";
+import LinkedText from "./base/LinkedText";
 
 export default class UserRegistrationForm extends React.Component {
     /**
@@ -172,6 +173,9 @@ export default class UserRegistrationForm extends React.Component {
                     label="Submit"
                     onClick={this.onClickHandler}
                 />
+                <br/>
+                <br/>
+                Already have an account? <LinkedText label="Log in"/>
             </div>
         )
     }
