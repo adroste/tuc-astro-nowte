@@ -38,6 +38,7 @@ function createJwt(payload, expiresIn, cb) {
 
 /**
  * Creates a JWT containing userId and sessionId.
+ * Session tokens do not expire, expiry is set in db
  * @param userId
  * @param sessionId
  * @param cb func(err, token)
@@ -154,9 +155,80 @@ function login(email, password, cb) {
     });
 }
 
+// TODO needs to be tested asap
+function removeExpiredSessionsFromUser(userEntry) {
+    for (let i = userEntry.sessions.length - 1; i >= 0; i--) {
+        if (userEntry.sessions[i].get('expires')) {
+            if (userEntry.sessions[i].expires.getTime() < Date.now())
+                userEntry.sessions[i].remove();
+        }
+    }
+}
 
-function validateSession(userId, sessionId) {
-    throw new Error('Not implemented yet');
+
+/**
+ * Validates a provided session (as sessionToken) by
+ * 1. extracting jwt
+ * 2. querying user
+ * 3. check sessions
+ * 4. saving user entry
+ * and returning userId
+ * @param token sessionToken
+ * @param cb func(err, userId)
+ */
+function validateSession(token, cb) {
+    if (typeof token !== 'string')
+        throw new Error('token is not a valid string');
+
+    // 1. extract jwt
+    extractJwt(token, (err, decoded) => {
+        if (err) {
+            err.authHeader = 'login realm="login"';
+            err.status = 401; // Unauthorized
+            return cb(err);
+            /*
+            There is no need to check whether jwt is expired,
+            because sessionTokens cannot expire atm.
+            Expiry is set server-side (in db)
+             */
+        }
+
+        // TODO check if saving a projection results in data loss
+        // 2. querying user
+        User.findOne({ _id: decoded.userId }, { sessions: 1 }, (err, userEntry) => {
+            if (err) {
+                console.error(err);
+                return cb(new Error('unknown mongo error'));
+            }
+            if (userEntry === null) {
+                const err2 = new Error('user not found');
+                err2.status = 404; // Not Found
+                return cb(err2);
+            }
+
+            // 3. check sessions
+            removeExpiredSessionsFromUser(userEntry);
+
+            // 4. saving user entry
+            userEntry.save((err, userEntry) => {
+                if (err) {
+                    console.error(err);
+                    return cb(new Error('unknown mongo error'));
+                }
+                // no session found => expired
+                const session = userEntry.sessions.find((elem) => {
+                    return elem._id.toString() === decoded.sessionId;
+                });
+                if (session === undefined) {
+                    const err2 = new Error('session expired');
+                    err2.authHeader = 'login realm="login"';
+                    err2.status = 401; // Unauthorized
+                    return cb(err2);
+                }
+                return cb(null, decoded.userId);
+            });
+        });
+    });
 }
 
 
@@ -222,7 +294,7 @@ function createUser(name, email, password, cb) {
                 console.error(err);
                 return cb(new Error('unknown mongo error'));
             }
-            return cb(null, user);
+            return cb(null, userEntry);
         });
     });
 }
@@ -296,6 +368,7 @@ module.exports.createSessionToken = createSessionToken;
 module.exports.createEmailValidationToken = createEmailValidationToken;
 module.exports.extractJwt = extractJwt;
 module.exports.login = login;
+module.exports.validateSession = validateSession;
 module.exports.createUser = createUser;
 module.exports.createAndSendEmailValidationToken = createAndSendEmailValidationToken;
 module.exports.validateUserEmail = validateUserEmail;

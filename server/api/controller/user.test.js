@@ -142,22 +142,57 @@ describe('working on a user', () => {
         });
     });
 
+    afterAll(clearUsers);
+});
+
+
+describe('working on a validated user', () => {
+    let testuser;
+
+    beforeEach(done => {
+        clearUsers(() => {
+            user.createUser('Schwanzus Longus', 'sw@example.com', 'password', (err, user) => {
+                user.emailValidated = true;
+                user.save((err, user) => {
+                    testuser = user;
+                    done();
+                });
+            });
+        });
+    });
+
     test('send email verification token (user already validated)', done => {
-        testuser.emailValidated = true;
-        testuser.save((err, userEntry) => {
-            user.createAndSendEmailValidationToken(testuser.email, (err) => {
-                expect(err.message).toMatch('user already validated');
+        user.createAndSendEmailValidationToken(testuser.email, (err) => {
+            expect(err.message).toMatch('user already validated');
+            done();
+        });
+    });
+
+    test('login', done => {
+        user.login(testuser.email, 'password', (err, sessionToken) => {
+            user.extractJwt(sessionToken, (err, decoded) => {
+                expect(decoded.userId).toMatch(testuser._id.toString());
                 done();
             });
         });
     });
 
-    test('login', done => {
-        testuser.emailValidated = true;
+    test('validate a valid session', done => {
+        user.login(testuser.email, 'password', (err, sessionToken) => {
+            user.validateSession(sessionToken, (err, userId) => {
+                expect(userId).toMatch(testuser._id.toString());
+                done();
+            });
+        });
+    });
+
+    test('validate an expired session', done => {
+        const newSession = testuser.sessions.create({ expires: Date.now() });
+        testuser.sessions.push(newSession);
         testuser.save((err, userEntry) => {
-            user.login(testuser.email, 'password', (err, sessionToken) => {
-                user.extractJwt(sessionToken, (err, decoded) => {
-                    expect(decoded.userId).toMatch(testuser._id.toString());
+            user.createSessionToken(testuser._id.toString(), newSession._id.toString(), (err, token) => {
+                user.validateSession(token, (err, userId) => {
+                    expect(err.message).toMatch('session expired');
                     done();
                 });
             });
