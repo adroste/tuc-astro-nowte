@@ -155,7 +155,11 @@ function login(email, password, cb) {
     });
 }
 
-// TODO needs to be tested asap
+
+/**
+ * Goes over sessions in userEntry and removes expired ones
+ * @param userEntry
+ */
 function removeExpiredSessionsFromUser(userEntry) {
     for (let i = userEntry.sessions.length - 1; i >= 0; i--) {
         if (userEntry.sessions[i].get('expires')) {
@@ -193,7 +197,6 @@ function validateSession(token, cb) {
              */
         }
 
-        // TODO check if saving a projection results in data loss
         // 2. querying user
         User.findOne({ _id: decoded.userId }, { sessions: 1 }, (err, userEntry) => {
             if (err) {
