@@ -11,7 +11,7 @@ let configJSON;
 if (ENV === 'production')
     configJSON = require('./config/production.json');
 else
-    configJSON = require('./config/development.json');
+    configJSON = require('../config/development.json');
 
 module.exports.get = (prop) => {
     if (typeof prop !== 'string')
