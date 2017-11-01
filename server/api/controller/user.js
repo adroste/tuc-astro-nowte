@@ -18,7 +18,7 @@ const PRIVATE_KEY = config.get('user.private-key');
 const MAIL_ACTIVATE_USER_SUBJECT = config.get('templates.mail.activateUserAccount.subject');
 const MAIL_ACTIVATE_USER_BODY = config.get('templates.mail.activateUserAccount.body');
 // TODO validate email request url should lead to a react screen witch handles api call instead of naked api call
-const VALIDATE_EMAIL_REQUEST_URL = SERVER_URL + '/api/user/validateEmail/:token';
+const VALIDATE_EMAIL_REQUEST_URL = SERVER_URL + '/api/user/validate-email/:token';
 
 
 /**
