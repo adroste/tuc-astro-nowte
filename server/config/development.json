@@ -1,10 +1,35 @@
 {
     "server": {
+        "url": "http://localhost:3000",
         "http-port": 3000,
         "mongo-url": "mongodb://localhost:27017/nowte-debug"
+    },
+    "mail": {
+        "connection": {
+            "host": "mail.progmem.de",
+            "port": 587,
+            "secure": false,
+            "auth": {
+                "user": "info@note.progmem.de",
+                "pass": "gutespasswort123"
+            }
+        },
+        "from": "\"Astro-Nowte\" <info@note.progmem.de>"
     },
     "user": {
         "private-key": "K.8Lb6TNc0/m`1>2$m5WT\"o^J37A4|$P=%acTbWp@ww%,4g~`2E@IFFZ70C[&QU",
         "password-salting-rounds": 10
+    },
+    "templates": {
+        "mail": {
+            "activateUserAccount": {
+                "subject": "Astro-Nowte: Activate your account",
+                "body": [
+                    "<h1>Welcome to Astro-Nowte!</h1><br><br>",
+                    "<p>Please activate your account by clicking the following link:<p>",
+                    "<a href=\":validate-link\">:validate-link</a>"
+                ]
+            }
+        }
     }
 }

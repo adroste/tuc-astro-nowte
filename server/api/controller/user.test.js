@@ -7,7 +7,7 @@
 
 const User = require('../models/user').User;
 const user = require('./user');
-const db = require('../../mongo-init');
+const db = require('../../init/mongo-init');
 
 // clear user collection
 function clearUsers(done) {

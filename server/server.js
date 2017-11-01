@@ -5,13 +5,13 @@
 
 'use strict';
 
-const config = require('./config');
+const config = require('./init/config');
 const express = require('express');
 const cors = require('cors');
 const jsonParser = require('body-parser').json;
 const logger = require('morgan');
 const userRoutes = require('./api/routes/user');
-const db = require('./mongo-init');
+const db = require('./init/mongo-init');
 
 const PORT =  config.get('server.http-port');
 const app = express();

@@ -37,7 +37,13 @@ router.post('/create', (req, res, next) => {
             return next(err);
         res.status(204); // No Content
         res.json({});
-        // TODO maybe send email validation token right away
+
+        // create emailValidationToken and send validate link via email
+        user.createAndSendEmailValidationToken(userEntry.email, err => {
+            // if it fails, it fails silently for the user
+            if (err)
+                console.error('Could not create and send emailValidationToken after user creation for user: ' + userEntry.email + ' with err: ' + err);
+        });
     });
 });
 

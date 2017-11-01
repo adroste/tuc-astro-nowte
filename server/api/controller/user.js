@@ -5,14 +5,19 @@
 
 'use strict';
 
-const config = require('../../config');
+const config = require('../../init/config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const mailer = require('../../init/mailer-init');
 const User = require('../models/user').User;
 
+const SERVER_URL = config.get('server.url');
 const SALTING_ROUNDS = config.get('user.password-salting-rounds');
 const PRIVATE_KEY = config.get('user.private-key');
+const MAIL_ACTIVATE_USER_SUBJECT = config.get('templates.mail.activateUserAccount.subject');
+const MAIL_ACTIVATE_USER_BODY = config.get('templates.mail.activateUserAccount.body');
+const VALIDATE_EMAIL_REQUEST_URL = SERVER_URL + '/api/user/validateEmail/:token';
 
 
 /**
@@ -102,6 +107,9 @@ function login(email, password, cb) {
         err.status = 400; // Bad Request
         return cb(err);
     }
+
+    // important: fix email format
+    email = email.trim().toLowerCase();
 
     // 1. find user by email
     User.findOne({ email: email }, { _id: 1, emailValidated: 1, password: 1, sessions: 1 }, (err, userEntry) => {
@@ -265,6 +273,9 @@ function createUser(name, email, password, cb) {
         return cb(err);
     }
 
+    // important: fix email format
+    email = email.trim().toLowerCase();
+
     // 2. hashing pw
     bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
         if (err){
@@ -305,11 +316,13 @@ function createUser(name, email, password, cb) {
 
 /**
  * Creates email validation token for user with provided email and sends it to users email
- * TODO implement send mail
  * @param email
  * @param cb func(err)
  */
 function createAndSendEmailValidationToken(email, cb) {
+    // important: fix email format
+    email = email.trim().toLowerCase();
+
     User.findOne({ email: email }, { _id: 1, emailValidated: 1 }, (err, userEntry) => {
         if (err)
             return cb(new Error('unknown mongo error'));
@@ -327,9 +340,24 @@ function createAndSendEmailValidationToken(email, cb) {
             if (err)
                 return cb(new Error('could not create email validation token'));
 
-            // TODO send mail
-            console.error('not implemented yet');
-            throw new Error('not implemented yet');
+            // call callback for success (before sending mail)
+            cb(null);
+
+            // send mail in background
+            const validateLink = VALIDATE_EMAIL_REQUEST_URL.replace(/:token/g, token);
+            const body = MAIL_ACTIVATE_USER_BODY.join('').replace(/:validate-link/g, validateLink);
+            const mailOptions = {
+                from: mailer.FROM,
+                to: email,
+                subject: MAIL_ACTIVATE_USER_SUBJECT,
+                html: body
+            };
+
+            mailer.sendMail(mailOptions, (error, info) => {
+                if (error)
+                    return console.error(error);
+                console.log('Validation Email sent to: ' + email + ', id: ' + info.messageId);
+            });
         });
     });
 }
