@@ -6,6 +6,7 @@ import Button from "./base/Button";
 import LinkedText from "./base/LinkedText";
 import * as utility from "../utility/LoginHelper"
 import {verifyEmailField} from "../utility/LoginHelper";
+import { SERVER_URL } from "../Globals";
 
 export default class UserLoginForm extends React.Component {
     /**
@@ -43,7 +44,51 @@ export default class UserLoginForm extends React.Component {
         if(!this.verifyPasswordField())
             return;
 
-        // TODO fetch
+        // send login request
+        const url = SERVER_URL + '/api/user/login';
+        fetch(url, {
+            method: "POST",
+            headers: new Headers({
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': 'no-cors'
+            }),
+            body: JSON.stringify({
+                email: this.email,
+                password: this.password
+            })
+        }).then(
+            this.handleServerResponse,
+            this.handleError
+        );
+    };
+
+    handleServerResponse = (response) => {
+        if(response.status === 201){
+            response.json().then(this.handleSuccesfullRegistration, this.handleError);
+        }
+        else {
+            response.json().then((data) => this.handleUnsuccesfullRegistration(response.status, data), this.handleError);
+        }
+    };
+
+    handleSuccesfullRegistration = (body) => {
+        // retrieve session token
+        alert("token: " + body.sessionToken);
+        // TODO state change
+    };
+
+    handleUnsuccesfullRegistration = (code, data) => {
+        this.handleError("Error (" + code + "): " + data.error.message);
+    };
+
+    /**
+     * displays the error message for the user
+     * @param message
+     */
+    handleError = (message) => {
+        // TODO do something prettier?
+        alert(message);
     };
 
     /**
@@ -103,6 +148,7 @@ export default class UserLoginForm extends React.Component {
                 <LabelledInputBox
                     label="Password"
                     name="password"
+                    type="password"
                     onChange={(value) => this.password = value}
                     child={this.state.passwordChild}
                 />
