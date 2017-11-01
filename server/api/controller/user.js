@@ -344,7 +344,7 @@ function createAndSendEmailValidationToken(email, cb) {
         }
         if (userEntry.emailValidated === true) {
             const err2 = new Error('user already validated');
-            err2.status = 400; // Bad Request
+            err2.status = 409; // Conflict
             return cb(err2);
         }
         createEmailValidationToken(userEntry._id.toString(), (err, token) => {
@@ -377,7 +377,7 @@ function createAndSendEmailValidationToken(email, cb) {
 /**
  * Marks user email as validated if given token is valid
  * @param token valid EmailValidationToken
- * @param cb func(err, validated) validated is a bool. true if ok, false if user was already validated
+ * @param cb func(err)
  */
 function validateUserEmail(token, cb) {
     if (typeof token !== 'string')
@@ -397,9 +397,12 @@ function validateUserEmail(token, cb) {
                 err2.status = 404; // Not Found
                 return cb(err2);
             }
-            if (rawResponse.nModified === 0)
-                return cb(null, false);
-            return cb(null, true);
+            if (rawResponse.nModified === 0) {
+                const err2 = new Error('user already validated');
+                err2.status = 409; // Conflict
+                return cb(err2);
+            }
+            return cb(null);
         });
     });
 }

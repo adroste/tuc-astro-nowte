@@ -59,14 +59,9 @@ router.post('/resend-validation-email', (req, res, next) => {
 
 
 router.get('/validate-email/:token', (req, res, next) => {
-    user.validateUserEmail(req.params.token, (err, validated) => {
+    user.validateUserEmail(req.params.token, err => {
         if (err)
             return next(err);
-        if (!validated) {
-            const err2 = new Error('user not found');
-            err2.status = 404; // Not Found
-            return next(err2);
-        }
         res.status(204); // No Content
         res.json({});
     });

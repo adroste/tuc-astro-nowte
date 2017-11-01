@@ -122,13 +122,10 @@ describe('working on a user', () => {
 
     test('email validation', done => {
         user.createEmailValidationToken(testuser._id.toString(), (err, token) => {
-            user.validateUserEmail(token, (err, validated) => {
+            user.validateUserEmail(token, err => {
                 expect(err).toBeNull();
-                expect(validated).toBe(true);
-                // second validation should return false
-                user.validateUserEmail(token, (err, validated) => {
-                    expect(err).toBeNull();
-                    expect(validated).toBe(false);
+                user.validateUserEmail(token, err => {
+                    expect(err.message).toMatch('user already validated');
                     done();
                 });
             });
