@@ -50,8 +50,7 @@ export default class UserLoginForm extends React.Component {
             method: "POST",
             headers: new Headers({
                 'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'no-cors'
+                'Content-Type': 'application/json'
             }),
             body: JSON.stringify({
                 email: this.email,
