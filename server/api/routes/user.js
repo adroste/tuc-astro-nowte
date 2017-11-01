@@ -48,7 +48,7 @@ router.post('/create', (req, res, next) => {
 });
 
 
-router.get('/validateEmail/:token', (req, res, next) => {
+router.get('/validate-email/:token', (req, res, next) => {
     user.validateUserEmail(req.params.token, (err, validated) => {
         if (err)
             return next(err);
