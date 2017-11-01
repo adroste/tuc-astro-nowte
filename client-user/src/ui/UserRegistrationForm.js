@@ -5,6 +5,7 @@ import './UserRegistrationForm.css';
 import Button from "./base/Button";
 import LinkedText from "./base/LinkedText";
 import { SERVER_URL } from "../Globals";
+import * as utility from "../utility/LoginHelper"
 
 export default class UserRegistrationForm extends React.Component {
     /**
@@ -132,15 +133,9 @@ export default class UserRegistrationForm extends React.Component {
      * @returns {boolean} true if the email was correct
      */
     verifyEmail = () => {
-        if(this.email.length === 0){
-            this.onEmailError("this field is required");
-            return false;
-        }
-
-        // TODO verify email regex
-
-        this.onEmailError("");
-        return true;
+        const res = utility.verifyEmailField(this.email);
+        this.onEmailError(res);
+        return res === "";
     };
 
     /**
