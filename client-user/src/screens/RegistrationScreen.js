@@ -18,11 +18,17 @@ export default class RegistrationScreen extends React.Component {
         return {};
     }
 
+    handleSuccesfullRegistration = () => {
+        this.props.onStateChange("awaiting_validation");
+    };
+
     render() {
         return (
             <div className="centered-form">
                 <div className="centered-form-inner">
-                    <UserRegistrationForm/>
+                    <UserRegistrationForm
+                        onSuccesfullRegistration={this.handleSuccesfullRegistration}
+                    />
                 </div>
             </div>
         );

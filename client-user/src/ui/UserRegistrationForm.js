@@ -4,14 +4,16 @@ import LabelledInputBox from "./base/LabelledInputBox";
 import './UserRegistrationForm.css';
 import Button from "./base/Button";
 import LinkedText from "./base/LinkedText";
+import { SERVER_URL } from "../Globals";
 
 export default class UserRegistrationForm extends React.Component {
     /**
      * propTypes
+     * @property {function()} onSuccesfullRegistration callback when a succesfull registration was sent to the server
      */
     static get propTypes() {
         return {
-
+            onSuccesfullRegistration: PropTypes.func.isRequired
         };
     }
 
@@ -39,11 +41,11 @@ export default class UserRegistrationForm extends React.Component {
 
     /*
      * handler for the submit button
-     * @param event click event
      */
     onClickHandler = () => {
         let success = true;
 
+        // verify parameters (+ display message when invalid)
         if(!this.verifyName())
             success = false;
 
@@ -53,7 +55,55 @@ export default class UserRegistrationForm extends React.Component {
         if(!this.verifyPassword())
             success = false;
 
-        // TODO success
+        if(!success)
+            return;
+
+        //send registration request
+        fetch(SERVER_URL + "/api/user/create", {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: this.name,
+                email: this.email,
+                password: this.password
+            })
+        }).then(this.handleServerResponse);
+    };
+
+    handleServerResponse = (response) => {
+        alert("got response");
+        if(response.status === 204){
+            this.handleSuccesfullRegistration();
+        }
+        else{
+            response.json().then(
+                (data) => this.handleUnsuccesfullRegistration(response.state, data)
+            );
+        }
+    };
+
+    /**
+     * this function will be called when the user succesfully sent a
+     * registration to the server
+     */
+    handleSuccesfullRegistration = () => {
+        this.props.onSuccesfullRegistration();
+    };
+
+    /**
+     * this function will be called when the user tried to submit
+     * his registration data but received an error from the server
+     * @param code html status code
+     * @param data response body
+     */
+    handleUnsuccesfullRegistration = (code, data) => {
+        // extract error string
+        const errmsg = "Error: " + code + " " + data.error.message;
+        // TODO do appropriate error display
+        alert(errmsg);
     };
 
     /**
@@ -65,6 +115,7 @@ export default class UserRegistrationForm extends React.Component {
             this.onNameError("this field is required");
             return false;
         }
+
         // name is correct
         this.onNameError("");
         return true;
@@ -80,6 +131,8 @@ export default class UserRegistrationForm extends React.Component {
             return false;
         }
 
+        // TODO verify email regex
+
         this.onEmailError("");
         return true;
     };
@@ -90,7 +143,7 @@ export default class UserRegistrationForm extends React.Component {
      */
     onEmailError = (message) => {
         this.setState({
-            emailChild: <div className="ErrorText">{message}</div>
+            emailChild: <div className="ErrorText">{message}<br/></div>
         });
     };
 
@@ -136,7 +189,7 @@ export default class UserRegistrationForm extends React.Component {
      */
     onPasswordError = (message) => {
         this.setState({
-            passwordChild: <div className="ErrorText">{message}</div>
+            passwordChild: <div className="ErrorText">{message}<br/></div>
         });
     };
 
