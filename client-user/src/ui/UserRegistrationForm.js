@@ -10,10 +10,12 @@ export default class UserRegistrationForm extends React.Component {
     /**
      * propTypes
      * @property {function()} onSuccesfullRegistration callback when a succesfull registration was sent to the server
+     * @property {function()} onLoginClick callback when the user clicks the "Log in" Link
      */
     static get propTypes() {
         return {
-            onSuccesfullRegistration: PropTypes.func.isRequired
+            onSuccesfullRegistration: PropTypes.func.isRequired,
+            onLoginClick: PropTypes.func.isRequired,
         };
     }
 
@@ -232,7 +234,11 @@ export default class UserRegistrationForm extends React.Component {
                 />
                 <br/>
                 <br/>
-                Already have an account? <LinkedText label="Log in"/>
+                Already have an account?
+                <LinkedText
+                    label="Log in"
+                    onClick={this.props.onLoginClick}
+                />
             </div>
         )
     }

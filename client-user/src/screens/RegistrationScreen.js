@@ -28,6 +28,7 @@ export default class RegistrationScreen extends React.Component {
                 <div className="centered-form-inner">
                     <UserRegistrationForm
                         onSuccesfullRegistration={this.handleSuccesfullRegistration}
+                        onLoginClick={() => this.props.onStateChange("login")}
                     />
                 </div>
             </div>

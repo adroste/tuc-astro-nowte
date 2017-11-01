@@ -5,6 +5,11 @@ import './App.css';
 import UserRegistrationForm from "./ui/UserRegistrationForm";
 import LoginScreen from "./screens/LoginScreen";
 import RegistrationScreen from "./screens/RegistrationScreen";
+import AwaitingValidationScreen from "./screens/AwaitingValidationScreen";
+import EmailValidationScreen from "./screens/EmailValidationScreen";
+import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
+import RequestEmailValidationScreen from "./screens/RequestEmailValidationScreen";
+import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 
 class App extends Component {
 
@@ -28,7 +33,17 @@ class App extends Component {
             case "login":
                 return <LoginScreen onStateChange={this.onStateChangeHandler}/>;
             case "register":
-                return <RegistrationScreen onStateChange={this.onStateChangeHandler}/>
+                return <RegistrationScreen onStateChange={this.onStateChangeHandler}/>;
+            case "awaiting_validation":
+                return <AwaitingValidationScreen onStateChange={this.onStateChangeHandler}/>;
+            case "email_validation":
+                return <EmailValidationScreen onStateChange={this.onStateChangeHandler}/>;
+            case "forgot_password":
+                return <ForgotPasswordScreen onStateChange={this.onStateChangeHandler}/>;
+            case "request_email_validation":
+                return <RequestEmailValidationScreen onStateChange={this.onStateChangeHandler}/>;
+            case "reset_password":
+                return <ResetPasswordScreen onStateChange={this.onStateChangeHandler}/>;
             default:
                 return <h1>Invalid State: {this.state.curState}</h1>;
         }
