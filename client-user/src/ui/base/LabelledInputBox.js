@@ -23,7 +23,7 @@ export default class LabelledInputBox extends React.Component {
             name: PropTypes.string,
             value: PropTypes.string,
             onChange: PropTypes.func,
-            maxLength: PropTypes.string,
+            maxLength: PropTypes.number,
             child: PropTypes.object,
             placeholder: PropTypes.string
         };
@@ -31,7 +31,7 @@ export default class LabelledInputBox extends React.Component {
 
     static get defaultProps() {
         return {
-            maxLength: "100",
+            maxLength: 100,
             type: "text",
             // null will keep the last value from the input box
             value: null,

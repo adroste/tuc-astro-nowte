@@ -59,28 +59,32 @@ export default class UserRegistrationForm extends React.Component {
             return;
 
         //send registration request
-        fetch(SERVER_URL + "/api/user/create", {
+        const url = SERVER_URL + '/api/user/create';
+        fetch(url, {
             method: "POST",
-            headers: {
+            headers: new Headers({
                 'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': 'no-cors'
+            }),
             body: JSON.stringify({
                 name: this.name,
                 email: this.email,
                 password: this.password
             })
-        }).then(this.handleServerResponse);
+        }).then(
+            this.handleServerResponse,
+            console.error.bind(console, 'fetch error (' + url + '):')
+        );
     };
 
     handleServerResponse = (response) => {
-        alert("got response");
         if(response.status === 204){
             this.handleSuccesfullRegistration();
         }
         else{
             response.json().then(
-                (data) => this.handleUnsuccesfullRegistration(response.state, data)
+                (data) => this.handleUnsuccesfullRegistration(response.status, data)
             );
         }
     };
@@ -101,7 +105,7 @@ export default class UserRegistrationForm extends React.Component {
      */
     handleUnsuccesfullRegistration = (code, data) => {
         // extract error string
-        const errmsg = "Error: " + code + " " + data.error.message;
+        const errmsg = "Error (" + code + "): " + data.error.message;
         // TODO do appropriate error display
         alert(errmsg);
     };

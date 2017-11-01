@@ -7,6 +7,7 @@
 
 const config = require('./config');
 const express = require('express');
+const cors = require('cors');
 const jsonParser = require('body-parser').json;
 const logger = require('morgan');
 const userRoutes = require('./api/routes/user');
@@ -16,6 +17,8 @@ const PORT =  config.get('server.http-port');
 const app = express();
 
 
+// TODO only enable cors for specific routes
+app.use(cors());
 // TODO change logger format depending on environment: https://github.com/expressjs/morgan
 app.use(logger('dev'));
 app.use(jsonParser());
