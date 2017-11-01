@@ -17,6 +17,7 @@ const SALTING_ROUNDS = config.get('user.password-salting-rounds');
 const PRIVATE_KEY = config.get('user.private-key');
 const MAIL_ACTIVATE_USER_SUBJECT = config.get('templates.mail.activateUserAccount.subject');
 const MAIL_ACTIVATE_USER_BODY = config.get('templates.mail.activateUserAccount.body');
+// TODO validate email request url should lead to a react screen witch handles api call instead of naked api call
 const VALIDATE_EMAIL_REQUEST_URL = SERVER_URL + '/api/user/validateEmail/:token';
 
 
@@ -98,12 +99,12 @@ function extractJwt(token, cb) {
  */
 function login(email, password, cb) {
     if (typeof email !== 'string') {
-        const err = new Error('email invalid type');
+        const err = new Error('email invalid type, email is required');
         err.status = 400; // Bad Request
         return cb(err);
     }
     if (typeof password !== 'string') {
-        const err = new Error('password invalid type');
+        const err = new Error('password invalid type, password is required');
         err.status = 400; // Bad Request
         return cb(err);
     }
@@ -261,8 +262,13 @@ function logout(userId, sessionId) {
  * @param cb func(err, user)
  */
 function createUser(name, email, password, cb) {
+    if (typeof email !== 'string') {
+        const err = new Error('email invalid type, email is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
     if (typeof password !== 'string') {
-        const err = new Error('password invalid type');
+        const err = new Error('password invalid type, password is required');
         err.status = 400; // Bad Request
         return cb(err);
     }
@@ -320,6 +326,11 @@ function createUser(name, email, password, cb) {
  * @param cb func(err)
  */
 function createAndSendEmailValidationToken(email, cb) {
+    if (typeof email !== 'string') {
+        const err = new Error('email invalid type, email is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
     // important: fix email format
     email = email.trim().toLowerCase();
 
