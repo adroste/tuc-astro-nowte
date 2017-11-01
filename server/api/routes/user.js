@@ -48,6 +48,16 @@ router.post('/create', (req, res, next) => {
 });
 
 
+router.post('/resend-validation-email', (req, res, next) => {
+    user.createAndSendEmailValidationToken(req.body['email'], err => {
+        if (err)
+            return next(err);
+        res.status(204); // No Content
+        res.json({});
+    });
+});
+
+
 router.get('/validate-email/:token', (req, res, next) => {
     user.validateUserEmail(req.params.token, (err, validated) => {
         if (err)
