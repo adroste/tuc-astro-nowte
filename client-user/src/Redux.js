@@ -5,7 +5,10 @@ import { createStore } from 'redux';
  * @type {{state: string}} state for the state machine
  */
 const initialState = {
-    state: "login"
+    state: "login",
+    token: undefined,
+    email: undefined,
+    username: undefined
 };
 
 /**
@@ -25,6 +28,20 @@ const dispatcher = (state = initialState, action) => {
             return Object.assign({}, state, {
                 state: action.state
             });
+
+        case "LOGIN":
+            return Object.assign({}, state, {
+                state: "logged_in",
+                token: action.token,
+                email: action.email
+            });
+
+        case "AWAIT_VALIDATION":
+            return Object.assign({}, state, {
+               state: "request_email_validation",
+               email: action.email
+            });
+
         default:
             return state;
     }

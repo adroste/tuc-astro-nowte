@@ -6,6 +6,8 @@ import Button from "./base/Button";
 import LinkedText from "./base/LinkedText";
 import * as utility from "../utility/LoginHelper"
 import { SERVER_URL } from "../Globals";
+import {store} from "../Redux";
+import * as action from "../Actions"
 
 export default class UserLoginForm extends React.Component {
     /**
@@ -72,11 +74,20 @@ export default class UserLoginForm extends React.Component {
 
     handleSuccesfullRegistration = (body) => {
         // retrieve session token
-        alert("token: " + body.sessionToken);
-        // TODO state change
+        store.dispatch(action.login(body.sessionToken, this.email));
     };
 
     handleUnsuccesfullRegistration = (code, data) => {
+
+        // email not aouthorized?
+        if(code === 401)
+        {
+            if(data.error.message === "user account not validated")
+            {
+                store.dispatch(action.requestValidation(this.email));
+                return;
+            }
+        }
         this.handleError("Error (" + code + "): " + data.error.message);
     };
 

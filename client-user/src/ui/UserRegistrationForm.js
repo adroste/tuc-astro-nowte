@@ -76,7 +76,7 @@ export default class UserRegistrationForm extends React.Component {
             })
         }).then(
             this.handleServerResponse,
-            console.error.bind(console, 'fetch error (' + url + '):')
+            this.handleError
         );
     };
 
@@ -86,9 +86,19 @@ export default class UserRegistrationForm extends React.Component {
         }
         else{
             response.json().then(
-                (data) => this.handleUnsuccesfullRegistration(response.status, data)
+                (data) => this.handleUnsuccesfullRegistration(response.status, data),
+                this.handleError
             );
         }
+    };
+
+    /**
+     * displays the error message for the user
+     * @param message
+     */
+    handleError = (message) => {
+        // TODO do something prettier?
+        alert(message);
     };
 
     /**

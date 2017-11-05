@@ -4,7 +4,6 @@ import './App.css';
 import LoginScreen from "./screens/LoginScreen";
 import RegistrationScreen from "./screens/RegistrationScreen";
 import AwaitingValidationScreen from "./screens/AwaitingValidationScreen";
-import EmailValidationScreen from "./screens/EmailValidationScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import RequestEmailValidationScreen from "./screens/RequestEmailValidationScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
@@ -42,8 +41,6 @@ class App extends Component {
                 return <RegistrationScreen/>;
             case "awaiting_validation":
                 return <AwaitingValidationScreen/>;
-            case "email_validation":
-                return <EmailValidationScreen/>;
             case "forgot_password":
                 return <ForgotPasswordScreen/>;
             case "request_email_validation":
