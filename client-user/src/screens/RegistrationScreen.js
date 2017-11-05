@@ -2,15 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import UserRegistrationForm from "../ui/UserRegistrationForm";
 import './UserForms.css';
+import {store} from "../Redux";
 
 export default class RegistrationScreen extends React.Component {
     /**
      * propTypes
-     * @property {function(state: string)} onStateChange function to set the app state
      */
     static get propTypes() {
         return {
-            onStateChange: PropTypes.func.isRequired
         };
     }
 
@@ -19,7 +18,7 @@ export default class RegistrationScreen extends React.Component {
     }
 
     handleSuccesfullRegistration = () => {
-        this.props.onStateChange("awaiting_validation");
+        store.dispatch({type: "STATE_CHANGE", state: "awaiting_validation"});
     };
 
     render() {

@@ -2,15 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import UserLoginForm from "../ui/UserLoginForm";
 import './UserForms.css';
+import {store} from "../Redux";
 
 export default class LoginScreen extends React.Component {
     /**
      * propTypes
-     * @property {function(state: string)} onStateChange function to set the app state
      */
     static get propTypes() {
         return {
-            onStateChange: PropTypes.func.isRequired
         };
     }
 
@@ -19,11 +18,11 @@ export default class LoginScreen extends React.Component {
     }
 
     onCreateAccountClickHandler = () => {
-        this.props.onStateChange("register");
+        store.dispatch({type: "STATE_CHANGE", state: "register"});
     };
 
     onForgotPasswordClickHandler = () => {
-        this.props.onStateChange("forgot_password");
+        store.dispatch({type: "STATE_CHANGE", state: "forgot_password"});
     };
 
     render() {

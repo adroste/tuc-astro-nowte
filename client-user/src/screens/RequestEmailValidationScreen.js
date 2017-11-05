@@ -5,11 +5,9 @@ import LinkedText from "../ui/base/LinkedText";
 export default class RequestEmailValidationScreen extends React.Component {
     /**
      * propTypes
-     * @property {function(state: string)} onStateChange function to set the app state
      */
     static get propTypes() {
         return {
-            onStateChange: PropTypes.func.isRequired
         };
     }
 
@@ -20,7 +18,6 @@ export default class RequestEmailValidationScreen extends React.Component {
     handleResendEmailClick = () => {
         // TODO resend the email
 
-        this.props.onStateChange("awaiting_validation");
     };
 
     render() {

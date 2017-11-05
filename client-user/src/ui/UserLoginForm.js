@@ -5,7 +5,6 @@ import './UserLoginForm.css';
 import Button from "./base/Button";
 import LinkedText from "./base/LinkedText";
 import * as utility from "../utility/LoginHelper"
-import {verifyEmailField} from "../utility/LoginHelper";
 import { SERVER_URL } from "../Globals";
 
 export default class UserLoginForm extends React.Component {
