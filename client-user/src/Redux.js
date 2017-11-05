@@ -9,14 +9,6 @@ const initialState = {
 };
 
 /**
- * performs a deepcopy
- * @param obj object
- */
-const copy = (obj) => {
-    return JSON.parse(JSON.stringify(obj));
-};
-
-/**
  * Actions:
  *
  * type: STATE_CHANGE
@@ -28,21 +20,14 @@ const copy = (obj) => {
  * @param action action to be applied
  */
 const dispatcher = (state = initialState, action) => {
-    let newState = undefined;
     switch (action.type){
         case "STATE_CHANGE":
-            newState = copy(state);
-            newState.state = action.state;
-            break;
+            return Object.assign({}, state, {
+                state: action.state
+            });
         default:
             return state;
     }
-
-    return newState;
 };
 
 export const store = createStore(dispatcher, initialState);
-
-store.subscribe(() => {
-   console.log(store.getState());
-});
