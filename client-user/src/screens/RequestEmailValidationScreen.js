@@ -20,7 +20,6 @@ export default class RequestEmailValidationScreen extends React.Component {
 
     handleResendEmailClick = () => {
         const email = store.getState().email;
-        alert(email);
         const url = SERVER_URL + '/api/user/resend-validation-email';
         fetch(url, {
             method: "POST",
