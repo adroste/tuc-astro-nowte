@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import UserLoginForm from "../ui/UserLoginForm";
 import './UserForms.css';
 import {store} from "../Redux";
+import * as action from "../Actions"
 
 export default class LoginScreen extends React.Component {
     /**
@@ -18,11 +19,11 @@ export default class LoginScreen extends React.Component {
     }
 
     onCreateAccountClickHandler = () => {
-        store.dispatch({type: "STATE_CHANGE", state: "register"});
+        store.dispatch(action.stateChange("register"));
     };
 
     onForgotPasswordClickHandler = () => {
-        store.dispatch({type: "STATE_CHANGE", state: "forgot_password"});
+        store.dispatch(action.stateChange("forgot_password"));
     };
 
     render() {

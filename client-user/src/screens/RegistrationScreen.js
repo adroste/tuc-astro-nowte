@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import UserRegistrationForm from "../ui/UserRegistrationForm";
 import './UserForms.css';
 import {store} from "../Redux";
+import * as action from "../Actions"
 
 export default class RegistrationScreen extends React.Component {
     /**
@@ -18,7 +19,11 @@ export default class RegistrationScreen extends React.Component {
     }
 
     handleSuccesfullRegistration = () => {
-        store.dispatch({type: "STATE_CHANGE", state: "awaiting_validation"});
+        store.dispatch(action.stateChange("awaiting_validation"));
+    };
+
+    handleLoginClick = () => {
+        store.dispatch(action.stateChange("login"));
     };
 
     render() {
@@ -27,7 +32,7 @@ export default class RegistrationScreen extends React.Component {
                 <div className="centered-form-inner">
                     <UserRegistrationForm
                         onSuccesfullRegistration={this.handleSuccesfullRegistration}
-                        onLoginClick={() => this.props.onStateChange("login")}
+                        onLoginClick={this.handleLoginClick}
                     />
                 </div>
             </div>
