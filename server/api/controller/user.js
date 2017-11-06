@@ -460,7 +460,7 @@ function removeExpiredSessionsFromUser(userEntry) {
  */
 function validateSession(token, cb) {
     if (typeof token !== 'string') {
-        const err = new Error('token is not a valid string');
+        const err = new Error('token invalid type, token is required');
         err.status = 400; // Bad Request
         return cb(err);
     }
@@ -524,7 +524,7 @@ module.exports.validateSession = validateSession;
  */
 function validateUserEmail(token, cb) {
     if (typeof token !== 'string') {
-        const err = new Error('token is not a valid string');
+        const err = new Error('token invalid type, token is required');
         err.status = 400; // Bad Request
         return cb(err);
     }
