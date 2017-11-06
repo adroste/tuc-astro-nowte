@@ -80,6 +80,7 @@ function createPasswordResetToken(userId, cb) {
         userId: userId
     }, '1h', cb);
 }
+module.exports.createPasswordResetToken = createPasswordResetToken;
 
 
 /**
@@ -133,7 +134,7 @@ function hashPassword(password, cb) {
 
     bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
         if (err) {
-            const err = new Error('password invalid type');
+            const err = new Error('password invalid type, password is required');
             err.status = 400; // Bad Request
             return cb(err);
         }
@@ -177,6 +178,128 @@ module.exports.comparePassword = comparePassword;
 // -------------------------------------------
 // User actions
 // -------------------------------------------
+/**
+ * Changes password for userId to newPassword
+ * @param userId
+ * @param newPassword
+ * @param cb func(err)
+ */
+function changePassword(userId, newPassword, cb) {
+    if (newPassword.length < 8 || newPassword.length > 100) {
+        const err = new Error('newPassword must be between 8 and 100 characters');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+
+    hashPassword(newPassword, (err, hash) => {
+        if (err)
+            return cb(err); // err.status is already set to 400 Bad Request
+
+        User.update({_id: userId}, {$set: {password: hash}}, (err, rawResponse) => {
+            if (err) {
+                console.error(err);
+                return cb(new Error('unknown mongo error'));
+            }
+            if (rawResponse.n === 0) {
+                const err2 = new Error('user not found');
+                err2.status = 404; // Not Found
+                return cb(err2);
+            }
+
+            return cb(null);
+        });
+    });
+}
+
+
+/**
+ * Changes a users password by providing email + current password to a new password.
+ * @param email
+ * @param currentPassword
+ * @param newPassword
+ * @param cb func(err)
+ */
+function changePasswordViaCurrentPassword(email, currentPassword, newPassword, cb) {
+    if (typeof currentPassword !== 'string') {
+        const err = new Error('currentPassword invalid type, currentPassword is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    if (typeof newPassword !== 'string') {
+        const err = new Error('newPassword invalid type, newPassword is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    if (typeof email !== 'string') {
+        const err = new Error('email invalid type, email is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    // important: fix email format
+    email = email.trim().toLowerCase();
+
+    User.findOne({ email: email }, { _id: 1, password: 1 }, (err, userEntry) => {
+        if (err)
+            return cb(new Error('unknown mongo error'));
+        if (userEntry === null) {
+            const err2 = new Error('user not found');
+            err2.status = 404; // Not Found
+            return cb(err2);
+        }
+
+        comparePassword(currentPassword, userEntry.password, (err, passwordsMatch) => {
+            if (err)
+                return cb(err); // err.status is already set
+            if (!passwordsMatch) {
+                const err2 = new Error('invalid currentPassword');
+                err2.authHeader = 'login realm="login"';
+                err2.status = 401; // Unauthorized
+                return cb(err2);
+            }
+
+            changePassword(userEntry._id.toString(), newPassword, err => {
+                if (err)
+                    return cb(err); // err.status is already set
+                return cb(null);
+            });
+        });
+    });
+}
+module.exports.changePasswordViaCurrentPassword = changePasswordViaCurrentPassword;
+
+
+/**
+ * Changes a users password by providing password rest token to a new password.
+ * @param passwordResetToken
+ * @param newPassword
+ * @param cb func(err)
+ */
+function changePasswordViaResetToken(passwordResetToken, newPassword, cb) {
+    if (typeof passwordResetToken !== 'string') {
+        const err = new Error('passwordResetToken invalid type, passwordResetToken is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    if (typeof newPassword !== 'string') {
+        const err = new Error('newPassword invalid type, newPassword is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+
+    extractJwt(passwordResetToken, (err, decoded) => {
+        if (err)
+            return cb(err); // err.status is already set to 400 Bad Request
+
+        changePassword(decoded['userId'], newPassword, err => {
+            if (err)
+                return cb(err); // err.status is already set
+            return cb(null);
+        });
+    });
+}
+module.exports.changePasswordViaResetToken = changePasswordViaResetToken;
+
+
 /**
  * Creates email validation token for user with provided email and sends it to users email
  * @param email
@@ -533,7 +656,7 @@ function validateUserEmail(token, cb) {
         if (err)
             return cb(err); // err.status is already set to 400 Bad Request
 
-        User.update({ _id: decoded.userId }, { $set: { emailValidated: true } }, (err, rawResponse) => {
+        User.update({ _id: decoded['userId'] }, { $set: { emailValidated: true } }, (err, rawResponse) => {
             if (err) {
                 console.error(err);
                 return cb(new Error('unknown mongo error'));

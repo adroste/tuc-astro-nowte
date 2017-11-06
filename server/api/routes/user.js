@@ -42,10 +42,21 @@ router.post('/request-password-reset', (req, res, next) => {
 
 
 router.put('/change-password', (req, res, next) => {
-    res.json({
-        route: 'PUT /change-password',
-        body: req.body
-    });
+    const actionHandler = (err) => {
+        if (err) {
+            if (err.status === 401)
+                res.setHeader('WWW-Authenticate', err.authHeader);
+            return next(err);
+        }
+        res.status(204); // No Content
+        res.json({});
+    };
+
+    const passwordResetToken = req.body['passwordResetToken'];
+    if (typeof passwordResetToken !== 'undefined')
+        user.changePasswordViaResetToken(passwordResetToken, req.body['newPassword'], actionHandler);
+    else
+        user.changePasswordViaCurrentPassword(req.body['email'], req.body['currentPassword'], req.body['newPassword'], actionHandler);
 });
 
 

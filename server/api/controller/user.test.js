@@ -170,6 +170,30 @@ describe('working on a user', () => {
         });
     });
 
+    test('change password via password reset token', done => {
+        user.createPasswordResetToken(testuser._id.toString(), (err, token) => {
+            user.changePasswordViaResetToken(token, '12345', err => {
+                User.findById(testuser._id, (err, doc) => {
+                    user.comparePassword('12345', doc.password, (err, passwordsMatch) => {
+                        expect(passwordsMatch).toBe(true);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    test('change password via current password', done => {
+        user.changePasswordViaCurrentPassword(testuser.email, 'password', '12345', err => {
+            User.findById(testuser._id, (err, doc) => {
+                user.comparePassword('12345', doc.password, (err, passwordsMatch) => {
+                    expect(passwordsMatch).toBe(true);
+                    done();
+                });
+            });
+        });
+    });
+
     afterAll(clearUsers);
 });
 
