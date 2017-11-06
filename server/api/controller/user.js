@@ -406,8 +406,11 @@ function removeExpiredSessionsFromUser(userEntry) {
  * @param cb func(err, userId)
  */
 function validateSession(token, cb) {
-    if (typeof token !== 'string')
-        throw new Error('token is not a valid string');
+    if (typeof token !== 'string') {
+        const err = new Error('token is not a valid string');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
 
     // 1. extract jwt
     extractJwt(token, (err, decoded) => {
@@ -467,8 +470,11 @@ module.exports.validateSession = validateSession;
  * @param cb func(err)
  */
 function validateUserEmail(token, cb) {
-    if (typeof token !== 'string')
-        throw new Error('token is not a valid string');
+    if (typeof token !== 'string') {
+        const err = new Error('token is not a valid string');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
 
     extractJwt(token, (err, decoded) => {
         if (err)
