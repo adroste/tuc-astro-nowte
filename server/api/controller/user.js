@@ -5,6 +5,9 @@
 
 'use strict';
 
+// -------------------------------------------
+// Includes
+// -------------------------------------------
 const config = require('../../init/config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -12,6 +15,10 @@ const mongoose = require('mongoose');
 const mailer = require('../../init/mailer-init');
 const User = require('../models/user').User;
 
+
+// -------------------------------------------
+// Globals
+// -------------------------------------------
 const SERVER_URL = config.get('server.url');
 const SALTING_ROUNDS = config.get('user.password-salting-rounds');
 // TODO advanced: private key rotation
@@ -25,6 +32,21 @@ const MAIL_RESET_PASSWORD_BODY = config.get('templates.mail.resetPassword.body')
 // TODO fix link!!!
 const REQUEST_URL_RESET_PASSWORD = SERVER_URL + '/PLACEHOLDER/:token';
 
+
+// -------------------------------------------
+// JWT
+// -------------------------------------------
+/**
+ * Creates a JWT containing userId that expires in 24h (for email validation).
+ * @param userId
+ * @param cb func(err, token)
+ */
+function createEmailValidationToken(userId, cb) {
+    createJwt({
+        userId: userId
+    }, '24h', cb);
+}
+module.exports.createEmailValidationToken = createEmailValidationToken;
 
 
 /**
@@ -49,6 +71,18 @@ function createJwt(payload, expiresIn, cb) {
 
 
 /**
+ * Creates a JWT containing userId that expires in 1h (for password reset).
+ * @param userId
+ * @param cb func(err, token)
+ */
+function createPasswordResetToken(userId, cb) {
+    createJwt({
+        userId: userId
+    }, '1h', cb);
+}
+
+
+/**
  * Creates a JWT containing userId and sessionId.
  * Session tokens do not expire, expiry is set in db
  * @param userId
@@ -61,30 +95,7 @@ function createSessionToken(userId, sessionId, cb) {
         sessionId: sessionId
     }, null, cb);
 }
-
-
-/**
- * Creates a JWT containing userId that expires in 24h (for email validation).
- * @param userId
- * @param cb func(err, token)
- */
-function createEmailValidationToken(userId, cb) {
-    createJwt({
-        userId: userId
-    }, '24h', cb);
-}
-
-
-/**
- * Creates a JWT containing userId that expires in 1h (for password reset).
- * @param userId
- * @param cb func(err, token)
- */
-function createPasswordResetToken(userId, cb) {
-    createJwt({
-        userId: userId
-    }, '1h', cb);
-}
+module.exports.createSessionToken = createSessionToken;
 
 
 /**
@@ -102,6 +113,187 @@ function extractJwt(token, cb) {
         return cb(null, decodedToken);
     });
 }
+module.exports.extractJwt = extractJwt;
+
+
+// -------------------------------------------
+// User actions
+// -------------------------------------------
+/**
+ * Creates email validation token for user with provided email and sends it to users email
+ * @param email
+ * @param cb func(err)
+ */
+function createAndSendEmailValidationToken(email, cb) {
+    if (typeof email !== 'string') {
+        const err = new Error('email invalid type, email is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    // important: fix email format
+    email = email.trim().toLowerCase();
+
+    User.findOne({ email: email }, { _id: 1, emailValidated: 1 }, (err, userEntry) => {
+        if (err)
+            return cb(new Error('unknown mongo error'));
+        if (userEntry === null) {
+            const err2 = new Error('user not found');
+            err2.status = 404; // Not Found
+            return cb(err2);
+        }
+        if (userEntry.emailValidated === true) {
+            const err2 = new Error('user already validated');
+            err2.status = 409; // Conflict
+            return cb(err2);
+        }
+        createEmailValidationToken(userEntry._id.toString(), (err, token) => {
+            if (err)
+                return cb(new Error('could not create email validation token'));
+
+            // call callback for success (before sending mail)
+            cb(null);
+
+            // send mail in background
+            const validateLink = REQUEST_URL_VALIDATE_EMAIL.replace(/:token/g, token);
+            const body = MAIL_ACTIVATE_USER_BODY.join('').replace(/:validate-link/g, validateLink);
+            const mailOptions = {
+                from: mailer.FROM,
+                to: email,
+                subject: MAIL_ACTIVATE_USER_SUBJECT,
+                html: body
+            };
+
+            mailer.sendMail(mailOptions, (error, info) => {
+                if (error)
+                    return console.error(error);
+                console.log('Validation email sent to: ' + email + ', id: ' + info.messageId);
+            });
+        });
+    });
+}
+module.exports.createAndSendEmailValidationToken = createAndSendEmailValidationToken;
+
+
+/**
+ * Creates password reset token for user with provided email and sends it to users email
+ * @param email
+ * @param cb func(err)
+ */
+function createAndSendPasswordResetToken(email, cb) {
+    if (typeof email !== 'string') {
+        const err = new Error('email invalid type, email is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    // important: fix email format
+    email = email.trim().toLowerCase();
+
+    User.findOne({ email: email }, { _id: 1 }, (err, userEntry) => {
+        if (err)
+            return cb(new Error('unknown mongo error'));
+        if (userEntry === null) {
+            const err2 = new Error('user not found');
+            err2.status = 404; // Not Found
+            return cb(err2);
+        }
+        createPasswordResetToken(userEntry._id, (err, token) => {
+            if (err)
+                return cb(new Error('could not create password reset token'));
+
+            // call callback for success (before sending mail)
+            cb(null);
+
+            // send mail in background
+            const passwordResetLink = REQUEST_URL_RESET_PASSWORD.replace(/:token/g, token);
+            const body = MAIL_RESET_PASSWORD_BODY.join('').replace(/:password-reset-link/g, passwordResetLink);
+            const mailOptions = {
+                from: mailer.FROM,
+                to: email,
+                subject: MAIL_RESET_PASSWORD_SUBJECT,
+                html: body
+            };
+
+            mailer.sendMail(mailOptions, (error, info) => {
+                if (error)
+                    return console.error(error);
+                console.log('Password reset email sent to: ' + email + ', id: ' + info.messageId);
+            });
+        });
+    });
+}
+module.exports.createAndSendPasswordResetToken = createAndSendPasswordResetToken;
+
+
+/**
+ * Creates new user by
+ * 1. checking password length (8 <= pw.len <= 100),
+ * 2. hashing pw via bcrypt,
+ * 3. creating user instance,
+ * 4. saving user instance to db
+ * and returning user
+ * @param name
+ * @param email
+ * @param password
+ * @param cb func(err, user)
+ */
+function createUser(name, email, password, cb) {
+    if (typeof email !== 'string') {
+        const err = new Error('email invalid type, email is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    if (typeof password !== 'string') {
+        const err = new Error('password invalid type, password is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    // 1. checking pw length
+    if (password.length < 8 || password.length > 100) {
+        const err = new Error('password must be between 8 and 100 characters');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+
+    // important: fix email format
+    email = email.trim().toLowerCase();
+
+    // 2. hashing pw
+    bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
+        if (err){
+            const err = new Error('password invalid type');
+            err.status = 400; // Bad Request
+            return cb(err);
+        }
+
+        // 3. creating user instance
+        // TODO create root folder
+        const user = new User({
+            'name': name,
+            'email': email,
+            'password': hash
+        });
+
+        // 4. saving user instance
+        user.save((err, userEntry) => {
+            if (err) {
+                if (err.message.startsWith('User validation failed')) {
+                    err.status = 400; // Bad Request
+                    return cb(err);
+                }
+                // 11000: duplicate key (for email)
+                if (err.name === 'MongoError' && err.code === 11000  && err.message.indexOf(user.email) !== -1) {
+                    const err = new Error('email already exists');
+                    err.status = 409; // Conflict
+                    return cb(err);
+                }
+                console.error(err);
+                return cb(new Error('unknown mongo error'));
+            }
+            return cb(null, userEntry);
+        });
+    });
+}
+module.exports.createUser = createUser;
 
 
 /**
@@ -180,6 +372,12 @@ function login(email, password, cb) {
             });
         });
     });
+}
+module.exports.login = login;
+
+
+function logout(userId, sessionId) {
+    throw new Error('Not implemented yet');
 }
 
 
@@ -260,185 +458,7 @@ function validateSession(token, cb) {
         });
     });
 }
-
-
-function logout(userId, sessionId) {
-    throw new Error('Not implemented yet');
-}
-
-
-/**
- * Creates password reset token for user with provided email and sends it to users email
- * @param email
- * @param cb func(err)
- */
-function createAndSendPasswordResetToken(email, cb) {
-    if (typeof email !== 'string') {
-        const err = new Error('email invalid type, email is required');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
-    // important: fix email format
-    email = email.trim().toLowerCase();
-
-    User.findOne({ email: email }, { _id: 1 }, (err, userEntry) => {
-        if (err)
-            return cb(new Error('unknown mongo error'));
-        if (userEntry === null) {
-            const err2 = new Error('user not found');
-            err2.status = 404; // Not Found
-            return cb(err2);
-        }
-        createPasswordResetToken(userEntry._id, (err, token) => {
-            if (err)
-                return cb(new Error('could not create password reset token'));
-
-            // call callback for success (before sending mail)
-            cb(null);
-
-            // send mail in background
-            const passwordResetLink = REQUEST_URL_RESET_PASSWORD.replace(/:token/g, token);
-            const body = MAIL_RESET_PASSWORD_BODY.join('').replace(/:password-reset-link/g, passwordResetLink);
-            const mailOptions = {
-                from: mailer.FROM,
-                to: email,
-                subject: MAIL_RESET_PASSWORD_SUBJECT,
-                html: body
-            };
-
-            mailer.sendMail(mailOptions, (error, info) => {
-                if (error)
-                    return console.error(error);
-                console.log('Password reset email sent to: ' + email + ', id: ' + info.messageId);
-            });
-        });
-    });
-}
-
-
-/**
- * Creates new user by
- * 1. checking password length (8 <= pw.len <= 100),
- * 2. hashing pw via bcrypt,
- * 3. creating user instance,
- * 4. saving user instance to db
- * and returning user
- * @param name
- * @param email
- * @param password
- * @param cb func(err, user)
- */
-function createUser(name, email, password, cb) {
-    if (typeof email !== 'string') {
-        const err = new Error('email invalid type, email is required');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
-    if (typeof password !== 'string') {
-        const err = new Error('password invalid type, password is required');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
-    // 1. checking pw length
-    if (password.length < 8 || password.length > 100) {
-        const err = new Error('password must be between 8 and 100 characters');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
-
-    // important: fix email format
-    email = email.trim().toLowerCase();
-
-    // 2. hashing pw
-    bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
-        if (err){
-            const err = new Error('password invalid type');
-            err.status = 400; // Bad Request
-            return cb(err);
-        }
-
-        // 3. creating user instance
-        // TODO create root folder
-        const user = new User({
-            'name': name,
-            'email': email,
-            'password': hash
-        });
-
-        // 4. saving user instance
-        user.save((err, userEntry) => {
-            if (err) {
-                if (err.message.startsWith('User validation failed')) {
-                    err.status = 400; // Bad Request
-                    return cb(err);
-                }
-                // 11000: duplicate key (for email)
-                if (err.name === 'MongoError' && err.code === 11000  && err.message.indexOf(user.email) !== -1) {
-                    const err = new Error('email already exists');
-                    err.status = 409; // Conflict
-                    return cb(err);
-                }
-                console.error(err);
-                return cb(new Error('unknown mongo error'));
-            }
-            return cb(null, userEntry);
-        });
-    });
-}
-
-
-/**
- * Creates email validation token for user with provided email and sends it to users email
- * @param email
- * @param cb func(err)
- */
-function createAndSendEmailValidationToken(email, cb) {
-    if (typeof email !== 'string') {
-        const err = new Error('email invalid type, email is required');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
-    // important: fix email format
-    email = email.trim().toLowerCase();
-
-    User.findOne({ email: email }, { _id: 1, emailValidated: 1 }, (err, userEntry) => {
-        if (err)
-            return cb(new Error('unknown mongo error'));
-        if (userEntry === null) {
-            const err2 = new Error('user not found');
-            err2.status = 404; // Not Found
-            return cb(err2);
-        }
-        if (userEntry.emailValidated === true) {
-            const err2 = new Error('user already validated');
-            err2.status = 409; // Conflict
-            return cb(err2);
-        }
-        createEmailValidationToken(userEntry._id.toString(), (err, token) => {
-            if (err)
-                return cb(new Error('could not create email validation token'));
-
-            // call callback for success (before sending mail)
-            cb(null);
-
-            // send mail in background
-            const validateLink = REQUEST_URL_VALIDATE_EMAIL.replace(/:token/g, token);
-            const body = MAIL_ACTIVATE_USER_BODY.join('').replace(/:validate-link/g, validateLink);
-            const mailOptions = {
-                from: mailer.FROM,
-                to: email,
-                subject: MAIL_ACTIVATE_USER_SUBJECT,
-                html: body
-            };
-
-            mailer.sendMail(mailOptions, (error, info) => {
-                if (error)
-                    return console.error(error);
-                console.log('Validation email sent to: ' + email + ', id: ' + info.messageId);
-            });
-        });
-    });
-}
+module.exports.validateSession = validateSession;
 
 
 /**
@@ -473,15 +493,4 @@ function validateUserEmail(token, cb) {
         });
     });
 }
-
-
-// exports
-module.exports.createSessionToken = createSessionToken;
-module.exports.createEmailValidationToken = createEmailValidationToken;
-module.exports.extractJwt = extractJwt;
-module.exports.login = login;
-module.exports.validateSession = validateSession;
-module.exports.createAndSendPasswordResetToken = createAndSendPasswordResetToken;
-module.exports.createUser = createUser;
-module.exports.createAndSendEmailValidationToken = createAndSendEmailValidationToken;
 module.exports.validateUserEmail = validateUserEmail;
