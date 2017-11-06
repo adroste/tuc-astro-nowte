@@ -12,13 +12,6 @@ const initialState = {
 };
 
 /**
- * Actions:
- *
- * type: STATE_CHANGE
- *      - state: {string} new state
- */
-
-/**
  * @param state last state
  * @param action action to be applied
  */
