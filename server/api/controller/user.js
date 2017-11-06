@@ -117,6 +117,64 @@ module.exports.extractJwt = extractJwt;
 
 
 // -------------------------------------------
+// Bcrypt
+// -------------------------------------------
+/**
+ * Hashes a provided password
+ * @param password
+ * @param cb func(err, hash)
+ */
+function hashPassword(password, cb) {
+    if (typeof password !== 'string') {
+        const err = new Error('password invalid type, password is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+
+    bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
+        if (err) {
+            const err = new Error('password invalid type');
+            err.status = 400; // Bad Request
+            return cb(err);
+        }
+        return cb(null, hash);
+    });
+}
+module.exports.hashPassword = hashPassword;
+
+
+/**
+ * Compares a provided password with a hash
+ * @param password
+ * @param hash
+ * @param cb func(err, passwordsMatch)
+ */
+function comparePassword(password, hash, cb) {
+    if (typeof password !== 'string') {
+        const err = new Error('password invalid type, password is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    if (typeof hash !== 'string') {
+        const err = new Error('hash invalid type, hash is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+
+    bcrypt.compare(password, hash, (err, passwordsMatch) => {
+        if (err) {
+            console.error(err);
+            const err2 = new Error('password or hash invalid type/data-format');
+            err2.status = 400; // Bad Request
+            return cb(err2);
+        }
+        return cb(null, passwordsMatch);
+    });
+}
+module.exports.comparePassword = comparePassword;
+
+
+// -------------------------------------------
 // User actions
 // -------------------------------------------
 /**
@@ -258,12 +316,9 @@ function createUser(name, email, password, cb) {
     email = email.trim().toLowerCase();
 
     // 2. hashing pw
-    bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
-        if (err){
-            const err = new Error('password invalid type');
-            err.status = 400; // Bad Request
-            return cb(err);
-        }
+    hashPassword(password, (err, hash) => {
+        if (err)
+            return cb(err); // err.status is already set to 400 Bad Request
 
         // 3. creating user instance
         // TODO create root folder
@@ -341,11 +396,9 @@ function login(email, password, cb) {
         }
 
         // 2. compare passwords
-        bcrypt.compare(password, userEntry.password, (err, passwordsMatch) => {
-            if (err) {
-                console.error(err);
-                return cb(new Error('unknown error'));
-            }
+        comparePassword(password, userEntry.password, (err, passwordsMatch) => {
+            if (err)
+                return cb(err); // err.status is already set
             if (!passwordsMatch) {
                 const err2 = new Error('invalid password');
                 err2.authHeader = 'login realm="login"';

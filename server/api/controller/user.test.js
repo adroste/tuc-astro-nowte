@@ -60,6 +60,30 @@ describe('token handling', () => {
 });
 
 
+describe('bcrypt', () => {
+    test('error check type', done => {
+        user.hashPassword(null, (err, hash) => {
+            expect(err.message).toMatch('password invalid type');
+            done();
+        });
+    });
+
+    test('hash pw & compare', done => {
+        user.hashPassword('pass123', (err, hash) => {
+            // check correct pw
+            user.comparePassword('pass123', hash, (err, passwordsMatch) => {
+                expect(passwordsMatch).toBe(true);
+                // check invalid pw
+                user.comparePassword('magmag', hash, (err, passwordsMatch) => {
+                    expect(passwordsMatch).toBe(false);
+                    done();
+                });
+            });
+        });
+    });
+});
+
+
 describe('user creation', () => {
     beforeAll(clearUsers);
 
