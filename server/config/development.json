@@ -29,6 +29,15 @@
                     "<p>Please activate your account by clicking the following link:<p>",
                     "<a href=\":validate-link\">:validate-link</a>"
                 ]
+            },
+            "resetPassword": {
+                "subject": "Astro-Nowte: Password reset link",
+                "body": [
+                    "<h1>Astro-Nowte: Password reset</h1><br><br>",
+                    "<p>Please click the following link to set a new password:<p>",
+                    "<a href=\":password-reset-link\">:password-reset-link</a><br><br>",
+                    "<p>If you did not request a password reset, please ignore this mail.</p>"
+                ]
             }
         }
     }

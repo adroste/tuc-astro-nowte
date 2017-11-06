@@ -139,6 +139,13 @@ describe('working on a user', () => {
         });
     });
 
+    test('send password reset token (wrong email)', done => {
+        user.createAndSendPasswordResetToken('sw@examle.com', (err) => {
+            expect(err.message).toMatch('user not found');
+            done();
+        });
+    });
+
     afterAll(clearUsers);
 });
 

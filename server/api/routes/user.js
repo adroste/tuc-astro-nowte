@@ -31,6 +31,24 @@ router.post('/logout', (req, res, next) => {
 });
 
 
+router.post('/request-password-reset', (req, res, next) => {
+    user.createAndSendPasswordResetToken(req.body['email'], err => {
+        if (err)
+            return next(err);
+        res.status(204); // No Content
+        res.json({});
+    });
+});
+
+
+router.put('/change-password', (req, res, next) => {
+    res.json({
+        route: 'PUT /change-password',
+        body: req.body
+    });
+});
+
+
 router.post('/create', (req, res, next) => {
     user.createUser(req.body['name'], req.body['email'], req.body['password'], (err, userEntry) => {
         if (err)
@@ -58,6 +76,7 @@ router.post('/resend-validation-email', (req, res, next) => {
 });
 
 
+// TODO make post out of it
 router.get('/validate-email/:token', (req, res, next) => {
     user.validateUserEmail(req.params.token, err => {
         if (err)

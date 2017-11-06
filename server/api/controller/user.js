@@ -14,11 +14,17 @@ const User = require('../models/user').User;
 
 const SERVER_URL = config.get('server.url');
 const SALTING_ROUNDS = config.get('user.password-salting-rounds');
+// TODO advanced: private key rotation
 const PRIVATE_KEY = config.get('user.private-key');
 const MAIL_ACTIVATE_USER_SUBJECT = config.get('templates.mail.activateUserAccount.subject');
 const MAIL_ACTIVATE_USER_BODY = config.get('templates.mail.activateUserAccount.body');
 // TODO validate email request url should lead to a react screen witch handles api call instead of naked api call
-const VALIDATE_EMAIL_REQUEST_URL = SERVER_URL + '/api/user/validate-email/:token';
+const REQUEST_URL_VALIDATE_EMAIL = SERVER_URL + '/api/user/validate-email/:token';
+const MAIL_RESET_PASSWORD_SUBJECT = config.get('templates.mail.resetPassword.subject');
+const MAIL_RESET_PASSWORD_BODY = config.get('templates.mail.resetPassword.body');
+// TODO fix link!!!
+const REQUEST_URL_RESET_PASSWORD = SERVER_URL + '/PLACEHOLDER/:token';
+
 
 
 /**
@@ -66,6 +72,18 @@ function createEmailValidationToken(userId, cb) {
     createJwt({
         userId: userId
     }, '24h', cb);
+}
+
+
+/**
+ * Creates a JWT containing userId that expires in 1h (for password reset).
+ * @param userId
+ * @param cb func(err, token)
+ */
+function createPasswordResetToken(userId, cb) {
+    createJwt({
+        userId: userId
+    }, '1h', cb);
 }
 
 
@@ -250,6 +268,55 @@ function logout(userId, sessionId) {
 
 
 /**
+ * Creates password reset token for user with provided email and sends it to users email
+ * @param email
+ * @param cb func(err)
+ */
+function createAndSendPasswordResetToken(email, cb) {
+    if (typeof email !== 'string') {
+        const err = new Error('email invalid type, email is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    // important: fix email format
+    email = email.trim().toLowerCase();
+
+    User.findOne({ email: email }, { _id: 1 }, (err, userEntry) => {
+        if (err)
+            return cb(new Error('unknown mongo error'));
+        if (userEntry === null) {
+            const err2 = new Error('user not found');
+            err2.status = 404; // Not Found
+            return cb(err2);
+        }
+        createPasswordResetToken(userEntry._id, (err, token) => {
+            if (err)
+                return cb(new Error('could not create password reset token'));
+
+            // call callback for success (before sending mail)
+            cb(null);
+
+            // send mail in background
+            const passwordResetLink = REQUEST_URL_RESET_PASSWORD.replace(/:token/g, token);
+            const body = MAIL_RESET_PASSWORD_BODY.join('').replace(/:password-reset-link/g, passwordResetLink);
+            const mailOptions = {
+                from: mailer.FROM,
+                to: email,
+                subject: MAIL_RESET_PASSWORD_SUBJECT,
+                html: body
+            };
+
+            mailer.sendMail(mailOptions, (error, info) => {
+                if (error)
+                    return console.error(error);
+                console.log('Password reset email sent to: ' + email + ', id: ' + info.messageId);
+            });
+        });
+    });
+}
+
+
+/**
  * Creates new user by
  * 1. checking password length (8 <= pw.len <= 100),
  * 2. hashing pw via bcrypt,
@@ -355,7 +422,7 @@ function createAndSendEmailValidationToken(email, cb) {
             cb(null);
 
             // send mail in background
-            const validateLink = VALIDATE_EMAIL_REQUEST_URL.replace(/:token/g, token);
+            const validateLink = REQUEST_URL_VALIDATE_EMAIL.replace(/:token/g, token);
             const body = MAIL_ACTIVATE_USER_BODY.join('').replace(/:validate-link/g, validateLink);
             const mailOptions = {
                 from: mailer.FROM,
@@ -367,7 +434,7 @@ function createAndSendEmailValidationToken(email, cb) {
             mailer.sendMail(mailOptions, (error, info) => {
                 if (error)
                     return console.error(error);
-                console.log('Validation Email sent to: ' + email + ', id: ' + info.messageId);
+                console.log('Validation email sent to: ' + email + ', id: ' + info.messageId);
             });
         });
     });
@@ -414,6 +481,7 @@ module.exports.createEmailValidationToken = createEmailValidationToken;
 module.exports.extractJwt = extractJwt;
 module.exports.login = login;
 module.exports.validateSession = validateSession;
+module.exports.createAndSendPasswordResetToken = createAndSendPasswordResetToken;
 module.exports.createUser = createUser;
 module.exports.createAndSendEmailValidationToken = createAndSendEmailValidationToken;
 module.exports.validateUserEmail = validateUserEmail;
