@@ -11,14 +11,17 @@ const user = require('../controller/user');
 
 
 router.post('/login', (req, res, next) => {
-    user.login(req.body['email'], req.body['password'], (err, sessionToken) => {
+    user.login(req.body['email'], req.body['password'], (err, sessionToken, name) => {
         if (err) {
             if (err.status === 401)
                 res.setHeader('WWW-Authenticate', err.authHeader);
             return next(err);
         }
         res.status(201); // Created
-        res.json({ sessionToken: sessionToken });
+        res.json({
+            sessionToken: sessionToken,
+            name: name
+        });
     });
 });
 

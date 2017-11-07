@@ -483,7 +483,7 @@ module.exports.createUser = createUser;
  * and returning session token
  * @param email
  * @param password
- * @param cb func(err, sessionToken)
+ * @param cb func(err, sessionToken, name) name corresponds the users name e.g. "Max Mustermann"
  */
 function login(email, password, cb) {
     if (typeof email !== 'string') {
@@ -501,7 +501,7 @@ function login(email, password, cb) {
     email = email.trim().toLowerCase();
 
     // 1. find user by email
-    User.findOne({ email: email }, { _id: 1, emailValidated: 1, password: 1, sessions: 1 }, (err, userEntry) => {
+    User.findOne({ email: email }, { _id: 1, name:1, emailValidated: 1, password: 1, sessions: 1 }, (err, userEntry) => {
         if (err) {
             return cb(new Error('unknown mongo error'));
         }
@@ -543,7 +543,7 @@ function login(email, password, cb) {
                 createSessionToken(userEntry._id.toString(), newSession._id.toString(), (err, sessionToken) => {
                     if (err)
                         return cb(new Error('could not create session token'));
-                    return cb(null, sessionToken);
+                    return cb(null, sessionToken, userEntry.name);
                 });
             });
         });
