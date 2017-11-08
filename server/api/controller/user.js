@@ -105,6 +105,12 @@ module.exports.createSessionToken = createSessionToken;
  * @param cb func(err, decodedToken)
  */
 function extractJwt(token, cb) {
+    if (typeof token !== 'string') {
+        const err = new Error('token invalid type, token is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+
     jwt.verify(token, PRIVATE_KEY, { algorithms: ['HS256'] }, (err, decodedToken) => {
         if (err) {
             const err2 = new Error('invalid token: ' + err.message);
@@ -118,7 +124,7 @@ module.exports.extractJwt = extractJwt;
 
 
 // -------------------------------------------
-// Bcrypt
+// Password
 // -------------------------------------------
 /**
  * Hashes a provided password
@@ -126,12 +132,6 @@ module.exports.extractJwt = extractJwt;
  * @param cb func(err, hash)
  */
 function hashPassword(password, cb) {
-    if (typeof password !== 'string') {
-        const err = new Error('password invalid type, password is required');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
-
     bcrypt.hash(password, SALTING_ROUNDS, (err, hash) => {
         if (err) {
             const err = new Error('password invalid type, password is required');
@@ -175,21 +175,45 @@ function comparePassword(password, hash, cb) {
 module.exports.comparePassword = comparePassword;
 
 
+/**
+ * Checks if password is between 8 and 100 characters, if not returns Error
+ * @param password password string to check
+ * @returns Error object
+ */
+function validatePasswordLength(password) {
+    if (password.length < 8 || password.length > 100) {
+        const err = new Error('password must be between 8 and 100 characters');
+        err.status = 400; // Bad Request
+        return err;
+    }
+    return null;
+}
+
+
 // -------------------------------------------
 // User actions
 // -------------------------------------------
 /**
- * Changes password for userId to newPassword
+ * Changes password for userId to newPassword and deletes/revokes all user sessions
  * @param userId
  * @param newPassword
  * @param cb func(err)
  */
 function changePassword(userId, newPassword, cb) {
-    if (newPassword.length < 8 || newPassword.length > 100) {
-        const err = new Error('newPassword must be between 8 and 100 characters');
+    if (typeof userId !== 'string') {
+        const err = new Error('userId invalid type, userId is required');
         err.status = 400; // Bad Request
         return cb(err);
     }
+    if (typeof newPassword !== 'string') {
+        const err = new Error('newPassword invalid type, newPassword is required');
+        err.status = 400; // Bad Request
+        return cb(err);
+    }
+    // 1. checking pw length
+    const err = validatePasswordLength(password);
+    if (err)
+        return cb(err);
 
     hashPassword(newPassword, (err, hash) => {
         if (err)
@@ -205,6 +229,8 @@ function changePassword(userId, newPassword, cb) {
                 err2.status = 404; // Not Found
                 return cb(err2);
             }
+
+            // TODO revoke all user sessions
 
             return cb(null);
         });
@@ -270,23 +296,18 @@ module.exports.changePasswordViaCurrentPassword = changePasswordViaCurrentPasswo
 
 /**
  * Changes a users password by providing password rest token to a new password.
- * @param passwordResetToken
+ * @param token passwortResetToken
  * @param newPassword
  * @param cb func(err)
  */
-function changePasswordViaResetToken(passwordResetToken, newPassword, cb) {
-    if (typeof passwordResetToken !== 'string') {
-        const err = new Error('passwordResetToken invalid type, passwordResetToken is required');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
+function changePasswordViaResetToken(token, newPassword, cb) {
     if (typeof newPassword !== 'string') {
         const err = new Error('newPassword invalid type, newPassword is required');
         err.status = 400; // Bad Request
         return cb(err);
     }
 
-    extractJwt(passwordResetToken, (err, decoded) => {
+    extractJwt(token, (err, decoded) => {
         if (err)
             return cb(err); // err.status is already set to 400 Bad Request
 
@@ -429,11 +450,9 @@ function createUser(name, email, password, cb) {
         return cb(err);
     }
     // 1. checking pw length
-    if (password.length < 8 || password.length > 100) {
-        const err = new Error('password must be between 8 and 100 characters');
-        err.status = 400; // Bad Request
+    const err = validatePasswordLength(password);
+    if (err)
         return cb(err);
-    }
 
     // important: fix email format
     email = email.trim().toLowerCase();
@@ -558,16 +577,27 @@ function logout(userId, sessionId) {
 
 
 /**
- * Goes over sessions in userEntry and removes expired ones
- * @param userEntry
+ * Iterates over sessions in userEntry and removes expired ones
+ * @param userEntry user-db object
  */
-function removeExpiredSessionsFromUser(userEntry) {
+function removeExpiredSessionsFromUserEntry(userEntry) {
     for (let i = userEntry.sessions.length - 1; i >= 0; i--) {
         if (userEntry.sessions[i].get('expires')) {
             if (userEntry.sessions[i].expires.getTime() < Date.now())
                 userEntry.sessions[i].remove();
         }
     }
+}
+
+
+/**
+ * Removes/revokes all sessions from a userEntry
+ * @param userId
+ */
+function revokeAllSessions(userId) {
+    User.findById(userId, { sessions: 1 }, (err, userEntry) => {
+        // TODO implement here
+    });
 }
 
 
@@ -582,17 +612,13 @@ function removeExpiredSessionsFromUser(userEntry) {
  * @param cb func(err, userId)
  */
 function validateSession(token, cb) {
-    if (typeof token !== 'string') {
-        const err = new Error('token invalid type, token is required');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
-
     // 1. extract jwt
     extractJwt(token, (err, decoded) => {
         if (err) {
-            err.authHeader = 'login realm="login"';
-            err.status = 401; // Unauthorized
+            if (err.message.startsWith('invalid token')) {
+                err.authHeader = 'login realm="login"';
+                err.status = 401; // Unauthorized
+            }
             return cb(err);
             /*
             There is no need to check whether jwt is expired,
@@ -602,7 +628,7 @@ function validateSession(token, cb) {
         }
 
         // 2. querying user
-        User.findOne({ _id: decoded.userId }, { sessions: 1 }, (err, userEntry) => {
+        User.findById(decoded.userId, { sessions: 1 }, (err, userEntry) => {
             if (err) {
                 console.error(err);
                 return cb(new Error('unknown mongo error'));
@@ -614,7 +640,7 @@ function validateSession(token, cb) {
             }
 
             // 3. check sessions
-            removeExpiredSessionsFromUser(userEntry);
+            removeExpiredSessionsFromUserEntry(userEntry);
 
             // 4. saving user entry
             userEntry.save((err, userEntry) => {
@@ -646,12 +672,6 @@ module.exports.validateSession = validateSession;
  * @param cb func(err)
  */
 function validateUserEmail(token, cb) {
-    if (typeof token !== 'string') {
-        const err = new Error('token invalid type, token is required');
-        err.status = 400; // Bad Request
-        return cb(err);
-    }
-
     extractJwt(token, (err, decoded) => {
         if (err)
             return cb(err); // err.status is already set to 400 Bad Request
