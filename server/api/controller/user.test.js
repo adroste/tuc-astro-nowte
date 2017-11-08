@@ -266,6 +266,28 @@ describe('working on a validated user', () => {
         });
     });
 
+    test('logout', done => {
+        user.login(testuser.email, 'password', (err, sessionToken) => {
+            user.logout(sessionToken, err => {
+                User.findById(testuser._id.toString(), (err, userEntry) => {
+                    expect(userEntry.sessions.length).toBe(0);
+                    done();
+                });
+            });
+        });
+    });
+
+    test('logout invalid session', done => {
+        user.login(testuser.email, 'password', (err, sessionToken) => {
+            user.logout(sessionToken, err => {
+                user.logout(sessionToken, err => {
+                    expect(err.message).toMatch('invalid session');
+                    done();
+                });
+            });
+        });
+    });
+
     afterAll(clearUsers);
 });
 

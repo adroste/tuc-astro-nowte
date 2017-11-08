@@ -10,40 +10,6 @@ const router = express.Router();
 const user = require('../controller/user');
 
 
-router.post('/login', (req, res, next) => {
-    user.login(req.body['email'], req.body['password'], (err, sessionToken, name) => {
-        if (err) {
-            if (err.status === 401)
-                res.setHeader('WWW-Authenticate', err.authHeader);
-            return next(err);
-        }
-        res.status(201); // Created
-        res.json({
-            sessionToken: sessionToken,
-            name: name
-        });
-    });
-});
-
-
-router.post('/logout', (req, res, next) => {
-    res.json({
-        route: 'POST /logout',
-        body: req.body
-    });
-});
-
-
-router.post('/request-password-reset', (req, res, next) => {
-    user.createAndSendPasswordResetToken(req.body['email'], err => {
-        if (err)
-            return next(err);
-        res.status(204); // No Content
-        res.json({});
-    });
-});
-
-
 router.put('/change-password', (req, res, next) => {
     const actionHandler = (err) => {
         if (err) {
@@ -76,6 +42,45 @@ router.post('/create', (req, res, next) => {
             if (err)
                 console.error('Could not create and send emailValidationToken after user creation for user: ' + userEntry.email + ' with err: ' + err);
         });
+    });
+});
+
+
+router.post('/login', (req, res, next) => {
+    user.login(req.body['email'], req.body['password'], (err, sessionToken, name) => {
+        if (err) {
+            if (err.status === 401)
+                res.setHeader('WWW-Authenticate', err.authHeader);
+            return next(err);
+        }
+        res.status(201); // Created
+        res.json({
+            sessionToken: sessionToken,
+            name: name
+        });
+    });
+});
+
+
+router.post('/logout', (req, res, next) => {
+    user.logout(req.body['sessionToken'], err => {
+        if (err) {
+            if (err.status === 401)
+                res.setHeader('WWW-Authenticate', err.authHeader);
+            return next(err);
+        }
+        res.status(204); // No Content
+        res.json({});
+    });
+});
+
+
+router.post('/request-password-reset', (req, res, next) => {
+    user.createAndSendPasswordResetToken(req.body['email'], err => {
+        if (err)
+            return next(err);
+        res.status(204); // No Content
+        res.json({});
     });
 });
 

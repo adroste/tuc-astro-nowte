@@ -525,6 +525,7 @@ function login(email, password, cb) {
     // 1. find user by email
     User.findOne({ email: email }, { _id: 1, name:1, emailValidated: 1, password: 1, sessions: 1 }, (err, userEntry) => {
         if (err) {
+            console.error(err);
             return cb(new Error('unknown mongo error'));
         }
         if (userEntry === null) {
@@ -574,9 +575,49 @@ function login(email, password, cb) {
 module.exports.login = login;
 
 
-function logout(userId, sessionId) {
-    throw new Error('Not implemented yet');
+/**
+ * Logout a provided session (via session token)
+ * @param token sessionToken
+ * @param cb func(err)
+ */
+function logout(token, cb) {
+    extractJwt(token, (err, decoded) => {
+        if (err)
+            return cb(err); // err.status already set
+
+        User.findById(decoded['userId'], { sessions: 1 }, (err, userEntry) => {
+            if (err) {
+                console.error(err);
+                return cb(new Error('unknown mongo error'));
+            }
+            if (userEntry === null) {
+                const err2 = new Error('user not found');
+                err2.status = 404; // Not Found
+                return cb(err2);
+            }
+            // find & remove session
+            const session = userEntry.sessions.find((elem) => {
+                return elem._id.toString() === decoded.sessionId;
+            });
+            if (session === undefined) {
+                const err2 = new Error('invalid session');
+                err2.authHeader = 'login realm="login"';
+                err2.status = 401; // Unauthorized
+                return cb(err2);
+            }
+            session.remove();
+
+            userEntry.save(err => {
+                if (err) {
+                    console.error(err);
+                    return cb(new Error('unknown mongo error'));
+                }
+                return cb(null);
+            })
+        });
+    });
 }
+module.exports.logout = logout;
 
 
 /**
