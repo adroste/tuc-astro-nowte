@@ -172,9 +172,9 @@ describe('working on a user', () => {
 
     test('change password via password reset token', done => {
         user.createPasswordResetToken(testuser._id.toString(), (err, token) => {
-            user.changePasswordViaResetToken(token, '12345', err => {
+            user.changePasswordViaResetToken(token, '12345678', err => {
                 User.findById(testuser._id, (err, doc) => {
-                    user.comparePassword('12345', doc.password, (err, passwordsMatch) => {
+                    user.comparePassword('12345678', doc.password, (err, passwordsMatch) => {
                         expect(passwordsMatch).toBe(true);
                         done();
                     });
@@ -184,9 +184,9 @@ describe('working on a user', () => {
     });
 
     test('change password via current password', done => {
-        user.changePasswordViaCurrentPassword(testuser.email, 'password', '12345', err => {
+        user.changePasswordViaCurrentPassword(testuser.email, 'password', '12345678', err => {
             User.findById(testuser._id, (err, doc) => {
-                user.comparePassword('12345', doc.password, (err, passwordsMatch) => {
+                user.comparePassword('12345678', doc.password, (err, passwordsMatch) => {
                     expect(passwordsMatch).toBe(true);
                     done();
                 });
@@ -245,6 +245,21 @@ describe('working on a validated user', () => {
             user.createSessionToken(testuser._id.toString(), newSession._id.toString(), (err, token) => {
                 user.validateSession(token, (err, userId) => {
                     expect(err.message).toMatch('session expired');
+                    done();
+                });
+            });
+        });
+    });
+
+    test('revoke all sessions', done => {
+        testuser.sessions.push({});
+        testuser.sessions.push({});
+        testuser.sessions.push({});
+        testuser.save((err, userEntry) => {
+            expect(userEntry.sessions.length).toBe(3);
+            user.revokeAllSessions(testuser._id.toString(), (err) => {
+                User.findById(testuser._id.toString(), (err, userEntry) => {
+                    expect(userEntry.sessions.length).toBe(0);
                     done();
                 });
             });

@@ -211,7 +211,7 @@ function changePassword(userId, newPassword, cb) {
         return cb(err);
     }
     // 1. checking pw length
-    const err = validatePasswordLength(password);
+    const err = validatePasswordLength(newPassword);
     if (err)
         return cb(err);
 
@@ -230,9 +230,12 @@ function changePassword(userId, newPassword, cb) {
                 return cb(err2);
             }
 
-            // TODO revoke all user sessions
-
-            return cb(null);
+            // revoke all user sessions
+            revokeAllSessions(userId, err => {
+                if (err)
+                    return cb(err);
+                return cb(null);
+            });
         });
     });
 }
@@ -593,12 +596,30 @@ function removeExpiredSessionsFromUserEntry(userEntry) {
 /**
  * Removes/revokes all sessions from a userEntry
  * @param userId
+ * @param cb func(err)
  */
-function revokeAllSessions(userId) {
+function revokeAllSessions(userId, cb) {
     User.findById(userId, { sessions: 1 }, (err, userEntry) => {
-        // TODO implement here
+        if (err) {
+            console.error(err);
+            return cb(new Error('unknown mongo error'));
+        }
+        if (userEntry === null) {
+            const err2 = new Error('user not found');
+            err2.status = 404; // Not Found
+            return cb(err2);
+        }
+        userEntry.sessions.splice(0, userEntry.sessions.length);
+        userEntry.save(err => {
+            if (err) {
+                console.error(err);
+                return cb(new Error('unknown mongo error'));
+            }
+            return cb(null);
+        });
     });
 }
+module.exports.revokeAllSessions = revokeAllSessions;
 
 
 /**
