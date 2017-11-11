@@ -1,15 +1,4 @@
 /**
- * @param newState desired state
- * @returns action
- */
-export const stateChange = (newState) => {
-    return {
-        type: "STATE_CHANGE",
-        state: newState
-    };
-};
-
-/**
  * @param token sets the current login session token
  * @param email email of the logged in user
  * @returns action

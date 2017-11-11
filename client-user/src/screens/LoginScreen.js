@@ -19,11 +19,11 @@ export default class LoginScreen extends React.Component {
     }
 
     onCreateAccountClickHandler = () => {
-        store.dispatch(action.stateChange("register"));
+        this.props.history.push("/register");
     };
 
     onForgotPasswordClickHandler = () => {
-        store.dispatch(action.stateChange("forgot_password"));
+        this.props.history.push("/forgot-password");
     };
 
     render() {

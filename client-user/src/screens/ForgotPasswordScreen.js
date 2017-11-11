@@ -20,7 +20,7 @@ export default class ForgotPasswordScreen extends React.Component {
     }
 
     handleLoginClick = () => {
-        store.dispatch(action.stateChange("login"));
+        this.props.history.push("/");
     };
 
     handleResetClick = () => {

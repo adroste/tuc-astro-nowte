@@ -7,49 +7,27 @@ import AwaitingValidationScreen from "./screens/AwaitingValidationScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import RequestEmailValidationScreen from "./screens/RequestEmailValidationScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
+import {BrowserRouter as Router, Route} from 'react-router-dom'
 
 import {store} from "./Redux";
 
 class App extends Component {
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            curState: "login"
-        };
-
-        store.subscribe(() => this.onStateChange(store.getState()))
-    }
-
-    /**
-     * called when the application state changed
-     */
-    onStateChange = (state) => {
-        if(state.state !== this.state.curState){
-            this.setState({
-                curState: state.state
-            });
-        }
-    };
-
     render() {
-        switch (this.state.curState){
-            case "login":
-                return <LoginScreen/>;
-            case "register":
-                return <RegistrationScreen/>;
-            case "awaiting_validation":
-                return <AwaitingValidationScreen/>;
-            case "forgot_password":
-                return <ForgotPasswordScreen/>;
-            case "request_email_validation":
-                return <RequestEmailValidationScreen/>;
-            case "reset_password":
-                return <ResetPasswordScreen/>;
-            default:
-                return <h1>Invalid State: {this.state.curState}</h1>;
-        }
+        return (
+        <Router>
+            <div>
+                <Route exact path="/" component={LoginScreen}/>
+                <Route exact path="/register" component={RegistrationScreen}/>
+                <Route exact path="/awaiting-validation" component={AwaitingValidationScreen}/>
+                <Route exact path="/forgot-password" component={ForgotPasswordScreen}/>
+                <Route exact path="/request-email-validation" component={RequestEmailValidationScreen}/>
+                <Route exact path="/reset-password" component={ResetPasswordScreen}/>
+            </div>
+
+
+        </Router>
+        );
     }
 }
 

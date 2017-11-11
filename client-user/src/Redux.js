@@ -5,7 +5,6 @@ import { createStore } from 'redux';
  * @type {{state: string}} state for the state machine
  */
 const initialState = {
-    state: "login",
     token: undefined,
     email: undefined,
     username: undefined
@@ -17,11 +16,6 @@ const initialState = {
  */
 const dispatcher = (state = initialState, action) => {
     switch (action.type){
-        case "STATE_CHANGE":
-            return Object.assign({}, state, {
-                state: action.state
-            });
-
         case "LOGIN":
             return Object.assign({}, state, {
                 state: "logged_in",

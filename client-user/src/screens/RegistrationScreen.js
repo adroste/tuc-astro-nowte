@@ -19,11 +19,11 @@ export default class RegistrationScreen extends React.Component {
     }
 
     handleSuccesfullRegistration = () => {
-        store.dispatch(action.stateChange("awaiting_validation"));
+        this.props.history.push("/awaiting-validation");
     };
 
     handleLoginClick = () => {
-        store.dispatch(action.stateChange("login"));
+        this.props.history.push("/");
     };
 
     render() {

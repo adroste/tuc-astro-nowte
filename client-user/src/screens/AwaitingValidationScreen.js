@@ -19,7 +19,7 @@ export default class AwaitingValidationScreen extends React.Component {
     }
 
     handleLoginClick = () => {
-        store.dispatch(action.stateChange("login"));
+        this.props.history.push("/");
     };
 
     render() {

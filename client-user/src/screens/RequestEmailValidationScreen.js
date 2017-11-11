@@ -39,7 +39,7 @@ export default class RequestEmailValidationScreen extends React.Component {
     handleServerResponse = (response) => {
         if(response.status === 204){
             // succesfully sent email
-            store.dispatch(action.stateChange("awaiting_validation"));
+            this.props.history.push("/awaiting-validation");
         }
         else{
             response.json().then(
@@ -72,9 +72,8 @@ export default class RequestEmailValidationScreen extends React.Component {
     };
 
     handleLoginClick = () => {
-        store.dispatch(action.stateChange("login"));
-    }
-    ;
+        this.props.history.push("/");
+    };
 
     render() {
         return (
