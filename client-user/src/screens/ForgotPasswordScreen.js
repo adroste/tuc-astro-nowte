@@ -6,6 +6,7 @@ import './UserForms.css';
 import LinkedText from "../ui/base/LinkedText";
 import {store} from "../Redux";
 import * as action from "../Actions"
+import {SERVER_URL} from "../Globals";
 export default class ForgotPasswordScreen extends React.Component {
     /**
      * propTypes
@@ -19,12 +20,52 @@ export default class ForgotPasswordScreen extends React.Component {
         return {};
     }
 
+    // Private Member
+    email = "";
+
     handleLoginClick = () => {
         this.props.history.push("/");
     };
 
     handleResetClick = () => {
-        // TODO
+        // TODO verify email
+        
+        const url = SERVER_URL + '/api/user/request-password-reset';
+        fetch(url, {
+            method: "POST",
+            headers: new Headers({
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify({
+                email: this.email
+            })
+        }).then(
+            this.handleServerResponse,
+            this.handleError
+        );
+    };
+
+    handleServerResponse = (response) => {
+        if(response.status === 204){
+            // succesfully sent email
+            this.props.history.push("awaiting-password-change");
+        }
+        else{
+            response.json().then(
+                (data) => this.handleUnsuccesfullRegistration(response.status, data),
+                this.handleError
+            );
+        }
+    };
+
+    /**
+     * displays the error message for the user
+     * @param message
+     */
+    handleError = (message) => {
+        // TODO do something prettier?
+        alert(message);
     };
 
     render() {
@@ -34,10 +75,13 @@ export default class ForgotPasswordScreen extends React.Component {
                     <LabelledInputBox
                         label="Email"
                         name="email"
-                        onClick={this.handleResetClick}
+                        onChange={(value) => this.email = value}
                     />
                     <br/>
-                    <Button label="Reset Password"/>
+                    <Button
+                        label="Reset Password"
+                        onClick={this.handleResetClick}
+                    />
                     <br/>
                     <br/>
                     Remembered? <LinkedText label="Log in" onClick={this.handleLoginClick}/>

@@ -12,6 +12,7 @@ import {BrowserRouter as Router, Route} from 'react-router-dom'
 import {store} from "./Redux";
 import EmailValidationDoneScreen from "./screens/EmailValidationDoneScreen";
 import ResetPasswordDoneScreen from "./screens/ResetPasswordDoneScreen";
+import AwaitingPasswordChangeScreen from "./screens/AwaitingPasswordChangeScreen";
 
 class App extends Component {
 
@@ -27,6 +28,7 @@ class App extends Component {
                 <Route exact path="/reset-password" component={ResetPasswordScreen}/>
                 <Route exact path="/reset-password-done" component={ResetPasswordDoneScreen}/>
                 <Route exact path="/email-validation-done" component={EmailValidationDoneScreen}/>
+                <Route exact path="/awaiting-password-change" component={AwaitingPasswordChangeScreen}/>
             </div>
         </Router>
         );
