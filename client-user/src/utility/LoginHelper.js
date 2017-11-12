@@ -27,11 +27,11 @@ export function verifyPasswordFields(password, password2) {
         return "this field is required";
     }
 
-    if(this.password2.length === 0) {
+    if(password2.length === 0) {
         return "please reenter the password below";
     }
 
-    if(this.password2 !== this.password) {
+    if(password2 !== password) {
         return "passwords don't match";
     }
 
