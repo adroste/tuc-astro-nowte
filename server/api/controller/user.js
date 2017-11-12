@@ -19,18 +19,18 @@ const User = require('../models/user').User;
 // -------------------------------------------
 // Globals
 // -------------------------------------------
-const SERVER_URL = config.get('server.url');
+const FRONTEND_URL = config.get('web-frontend.url');
 const SALTING_ROUNDS = config.get('user.password-salting-rounds');
 // TODO advanced: private key rotation
 const PRIVATE_KEY = config.get('user.private-key');
 const MAIL_ACTIVATE_USER_SUBJECT = config.get('templates.mail.activateUserAccount.subject');
 const MAIL_ACTIVATE_USER_BODY = config.get('templates.mail.activateUserAccount.body');
 // TODO validate email request url should lead to a react screen witch handles api call instead of naked api call
-const REQUEST_URL_VALIDATE_EMAIL = SERVER_URL + '/api/user/validate-email/:token';
+const REQUEST_URL_VALIDATE_EMAIL = FRONTEND_URL + '/email-validation-done/:token';
 const MAIL_RESET_PASSWORD_SUBJECT = config.get('templates.mail.resetPassword.subject');
 const MAIL_RESET_PASSWORD_BODY = config.get('templates.mail.resetPassword.body');
 // TODO fix link!!!
-const REQUEST_URL_RESET_PASSWORD = SERVER_URL + '/PLACEHOLDER/:token';
+const REQUEST_URL_RESET_PASSWORD = FRONTEND_URL + '/PLACEHOLDER/:token';
 
 
 // -------------------------------------------
