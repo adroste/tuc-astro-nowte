@@ -95,9 +95,8 @@ router.post('/resend-validation-email', (req, res, next) => {
 });
 
 
-// TODO make post out of it
-router.get('/validate-email/:token', (req, res, next) => {
-    user.validateUserEmail(req.params.token, err => {
+router.post('/validate-email', (req, res, next) => {
+    user.validateUserEmail(req.body['emailValidationToken'], err => {
         if (err)
             return next(err);
         res.status(204); // No Content
