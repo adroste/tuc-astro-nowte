@@ -29,7 +29,7 @@ export default class ForgotPasswordScreen extends React.Component {
 
     handleResetClick = () => {
         // TODO verify email
-        
+
         const url = SERVER_URL + '/api/user/request-password-reset';
         fetch(url, {
             method: "POST",
@@ -53,7 +53,7 @@ export default class ForgotPasswordScreen extends React.Component {
         }
         else{
             response.json().then(
-                (data) => this.handleUnsuccesfullRegistration(response.status, data),
+                (data) => this.handleUnsuccesfullFetch(response.status, data),
                 this.handleError
             );
         }
@@ -66,6 +66,19 @@ export default class ForgotPasswordScreen extends React.Component {
     handleError = (message) => {
         // TODO do something prettier?
         alert(message);
+    };
+
+    /**
+     * this function will be called when the fetch failed
+     * but received an error from the server
+     * @param code html status code
+     * @param data response body
+     */
+    handleUnsuccesfullFetch = (code, data) => {
+        // extract error string
+        const errmsg = "Error (" + code + "): " + data.error.message;
+        // TODO do appropriate error display
+        alert(errmsg);
     };
 
     render() {

@@ -15,3 +15,27 @@ export function verifyEmailField(email) {
     // TODO verify email regex
     return "";
 }
+
+/**
+ * verifies the content of the password fields an returns a status message
+ * @param password
+ * @param password2
+ * @return {string} error message if invalid or empty string if valid
+ */
+export function verifyPasswordFields(password, password2) {
+    if(password.length === 0) {
+        return "this field is required";
+    }
+
+    if(this.password2.length === 0) {
+        return "please reenter the password below";
+    }
+
+    if(this.password2 !== this.password) {
+        return "passwords don't match";
+    }
+
+    // TODO verify min length
+
+    return "";
+}

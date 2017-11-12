@@ -4,6 +4,7 @@ import LinkedText from "../ui/base/LinkedText";
 import {store} from "../Redux";
 import * as action from "../Actions"
 import {SERVER_URL} from "../Globals";
+import "./UserForms.css"
 
 export default class RequestEmailValidationScreen extends React.Component {
     /**

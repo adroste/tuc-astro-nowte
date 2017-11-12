@@ -172,25 +172,9 @@ export default class UserRegistrationForm extends React.Component {
      * @returns {boolean} true if password is correct
      */
     verifyPassword = () => {
-        if(this.password.length === 0)
-        {
-            this.onPasswordError("this field is required");
-            return false;
-        }
-
-        if(this.password2.length === 0)
-        {
-            this.onPasswordError("please reenter the password below");
-            return false;
-        }
-
-        if(this.password2 !== this.password) {
-            this.onPasswordError("passwords don't match");
-            return false;
-        }
-
-        this.onPasswordError("");
-        return true;
+        const res = utility.verifyPasswordFields(this.password, this.password2);
+        this.onPasswordError(res);
+        return res === "";
     };
 
     /**
