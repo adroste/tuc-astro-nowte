@@ -25,7 +25,7 @@ class App extends Component {
                 <Route exact path="/awaiting-validation" component={AwaitingValidationScreen}/>
                 <Route exact path="/forgot-password" component={ForgotPasswordScreen}/>
                 <Route exact path="/request-email-validation" component={RequestEmailValidationScreen}/>
-                <Route exact path="/reset-password" component={ResetPasswordScreen}/>
+                <Route path="/reset-password/:passwordResetToken" component={ResetPasswordScreen}/>
                 <Route exact path="/reset-password-done" component={ResetPasswordDoneScreen}/>
                 <Route path="/email-validation-done/:emailValidationToken" component={EmailValidationDoneScreen}/>
                 <Route exact path="/awaiting-password-change" component={AwaitingPasswordChangeScreen}/>

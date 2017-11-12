@@ -15,11 +15,18 @@ export default class ResetPasswordScreen extends React.Component {
         return {};
     }
 
+    handleSuccessfulReset = () => {
+        this.props.history.push("/reset-password-done");
+    };
+
     render() {
         return (
             <div className="centered-form">
                 <div className="centered-form-inner">
-                    <ResetPasswordForm/>
+                    <ResetPasswordForm
+                        passwordResetToken={this.props.match.params.passwordResetToken}
+                        onSuccessfulReset={this.handleSuccessfulReset}
+                    />
                 </div>
             </div>
         );

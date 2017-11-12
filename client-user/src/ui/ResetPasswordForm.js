@@ -8,9 +8,14 @@ import {SERVER_URL} from "../Globals";
 export default class ResetPasswordForm extends React.Component {
     /**
      * propTypes
+     * @property {function()} onSuccessfulReset callback when the password was sucesfully reset
+     * @property {string} passwordResetToken token that can be used to reset the password
      */
     static get propTypes() {
-        return {};
+        return {
+            onSuccessfulReset: PropTypes.func.isRequired,
+            passwordResetToken: PropTypes.string.isRequired,
+        };
     }
 
     static get defaultProps() {
@@ -34,9 +39,8 @@ export default class ResetPasswordForm extends React.Component {
         if(!this.verifyPassword())
             return;
 
-        // TODO set token
         // try to reset the password
-        const resetToken = "dummy";
+        const resetToken = this.obtainToken();
         const url = SERVER_URL + '/api/user/change-password';
         fetch(url, {
             method: "PUT",
@@ -54,10 +58,14 @@ export default class ResetPasswordForm extends React.Component {
         );
     };
 
+    obtainToken = () => {
+        return this.props.passwordResetToken;
+    };
+
     handleServerResponse = (response) => {
         if(response.status === 204){
-            // succesfully sent email
-            this.props.history.push("reset-password-done");
+            // successfully sent email
+            this.props.onSuccessfulReset();
         }
         else{
             response.json().then(
@@ -116,11 +124,13 @@ export default class ResetPasswordForm extends React.Component {
                     label="New password"
                     onChange={(value) => this.newPassword = value}
                     child={this.state.passwordChild}
+                    type="password"
                 />
                 <LabelledInputBox
                     label="Confirm new password"
                     onChange={(value) => this.newPassword2 = value}
                     child={<br/>}
+                    type="password"
                 />
                 <Button
                     label="Submit"

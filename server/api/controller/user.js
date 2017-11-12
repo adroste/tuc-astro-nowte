@@ -29,8 +29,7 @@ const MAIL_ACTIVATE_USER_BODY = config.get('templates.mail.activateUserAccount.b
 const REQUEST_URL_VALIDATE_EMAIL = FRONTEND_URL + '/email-validation-done/:token';
 const MAIL_RESET_PASSWORD_SUBJECT = config.get('templates.mail.resetPassword.subject');
 const MAIL_RESET_PASSWORD_BODY = config.get('templates.mail.resetPassword.body');
-// TODO fix link!!!
-const REQUEST_URL_RESET_PASSWORD = FRONTEND_URL + '/PLACEHOLDER/:token';
+const REQUEST_URL_RESET_PASSWORD = FRONTEND_URL + '/reset-password/:token';
 
 
 // -------------------------------------------
