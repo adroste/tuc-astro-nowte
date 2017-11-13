@@ -26,6 +26,17 @@ export default class LoginScreen extends React.Component {
         this.props.history.push("/forgot-password");
     };
 
+    onUserLoggedInHandler = (token, email) => {
+        store.dispatch(action.requestValidation(token, email));
+        // TODO replace with actual login
+        alert("Logged in!");
+    };
+
+    onUserNotValidatedHandler = (email) => {
+        store.dispatch(action.requestValidation(email));
+        this.props.history.push("/request-email-validation");
+    };
+
     render() {
         return (
             <div className="centered-form">
@@ -33,6 +44,8 @@ export default class LoginScreen extends React.Component {
                     <UserLoginForm
                         onCreateAccountClick={this.onCreateAccountClickHandler}
                         onForgotPasswordClick={this.onForgotPasswordClickHandler}
+                        onUserLoggedIn={this.onUserLoggedInHandler}
+                        onUserNotValidated={this.onUserNotValidatedHandler}
                     />
                 </div>
             </div>

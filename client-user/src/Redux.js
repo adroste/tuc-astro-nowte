@@ -1,4 +1,6 @@
-import { createStore } from 'redux';
+import { createStore, combineReducers } from 'redux';
+import createHistory from 'history/createBrowserHistory'
+import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 
 /**
  * initial state
@@ -18,20 +20,34 @@ const dispatcher = (state = initialState, action) => {
     switch (action.type){
         case "LOGIN":
             return Object.assign({}, state, {
-                state: "logged_in",
                 token: action.token,
                 email: action.email
             });
 
         case "AWAIT_VALIDATION":
             return Object.assign({}, state, {
-               state: "request_email_validation",
                email: action.email
             });
+
+            // browser navigation
+        case "@@router/LOCATION_CHANGE":
+            return state;
 
         default:
             return state;
     }
 };
 
-export const store = createStore(dispatcher, initialState);
+// this will put different reducers (basically dispatch functions) into a single function
+// which calls all function provided sequentially
+// note that each dispatcher will have its own state.
+// the following state will look like: {routing: {routingState}, user: {userState}}
+const reducers = combineReducers({
+    routing: routerReducer,
+    user: dispatcher,
+});
+
+export const store = createStore(reducers, initialState);
+
+// advanced history that syncs navigation events with the store
+export const history = syncHistoryWithStore(createHistory(), store);

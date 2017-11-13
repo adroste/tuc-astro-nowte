@@ -14,11 +14,15 @@ export default class UserLoginForm extends React.Component {
      * propTypes
      * @property {function()} onCreateAccountClick callback when the user wants to create a new account
      * @property {function()} onForgotPasswordClick callback for the forgot password field
+     * @property {function(token: string, email: string)} onUserLoggedIn callback when the user successfully logged in
+     * @property {function(email: string)} onUserNotValidated callback when the user who tried to lock in has not verified his email yet
      */
     static get propTypes() {
         return {
             onCreateAccountClick: PropTypes.func.isRequired,
             onForgotPasswordClick: PropTypes.func.isRequired,
+            onUserLoggedIn: PropTypes.func.isRequired,
+            onUserNotValidated: PropTypes.func.isRequired
         };
     }
 
@@ -74,7 +78,7 @@ export default class UserLoginForm extends React.Component {
 
     handleSuccesfullRegistration = (body) => {
         // retrieve session token
-        store.dispatch(action.login(body.sessionToken, this.email));
+        this.props.onUserLoggedIn(body.sessionToken, this.email);
     };
 
     handleUnsuccesfullRegistration = (code, data) => {
@@ -84,7 +88,7 @@ export default class UserLoginForm extends React.Component {
         {
             if(data.error.message === "user account not validated")
             {
-                store.dispatch(action.requestValidation(this.email));
+                this.props.onUserNotValidated(this.email);
                 return;
             }
         }
