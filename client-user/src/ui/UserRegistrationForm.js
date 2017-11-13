@@ -187,9 +187,15 @@ export default class UserRegistrationForm extends React.Component {
         });
     };
 
+    handleKeyPress = (e) => {
+        if(e.key === "Enter"){
+            this.onClickHandler();
+        }
+    };
+
     render(){
         return (
-            <div className="UserRegistrationForm">
+            <div className="UserRegistrationForm" onKeyPress={this.handleKeyPress}>
                 <LabelledInputBox
                     label="Username"
                     name="name"

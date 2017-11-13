@@ -148,10 +148,16 @@ export default class UserLoginForm extends React.Component {
         });
     };
 
+    handleKeyPress = (e) => {
+        if(e.key === "Enter"){
+            this.handleLoginClick();
+        }
+    };
+
     render() {
 
         return (
-            <div className="UserLoginForm">
+            <div className="UserLoginForm" onKeyPress={this.handleKeyPress}>
                 <LabelledInputBox
                     label="Email"
                     name="email"
