@@ -114,10 +114,21 @@ export default class UserFileTreeForm extends React.Component {
                 <FileTree
                     label={username}
                     data={user.children}
+                    onFolderLoad={this.handleFolderLoad}
+                    onFileLoad={this.handleFileLoad}
                 />
             );
         }
         return rows;
+    };
+
+    handleFolderLoad = (node) => {
+        // TODO add text for loading
+        API.getFolder(node.id, (data) => this.handleFolderReceive(data, node), this.handleRequestError);
+    };
+
+    handleFileLoad = (file) => {
+        alert("opening file: " + JSON.stringify(file));
     };
 
     render() {
@@ -126,6 +137,8 @@ export default class UserFileTreeForm extends React.Component {
                 <FileTree
                     label="My Files"
                     data={this.state.root.children}
+                    onFolderLoad={this.handleFolderLoad}
+                    onFileLoad={this.handleFileLoad}
                 />
                 {this.getSharedFiles()}
             </div>

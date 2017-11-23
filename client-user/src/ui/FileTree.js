@@ -32,6 +32,8 @@ export default class FileTree extends React.Component {
         return {
             label: PropTypes.string.isRequired,
             data: PropTypes.object,
+            onFolderLoad: PropTypes.func,
+            onFileLoad: PropTypes.func,
         };
     }
 
@@ -69,10 +71,18 @@ export default class FileTree extends React.Component {
         }
 
         node.active = true;
+        let isFolder = false;
         if(node.children){
             node.toggled = toggled;
+            isFolder = true;
         }
         this.setState({cursor: node});
+
+        if(this.props.onFolderLoad && isFolder && toggled)
+            this.props.onFolderLoad(node);
+
+        if(this.props.onFileLoad && !isFolder)
+            this.props.onFileLoad(node);
     };
 
     render() {
