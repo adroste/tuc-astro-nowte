@@ -3,28 +3,36 @@ import PropTypes from 'prop-types';
 import {Treebeard, decorators} from "react-treebeard"
 
 // custom header decoration
-decorators.Header = ({style, node}) => {
+decorators.Header = (props) => {
 
-    const iconType = node.children ? 'folder' : 'file-text';
+    const iconType = props.node.children ? 'folder' : 'file-text';
     const iconClass = `fa fa-${iconType}`;
     const iconStyle = {marginRight: '5px'};
 
     return (
-        <div style={style.base}>
-            <div style={style.title}>
+        <div style={props.style.base}>
+            <div style={props.style.title}>
                 <i className={iconClass} style={iconStyle}/>
-                Thingy: {node.name}
+                Thingy: {props.node.name}
             </div>
         </div>
     );
 };
 
+/**
+ * this is a simple file tree
+ */
 export default class FileTree extends React.Component {
     /**
      * propTypes
+     * label {string} title of the file tree
+     * data {object} file structure
      */
     static get propTypes() {
-        return {};
+        return {
+            label: PropTypes.string.isRequired,
+            data: PropTypes.object,
+        };
     }
 
     static get defaultProps() {
@@ -70,9 +78,9 @@ export default class FileTree extends React.Component {
     render() {
         return (
             <div>
-                <h2>MyFiles</h2>
+                <h3>{this.props.label}</h3>
                 <Treebeard
-                    data={this.state.files}
+                    data={this.props.data}
                     onToggle={this.onToggle}
                     decorators = {decorators}
                 />
