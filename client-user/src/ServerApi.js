@@ -16,7 +16,7 @@ export const getFolder = (folderId, onSuccess, onError) => {
     switch (getRand(3)){
         case 0:
             // empty folder
-            onSuccess({files: [{name: "my first document", id: 0}]});
+            onSuccess({docs: [{name: "my first document", id: 0}]});
             return;
         case 1:
             onSuccess( {
@@ -24,7 +24,7 @@ export const getFolder = (folderId, onSuccess, onError) => {
                     {name: "my folder", id: 1},
                     {name: "my other folder", id: 2},
                 ],
-                files: [
+                docs: [
                     {name: "my file", id: 1},
                     {name: "my other file", id: 2},
                 ],
@@ -32,7 +32,7 @@ export const getFolder = (folderId, onSuccess, onError) => {
             return;
         case 2:
             onSuccess({
-                files: [
+                docs: [
                     {name: "aaaaiiisd.txt", id: 5},
                     {name: "test1233", id: 3},
                     {name: "test12343", id: 4},
@@ -49,14 +49,15 @@ export const getShares = (userId, onSuccess, onError) => {
         case 0:
             onSuccess({
                 users: [
-                    {name: "peter", email: "peter1@2.de", docs: [{name: "mydoc1", id: 14}], folder: []}
+                    {name: "peter", email: "peter1@2.de", id: 5, docs: [{name: "mydoc1", id: 14}], folder: []}
                 ]
             });
             return;
         case 1:
             onSuccess({
                 users: [
-                    {name: "hans", email: "hanspeter1@2.de", docs: [], folder: [{name: "my shared folder", id: 2324}]}
+                    {name: "peter", email: "peter1@2.de", id: 5, docs: [{name: "mydoc1", id: 14}], folder: []},
+                    {name: "hans", email: "hanspeter1@2.de", id: 6, docs: [], folder: [{name: "my shared folder", id: 2324}]}
                 ]
             });
             return;

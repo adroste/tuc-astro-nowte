@@ -64,8 +64,8 @@ export default class UserFileTreeForm extends React.Component {
         }
 
         // files
-        if(data.files) {
-            for(let child of data.files) {
+        if(data.docs) {
+            for(let child of data.docs) {
                 children.push({
                     name: child.name,
                     id: child.id
@@ -88,13 +88,15 @@ export default class UserFileTreeForm extends React.Component {
         if(!data.users)
             return;
 
-        for(let user in data.users)
+        for(let user of data.users)
         {
+            const folderData = this.convertServerFolderData(user);
             this.state.users.push({
                 name: user.name,
                 email: user.email,
                 id: user.id,
-                
+                // actual data
+                children: folderData,
             });
         }
     };
@@ -104,29 +106,22 @@ export default class UserFileTreeForm extends React.Component {
         alert(error);
     };
 
-    // member variables
-    sharedNames = ["Peter", "Günther"];
-
-    getSingleFileTree = (name) => {
-        return (
-          <FileTree
-            label={name}
-            data={{}}
-          />
-        );
-    };
-
     getSharedFiles = () => {
         let rows = [];
-        for(let i = 0; i < this.sharedNames.length; ++i){
-            rows.push(this.getSingleFileTree("Shared by " + this.sharedNames[i]));
+        for(let user of this.state.users){
+            const username = "Shared by " + user.name;
+            rows.push(
+                <FileTree
+                    label={username}
+                    data={user.children}
+                />
+            );
         }
         return rows;
     };
 
     render() {
         return (
-            // TODO center
             <div>
                 <FileTree
                     label="My Files"
