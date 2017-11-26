@@ -1,0 +1,11 @@
+.no-select {
+    user-select: none;
+}
+
+.header-icon {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.5em;
+}
+
+/* TODO fix vertical align of icons */

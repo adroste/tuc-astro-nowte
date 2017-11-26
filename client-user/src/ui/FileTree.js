@@ -1,19 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Treebeard, decorators} from "react-treebeard"
+import "./FileTree.css"
 
 // custom header decoration
 decorators.Header = (props) => {
 
-    const iconType = props.node.children ? 'folder' : 'file-text';
-    const iconClass = `fa fa-${iconType}`;
-    const iconStyle = {marginRight: '5px'};
+    const iconPath = props.node.children ? (
+        props.node.toggled? '/img/folder_open.svg' : '/img/folder_close.svg') : '/img/file.svg';
 
     return (
-        <div style={props.style.base}>
+        <div style={props.style.base} className="no-select">
             <div style={props.style.title}>
-                <i className={iconClass} style={iconStyle}/>
-                Thingy: {props.node.name}
+                <img src={iconPath} className="header-icon"/>
+                {props.node.name}
             </div>
         </div>
     );
@@ -88,7 +88,7 @@ export default class FileTree extends React.Component {
     render() {
         return (
             <div>
-                <h3>{this.props.label}</h3>
+                <h3 className="no-select">{this.props.label}</h3>
                 <Treebeard
                     data={this.props.data}
                     onToggle={this.onToggle}
@@ -124,7 +124,7 @@ const styles = {
                 display: 'block'
             },
             activeLink: {
-                background: '#31363F'
+                background: '#eee'
             },
             toggle: {
                 base: {
@@ -153,7 +153,7 @@ const styles = {
                 base: {
                     display: 'inline-block',
                     verticalAlign: 'top',
-                    color: '#9DA5AB'
+                    color: '#000'
                 },
                 connector: {
                     width: '2px',
@@ -174,7 +174,7 @@ const styles = {
                 paddingLeft: '19px'
             },
             loading: {
-                color: '#E2C089'
+                color: '#ff0000'
             }
         }
     }
