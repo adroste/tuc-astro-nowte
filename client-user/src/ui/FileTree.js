@@ -2,19 +2,43 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {Treebeard, decorators} from "react-treebeard"
 import "./FileTree.css"
+import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
+import {  } from "react-contextmenu";
 
+let uniqueContextId = 0;
 // custom header decoration
 decorators.Header = (props) => {
 
     const iconPath = props.node.children ? (
         props.node.toggled? '/img/folder_open.svg' : '/img/folder_close.svg') : '/img/file.svg';
 
+    const contextID = uniqueContextId++;
     return (
         <div style={props.style.base} className="no-select">
             <div style={props.style.title}>
-                <img src={iconPath} className="header-icon"/>
-                {props.node.name}
+                <ContextMenuTrigger id={contextID}>
+                    <div>
+                        <img src={iconPath} className="header-icon"/>
+                        {props.node.name}
+                    </div>
+                </ContextMenuTrigger>
+
+
             </div>
+            <ContextMenu id={contextID}>
+                <MenuItem onClick={(e) => {alert("bazinga");e.stopPropagation(); e.nativeEvent.stopImmediatePropagation();}}>
+                    New Document
+                </MenuItem>
+                <MenuItem onClick={(e) => {alert("bazinga");e.PreventDefault();}}>
+                    New Folder
+                </MenuItem>
+                <MenuItem onClick={(e) => {alert("bazinga");e.PreventDefault();}}>
+                    Delete
+                </MenuItem>
+                <MenuItem onClick={(e) => {alert("bazinga");e.PreventDefault();}}>
+                    Rename
+                </MenuItem>
+            </ContextMenu>
         </div>
     );
 };
