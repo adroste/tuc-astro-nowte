@@ -11,9 +11,10 @@
 const config = require('../../init/config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const mongoose = require('mongoose');
 const mailer = require('../../init/mailer-init');
 const User = require('../models/user').User;
+const Folder = require('../models/folder').Folder;
+const mongoose = require('mongoose');
 
 
 // -------------------------------------------
@@ -432,8 +433,9 @@ module.exports.createAndSendPasswordResetToken = createAndSendPasswordResetToken
  * Creates new user by
  * 1. checking password length (8 <= pw.len <= 100),
  * 2. hashing pw via bcrypt,
- * 3. creating user instance,
- * 4. saving user instance to db
+ * 3. creating root folder,
+ * 4. creating user instance,
+ * 5. saving user instance to db
  * and returning user
  * @param name
  * @param email
@@ -464,31 +466,55 @@ function createUser(name, email, password, cb) {
         if (err)
             return cb(err); // err.status is already set to 400 Bad Request
 
-        // 3. creating user instance
-        // TODO create root folder
-        const user = new User({
-            'name': name,
-            'email': email,
-            'password': hash
+        // userId
+        const userId = mongoose.Types.ObjectId();
+
+        // 3. create root folder
+        let rootFolder = new Folder({
+            'title': '/',
+            'parentId': null,
+            'ownerId': userId
         });
 
-        // 4. saving user instance
-        user.save((err, userEntry) => {
+        rootFolder.save((err, folderEntry) => {
             if (err) {
-                if (err.message.startsWith('User validation failed')) {
-                    err.status = 400; // Bad Request
-                    return cb(err);
-                }
-                // 11000: duplicate key (for email)
-                if (err.name === 'MongoError' && err.code === 11000  && err.message.indexOf(user.email) !== -1) {
-                    const err = new Error('email already exists');
-                    err.status = 409; // Conflict
-                    return cb(err);
-                }
                 console.error(err);
                 return cb(new Error('unknown mongo error'));
             }
-            return cb(null, userEntry);
+
+            // 4. creating user instance
+            const user = new User({
+                '_id': userId,
+                'name': name,
+                'email': email,
+                'password': hash,
+                'folderId': folderEntry._id
+            });
+
+            // 5. saving user instance
+            user.save((err, userEntry) => {
+                if (err) {
+                    // remove previously created folder
+                    folderEntry.remove(err => {
+                        if (err)
+                            console.error(err);
+                    });
+
+                    if (err.message.startsWith('User validation failed')) {
+                        err.status = 400; // Bad Request
+                        return cb(err);
+                    }
+                    // 11000: duplicate key (for email)
+                    if (err.name === 'MongoError' && err.code === 11000  && err.message.indexOf(user.email) !== -1) {
+                        const err = new Error('email already exists');
+                        err.status = 409; // Conflict
+                        return cb(err);
+                    }
+                    console.error(err);
+                    return cb(new Error('unknown mongo error'));
+                }
+                return cb(null, userEntry);
+            });
         });
     });
 }
@@ -504,7 +530,7 @@ module.exports.createUser = createUser;
  * and returning session token
  * @param email
  * @param password
- * @param cb func(err, sessionToken, name) name corresponds the users name e.g. "Max Mustermann"
+ * @param cb func(err, sessionToken, name, folderId) name corresponds the users name e.g. "Max Mustermann", folderId is the users root folder
  */
 function login(email, password, cb) {
     if (typeof email !== 'string') {
@@ -522,7 +548,7 @@ function login(email, password, cb) {
     email = email.trim().toLowerCase();
 
     // 1. find user by email
-    User.findOne({ email: email }, { _id: 1, name:1, emailValidated: 1, password: 1, sessions: 1 }, (err, userEntry) => {
+    User.findOne({ email: email }, { _id: 1, name:1, emailValidated: 1, password: 1, sessions: 1, folderId: 1 }, (err, userEntry) => {
         if (err) {
             console.error(err);
             return cb(new Error('unknown mongo error'));
@@ -565,7 +591,7 @@ function login(email, password, cb) {
                 createSessionToken(userEntry._id.toString(), newSession._id.toString(), (err, sessionToken) => {
                     if (err)
                         return cb(new Error('could not create session token'));
-                    return cb(null, sessionToken, userEntry.name);
+                    return cb(null, sessionToken, userEntry.name, userEntry.folderId.toString());
                 });
             });
         });
