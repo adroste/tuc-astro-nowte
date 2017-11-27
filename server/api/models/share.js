@@ -24,8 +24,8 @@ const shareSchema = new Schema({
         ref: 'User',
         required: [true, 'userId is required']
     },
-    permission: {
-        type: Number,
+    permissions: {
+        type: Schema.Types.Mixed,
         required: [true, 'permission is required']
     }
 });
