@@ -4,6 +4,7 @@ import {Treebeard, decorators} from "react-treebeard"
 import "./FileTree.css"
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import {  } from "react-contextmenu";
+import {getFolder} from "../ServerApi";
 
 let uniqueContextId = 0;
 
@@ -22,6 +23,8 @@ export default class FileTree extends React.Component {
      * onFolderLoad {function(folder: object)} called when a folder should be retrieved (folder is the folder node)
      * onFileLoad {function(file: object)} called when a file should be opened (file is the file node)
      * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created)
+     * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created)
+     * onDeleteClick {function(node: object)} called when the user wants to delete a file/folder
      */
     static get propTypes() {
         return {
@@ -29,7 +32,9 @@ export default class FileTree extends React.Component {
             data: PropTypes.object.isRequired,
             onFolderLoad: PropTypes.func.isRequired,
             onFileLoad: PropTypes.func.isRequired,
-            onFileCreateClick: PropTypes.func.isRequired
+            onFileCreateClick: PropTypes.func.isRequired,
+            onFolderCreateClick: PropTypes.func.isRequired,
+            onDeleteClick: PropTypes.func.isRequired,
         };
     }
 
@@ -81,30 +86,39 @@ export default class FileTree extends React.Component {
             this.props.onFileLoad(node);
     };
 
-    onCreateFileClick = (node) => {
+    /**
+     * returns the folder of the node
+     * @param node file tree node
+     * @returns node if node is a folder, node.parent of node is a file, null if it is a file without parent
+     */
+    getFolder = (node) => {
         if(node.children)
-        {
-            // folder was selected
-            this.props.onFileCreateClick(node);
-        }
-        else
-        {
-            // search the parent
-            if(node.parent !== undefined && node.parent !== null) {
-                this.props.onFileCreateClick(node.parent);
-            }
-            else {
-                alert("cannot identify parent folder");
-            }
+            return node;
+        if(node.parent !== undefined && node.parent !== null)
+            return node.parent;
+        return null;
+    };
+
+    onCreateFileClick = (node) => {
+        const folder = this.getFolder(node);
+        if(folder !== null) {
+            this.props.onFileCreateClick(folder);
+        }else {
+            alert("cannot identify parent folder");
         }
     };
 
     onCreateFolderClick = (node) => {
-        alert("new folder");
+        const folder = this.getFolder(node);
+        if(folder !== null){
+            this.props.onFolderCreateClick(folder);
+        }else {
+            alert("cannot identify parent folder");
+        }
     };
 
     onDeleteClick = (node) => {
-        alert("delete");
+        this.props.onDeleteClick(node);
     };
 
     onRenameClick = (node) => {

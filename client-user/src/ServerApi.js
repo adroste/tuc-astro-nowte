@@ -64,3 +64,43 @@ export const getShares = (userId, onSuccess, onError) => {
     }
     onError("unknown");
 };
+
+export const createFile = (folderId, filename, onSuccess, onError) => {
+
+};
+
+export const createFolder = (folderId, foldername, onSuccess, onError) => {
+
+};
+
+export const removeFile = (fileId, onSuccess, onError) => {
+    onSuccess();
+};
+
+export const removeFolder = (folderId, onSuccess, onError) => {
+    onSuccess();
+};
+
+export const shareFile = (fileId, userId, permission, onSuccess, onError) => {
+
+};
+
+export const shareFolder = (fileId, userId, permission, onSuccess, onError) => {
+
+};
+
+export const renameFile = (fileId, title, onSuccess, onError) => {
+
+};
+
+export const renameFolder = (folderId, title, onSuccess, onError) => {
+
+};
+
+export const moveFile = (fileId, folderId, onSuccess, onError) => {
+
+};
+
+export const moveFolder = (srcFolderId, dstFolderId, onSuccess, onError) => {
+
+};

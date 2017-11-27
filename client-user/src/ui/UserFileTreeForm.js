@@ -108,20 +108,49 @@ export default class UserFileTreeForm extends React.Component {
         alert(error);
     };
 
+    getFileTree = (label, root) => {
+        return (
+            <FileTree
+                label={label}
+                data={root.children}
+                onFolderLoad={this.handleFolderLoad}
+                onFileLoad={this.handleFileLoad}
+                onFileCreateClick={this.handleFileCreateClick}
+                onFolderCreateClick={this.handleFolderCreateClick}
+                onDeleteClick={this.handleDeleteClick}
+            />
+        );
+    };
+
     getSharedFiles = () => {
         let rows = [];
         for(let user of this.state.users){
             const username = "Shared by " + user.name;
             rows.push(
-                <FileTree
-                    label={username}
-                    data={user.children}
-                    onFolderLoad={this.handleFolderLoad}
-                    onFileLoad={this.handleFileLoad}
-                />
+                this.getFileTree(username, user)
             );
         }
         return rows;
+    };
+
+    removeNode = (node) => {
+        if(!node.parent)
+            return;
+        // remove link from parent
+        const children = node.parent.children;
+        let index = -1;
+        for(let i = 0; i < children.length; ++i) {
+            if(children[i].id === node.id) {
+                if(children[i].children === node.children){
+                    index = i;
+                    break;
+                }
+            }
+        }
+        if(index !== -1) {
+            children.splice(index, 1);
+            this.forceUpdate();
+        }
     };
 
     handleFolderLoad = (node) => {
@@ -137,16 +166,22 @@ export default class UserFileTreeForm extends React.Component {
         alert("creating in: " + folderNode.name);
     };
 
+    handleFolderCreateClick = (folderNode) => {
+        alert("creating folder in: " + folderNode.name);
+    };
+
+    handleDeleteClick = (node) => {
+        if(node.children) {
+            API.removeFolder(node.id, () => this.removeNode(node), this.handleRequestError);
+        } else {
+            API.removeFile(node.id, () => this.removeNode(node), this.handleRequestError);
+        }
+    };
+
     render() {
         return (
             <div>
-                <FileTree
-                    label="My Files"
-                    data={this.state.root.children}
-                    onFolderLoad={this.handleFolderLoad}
-                    onFileLoad={this.handleFileLoad}
-                    onFileCreateClick={this.handleFileCreateClick}
-                />
+                {this.getFileTree("My Files", this.state.root)}
                 {this.getSharedFiles()}
             </div>
         );
