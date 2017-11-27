@@ -11,6 +11,7 @@ const cors = require('cors');
 const jsonParser = require('body-parser').json;
 const logger = require('morgan');
 const userRoutes = require('./api/routes/user');
+const fileRoutes = require('./api/routes/file');
 const db = require('./init/mongo-init');
 
 const PORT =  config.get('server.http-port');
@@ -26,6 +27,7 @@ app.use(jsonParser());
 
 // routes
 app.use('/api/user', userRoutes);
+app.use('/api/file', fileRoutes);
 
 
 // err handling
@@ -38,6 +40,8 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
     res.status(err.status || 500);
+    if (err.status === 401)
+        res.setHeader('WWW-Authenticate', err.authHeader);
     res.json({
         error: {
             message: err.message
