@@ -530,7 +530,7 @@ module.exports.createUser = createUser;
  * and returning session token
  * @param email
  * @param password
- * @param cb func(err, sessionToken, name, folderId) name corresponds the users name e.g. "Max Mustermann", folderId is the users root folder
+ * @param cb func(err, sessionToken, name, folderId, userId) name corresponds the users name e.g. "Max Mustermann", folderId is the users root folder
  */
 function login(email, password, cb) {
     if (typeof email !== 'string') {
@@ -591,7 +591,7 @@ function login(email, password, cb) {
                 createSessionToken(userEntry._id.toString(), newSession._id.toString(), (err, sessionToken) => {
                     if (err)
                         return cb(new Error('could not create session token'));
-                    return cb(null, sessionToken, userEntry.name, userEntry.folderId.toString());
+                    return cb(null, sessionToken, userEntry.name, userEntry.folderId.toString(), userEntry._id.toString());
                 });
             });
         });
