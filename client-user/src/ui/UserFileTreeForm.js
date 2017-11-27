@@ -41,11 +41,13 @@ export default class UserFileTreeForm extends React.Component {
         API.getShares(userRootFolderID, this.handleUserShares, this.handleRequestError);
     }
 
+
     /**
      * converts data received from the server into
      * a format that the file tree understands.
      * returns the children of the folder
      * @param data data from API.getFolder.
+     * @param parent
      */
     convertServerFolderData = (data, parent) => {
         let children = [];
