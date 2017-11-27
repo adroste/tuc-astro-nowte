@@ -688,6 +688,18 @@ function revokeAllSessions(userId, cb) {
 module.exports.revokeAllSessions = revokeAllSessions;
 
 
+// TODO proper refactor instead of this BS
+function validateSessionAsyncWrapper(sessionToken) {
+    return new Promise((resolve, reject) => {
+        validateSession(sessionToken, (err, userId) => {
+            if (err)
+                reject(err);
+            else
+                resolve(userId);
+        });
+    });
+}
+module.exports.validateSessionAsyncWrapper = validateSessionAsyncWrapper;
 /**
  * Validates a provided session (as sessionToken) by
  * 1. extracting jwt
