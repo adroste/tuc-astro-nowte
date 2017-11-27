@@ -47,7 +47,7 @@ export default class UserFileTreeForm extends React.Component {
      * returns the children of the folder
      * @param data data from API.getFolder.
      */
-    convertServerFolderData = (data) => {
+    convertServerFolderData = (data, parent) => {
         let children = [];
 
         // add children
@@ -59,6 +59,7 @@ export default class UserFileTreeForm extends React.Component {
                     id: child.id,
                     toggled: false,
                     children: [],
+                    parent: parent,
                 });
             }
         }
@@ -68,7 +69,8 @@ export default class UserFileTreeForm extends React.Component {
             for(let child of data.docs) {
                 children.push({
                     name: child.name,
-                    id: child.id
+                    id: child.id,
+                    parent: parent,
                 });
             }
         }
@@ -78,7 +80,7 @@ export default class UserFileTreeForm extends React.Component {
 
     handleFolderReceive = (data, folderNode) => {
         // set the root tree
-        folderNode.children = this.convertServerFolderData(data);
+        folderNode.children = this.convertServerFolderData(data, folderNode);
         folderNode.toggled = true;
 
 
@@ -90,7 +92,7 @@ export default class UserFileTreeForm extends React.Component {
 
         for(let user of data.users)
         {
-            const folderData = this.convertServerFolderData(user);
+            const folderData = this.convertServerFolderData(user, null);
             this.state.users.push({
                 name: user.name,
                 email: user.email,
@@ -128,7 +130,11 @@ export default class UserFileTreeForm extends React.Component {
     };
 
     handleFileLoad = (file) => {
-        alert("opening file: " + JSON.stringify(file));
+        alert("opening file: " + file.name);
+    };
+
+    handleFileCreateClick = (folderNode) => {
+        alert("creating in: " + folderNode.name);
     };
 
     render() {
@@ -139,6 +145,7 @@ export default class UserFileTreeForm extends React.Component {
                     data={this.state.root.children}
                     onFolderLoad={this.handleFolderLoad}
                     onFileLoad={this.handleFileLoad}
+                    onFileCreateClick={this.handleFileCreateClick}
                 />
                 {this.getSharedFiles()}
             </div>

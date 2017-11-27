@@ -6,42 +6,10 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import {  } from "react-contextmenu";
 
 let uniqueContextId = 0;
-// custom header decoration
-decorators.Header = (props) => {
-
-    const iconPath = props.node.children ? (
-        props.node.toggled? '/img/folder_open.svg' : '/img/folder_close.svg') : '/img/file.svg';
-
-    const contextID = uniqueContextId++;
-    return (
-        <div style={props.style.base} className="no-select">
-            <div style={props.style.title}>
-                <ContextMenuTrigger id={contextID}>
-                    <div>
-                        <img src={iconPath} className="header-icon"/>
-                        {props.node.name}
-                    </div>
-                </ContextMenuTrigger>
 
 
-            </div>
-            <ContextMenu id={contextID}>
-                <MenuItem onClick={(e) => {alert("bazinga");e.stopPropagation(); e.nativeEvent.stopImmediatePropagation();}}>
-                    New Document
-                </MenuItem>
-                <MenuItem onClick={(e) => {alert("bazinga");e.PreventDefault();}}>
-                    New Folder
-                </MenuItem>
-                <MenuItem onClick={(e) => {alert("bazinga");e.PreventDefault();}}>
-                    Delete
-                </MenuItem>
-                <MenuItem onClick={(e) => {alert("bazinga");e.PreventDefault();}}>
-                    Rename
-                </MenuItem>
-            </ContextMenu>
-        </div>
-    );
-};
+
+
 
 /**
  * this is a simple file tree
@@ -51,13 +19,17 @@ export default class FileTree extends React.Component {
      * propTypes
      * label {string} title of the file tree
      * data {object} file structure
+     * onFolderLoad {function(folder: object)} called when a folder should be retrieved (folder is the folder node)
+     * onFileLoad {function(file: object)} called when a file should be opened (file is the file node)
+     * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created)
      */
     static get propTypes() {
         return {
             label: PropTypes.string.isRequired,
-            data: PropTypes.object,
-            onFolderLoad: PropTypes.func,
-            onFileLoad: PropTypes.func,
+            data: PropTypes.object.isRequired,
+            onFolderLoad: PropTypes.func.isRequired,
+            onFileLoad: PropTypes.func.isRequired,
+            onFileCreateClick: PropTypes.func.isRequired
         };
     }
 
@@ -88,7 +60,7 @@ export default class FileTree extends React.Component {
     }
 
 
-    onToggle = (node, toggled) => {
+    handleToggle = (node, toggled) => {
         // disable the last element that was clicked
         if(this.state.cursor){
             this.state.cursor.active = false;
@@ -109,13 +81,95 @@ export default class FileTree extends React.Component {
             this.props.onFileLoad(node);
     };
 
+    onCreateFileClick = (node) => {
+        if(node.children)
+        {
+            // folder was selected
+            this.props.onFileCreateClick(node);
+        }
+        else
+        {
+            // search the parent
+            if(node.parent !== undefined && node.parent !== null) {
+                this.props.onFileCreateClick(node.parent);
+            }
+            else {
+                alert("cannot identify parent folder");
+            }
+        }
+    };
+
+    onCreateFolderClick = (node) => {
+        alert("new folder");
+    };
+
+    onDeleteClick = (node) => {
+        alert("delete");
+    };
+
+    onRenameClick = (node) => {
+        alert("rename");
+    };
+
+    onShareClick = (node) => {
+        alert("share");
+    };
+
     render() {
+        // helper to stop bubbling event from context menu
+        const stopEvent = e => {
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+        };
+
+        // custom header decoration
+        decorators.Header = (props) => {
+
+            const iconPath = props.node.children ? (
+                props.node.toggled? '/img/folder_open.svg' : '/img/folder_close.svg') : '/img/file.svg';
+
+            // TODO put context menu in a container and implement drag and drop as well
+            const contextID = uniqueContextId++;
+            return (
+                <div style={props.style.base} className="no-select">
+                    <div style={props.style.title}>
+                        <ContextMenuTrigger id={contextID}>
+                            <div>
+                                <img src={iconPath} className="header-icon"/>
+                                {props.node.name}
+                            </div>
+                        </ContextMenuTrigger>
+
+
+                    </div>
+                    <ContextMenu id={contextID}>
+                        <MenuItem onClick={(e) => { this.onCreateFileClick(props.node); stopEvent(e);}}>
+                            <img src={"/img/file_add.svg"} className="header-icon"/> New Document
+                        </MenuItem>
+                        <MenuItem onClick={(e) => { this.onCreateFolderClick(props.node); stopEvent(e);}}>
+                            <img src={"/img/folder_add.svg"} className="header-icon"/> New Folder
+                        </MenuItem>
+                        <MenuItem onClick={(e) => { this.onShareClick(props.node); stopEvent(e);}}>
+                            <img src={"/img/people.svg"} className="header-icon"/> Share
+                        </MenuItem>
+                        <MenuItem className="no-select" onClick={(e) => stopEvent(e)} divider/>
+                        <MenuItem onClick={(e) => { this.onDeleteClick(props.node); stopEvent(e);}}>
+                            <img src={"/img/trash.svg"} className="header-icon"/> Delete
+                        </MenuItem>
+                        <MenuItem onClick={(e) => { this.onRenameClick(props.node); stopEvent(e);}}>
+                            <img src={"/img/label.svg"} className="header-icon"/> Rename
+                        </MenuItem>
+                    </ContextMenu>
+                </div>
+            );
+        };
+
         return (
             <div>
                 <h3 className="no-select">{this.props.label}</h3>
                 <Treebeard
                     data={this.props.data}
-                    onToggle={this.onToggle}
+                    onToggle={this.handleToggle}
                     decorators = {decorators}
                     style = {styles}
                 />
