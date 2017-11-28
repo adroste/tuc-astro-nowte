@@ -21,6 +21,7 @@ export default class FileTree extends React.Component {
      * label {string} title of the file tree
      * data {object} file structure
      * onFolderLoad {function(folder: object)} called when a folder should be retrieved (folder is the folder node)
+     * onFolderClose {function(folder: object)} called when a folder should be closed (folder is the folder node)
      * onFileLoad {function(file: object)} called when a file should be opened (file is the file node)
      * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created)
      * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created)
@@ -31,6 +32,7 @@ export default class FileTree extends React.Component {
             label: PropTypes.string.isRequired,
             data: PropTypes.object.isRequired,
             onFolderLoad: PropTypes.func.isRequired,
+            onFolderClose: PropTypes.func.isRequired,
             onFileLoad: PropTypes.func.isRequired,
             onFileCreateClick: PropTypes.func.isRequired,
             onFolderCreateClick: PropTypes.func.isRequired,
@@ -67,7 +69,20 @@ export default class FileTree extends React.Component {
 
     handleToggle = (node, toggled) => {
         // disable the last element that was clicked
-        if(this.state.cursor){
+
+        const isFolder = node.children !== undefined;
+        if(isFolder){
+            if(toggled){
+                this.props.onFolderLoad(node);
+            }
+            else{
+                this.props.onFolderClose(node);
+            }
+        }
+        else{
+            this.props.onFileLoad(node);
+        }
+        /*if(this.state.cursor){
             this.state.cursor.active = false;
         }
 
@@ -83,7 +98,7 @@ export default class FileTree extends React.Component {
             this.props.onFolderLoad(node);
 
         if(this.props.onFileLoad && !isFolder)
-            this.props.onFileLoad(node);
+            */
     };
 
     /**
@@ -178,15 +193,27 @@ export default class FileTree extends React.Component {
             );
         };
 
+        decorators.Loading = (props) => {
+            return (
+              <div style={props.style}>
+                  loading...
+              </div>
+            );
+        };
+
         return (
             <div>
                 <h3 className="no-select">{this.props.label}</h3>
-                <Treebeard
+                {
+                    this.props.data.length === 0? <div>loading...</div>:
+
+                    <Treebeard
                     data={this.props.data}
                     onToggle={this.handleToggle}
                     decorators = {decorators}
                     style = {styles}
-                />
+                    />
+                }
             </div>
         );
     }
@@ -266,7 +293,7 @@ const styles = {
                 paddingLeft: '19px'
             },
             loading: {
-                color: '#ff0000'
+                color: '#111'
             }
         }
     }
