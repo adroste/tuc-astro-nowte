@@ -28,34 +28,42 @@ export default class UserFileTreeForm extends React.Component {
 
 
         // TODO set correct user root folder
-        const userRootFolderID = 0;
+        this.root = 0;
         this.state = {
-            // own root folder
-            root: userRootFolderID,
-            // users that shared something with me
-            users: [],
+            // user root folder
+            root: {
+                children: [],
+            },
 
-            // folders dictionary
-            folder: {},
-
-            // documents dictionary
-            docs: {},
-
-            // the node with focus
-            activeNode: {
-                id: null,
-                isFolder: false,
-            }
+            // shared by other users
+            users: []
         };
 
         // add root folder entry
-        this.state.folder[userRootFolderID] = this.makeUnloadedFolder("root", userRootFolderID, null);
+        this.folder[this.root] = this.makeUnloadedFolder("root", this.root, null);
     }
+
+    // own root folder
+    root = undefined;
+    // users that shared something with me
+    users = [];
+
+    // folders dictionary
+    folder = {};
+
+    // documents dictionary
+    docs = {};
+
+    // the node with focus
+    activeNode = {
+        id: null,
+        isFolder: false,
+    };
 
     componentDidMount() {
         // request root folder and shares
         // TODO replace
-        API.getFolder(this.state.root, (data) => this.handleFolderReceive(data, this.state.root), this.handleRequestError);
+        API.getFolder(this.root, (data) => this.handleFolderReceive(data, this.root), this.handleRequestError);
         //API.getShares(userRootFolderID, this.handleUserShares, this.handleRequestError);
     }
 
@@ -117,18 +125,15 @@ export default class UserFileTreeForm extends React.Component {
 
     handleFolderReceive = (data, folderId) => {
         // set the root tree
-        const folderDict = copy(this.state.folder);
-        const docsDict = copy(this.state.docs);
+        const folderDict = this.folder;
+        const docsDict = this.docs;
 
         this.loadServerFolderData(data, folderId, folderDict, docsDict);
 
-        this.setState({
-            folder: folderDict,
-            docs: docsDict,
-        });
+        this.recomputeFolderViews();
     };
 
-    handleUserShares = (data) => {
+    /*handleUserShares = (data) => {
         if(!data.users)
             return;
 
@@ -143,7 +148,7 @@ export default class UserFileTreeForm extends React.Component {
                 children: folderData,
             });
         }
-    };
+    };*/
 
     handleRequestError = (error) => {
         // TODO make prettier
@@ -167,6 +172,7 @@ export default class UserFileTreeForm extends React.Component {
     };
 
     getSharedFiles = () => {
+        // TODO update
         let rows = [];
         for(let user of this.state.users){
             const username = "Shared by " + user.name;
@@ -181,41 +187,34 @@ export default class UserFileTreeForm extends React.Component {
         // TODO add text for loading
 
         // set folder to load
-        let folderDict = copy(this.state.folder);
+        let folderDict = this.folder;
         folderDict[node.id].toggled = true;
-        this.setState({
-            folder: folderDict,
-            activeNode: {
-                id: node.id,
-                isFolder: true,
-            }
-        });
+
+        this.activeNode.id = node.id;
+        this.activeNode.isFolder = true;
+
+        this.recomputeFolderViews();
 
         // request content if not loaded
-        if(this.state.folder[node.id].loading)
+        if(this.folder[node.id].loading)
             API.getFolder(node.id, (data) => this.handleFolderReceive(data, node.id), this.handleRequestError);
     };
 
     handleFolderClose = (node) => {
         // just set toggled to false
-        let folderDict = copy(this.state.folder);
+        let folderDict = this.folder;
         folderDict[node.id].toggled = false;
-        this.setState({
-            folder: folderDict,
-            activeNode: {
-                id: node.id,
-                isFolder: true,
-            }
-        });
+
+        this.activeNode.id = node.id;
+        this.activeNode.isFolder = true;
+
+        this.recomputeFolderViews();
     };
 
     handleFileLoad = (file) => {
-        this.setState({
-           activeNode: {
-               id: file.id,
-               isFolder: false,
-           }
-        });
+        this.activeNode.id = file.id;
+        this.activeNode.isFolder = false;
+
         alert("opening file: " + file.name);
     };
 
@@ -229,9 +228,9 @@ export default class UserFileTreeForm extends React.Component {
 
     removeNode = (id, isFolder) => {
         const node =
-            isFolder? this.state.folder[id] : this.state.docs[id];
+            isFolder? this.folder[id] : this.docs[id];
         // remove link from parent
-        let folderDict = copy(this.state.folder);
+        let folderDict = this.folder;
         let parent = folderDict[node.parent];
         const idx = isFolder?
             parent.folder.indexOf(id) : parent.docs.indexOf(id);
@@ -243,9 +242,7 @@ export default class UserFileTreeForm extends React.Component {
                 parent.docs.splice(idx, 1);
             }
 
-            this.setState ({
-                folder: folderDict,
-            });
+            this.recomputeFolderViews();
         }
     };
 
@@ -257,16 +254,27 @@ export default class UserFileTreeForm extends React.Component {
         }
     };
 
+    recomputeFolderViews = () => {
+        // for the user
+        let userTree = this.loadFolderView(this.root, null);
+
+        // TODO shared thingies
+
+        this.setState({
+            root: userTree,
+        });
+    };
+
     loadFolderView = (folderId, parent) => {
         // find node
-        const node = this.state.folder[folderId];
+        const node = this.folder[folderId];
 
         let view = {
             name: node.name,
             id: node.id,
             toggled: node.toggled,
             loading: node.loading,
-            active: (this.state.activeNode.isFolder && this.state.activeNode.id === folderId),
+            active: (this.activeNode.isFolder && this.activeNode.id === folderId),
             children: [],
             parent: parent,
         };
@@ -284,12 +292,12 @@ export default class UserFileTreeForm extends React.Component {
     };
 
     loadDocView = (docId, parent) => {
-        const node = this.state.docs[docId];
+        const node = this.docs[docId];
 
         return {
             name: node.name,
             id: node.id,
-            active: (!this.state.activeNode.isFolder && this.state.activeNode.id === docId),
+            active: (!this.activeNode.isFolder && this.activeNode.id === docId),
             parent: parent,
         };
     };
@@ -297,7 +305,7 @@ export default class UserFileTreeForm extends React.Component {
     render() {
         return (
             <div>
-                {this.getFileTree("My Files", this.loadFolderView(this.state.root, null))}
+                {this.getFileTree("My Files", this.state.root)}
                 {this.getSharedFiles()}
             </div>
         );
