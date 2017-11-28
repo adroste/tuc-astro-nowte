@@ -19,38 +19,6 @@ const utility = require('./utility');
 // File actions
 // -------------------------------------------
 /**
- * Retrieves user-permissions for a specified file
- * @param userId
- * @param fileId
- * @param isFolder
- * @returns {Promise.<*|{read: boolean, annotate: boolean, edit: boolean, manage: boolean}>}
- */
-async function getFilePermissions(userId, fileId, isFolder) {
-    const projection = { ownerId: 1, shareIds: 1 };
-    let fileEntry;
-    try {
-        fileEntry = isFolder ?
-            await Folder.findById(fileId, projection)
-            : await Document.findById(fileId, projection);
-    } catch (err) {
-        utility.throwAndLog(err, 'unknown mongo error');
-    }
-
-    if (fileEntry.ownerId.toString() === userId)
-        return utility.createPermissionsObject(true, true, true, true);
-
-    const shares = await Share.find({ _id: { $in: fileEntry.shareIds }}, { userId: 1, permissions: 1});
-    const shareEntryForUser = shares.find((elem) => {
-        return elem.userId === userId;
-    });
-    return shareEntryForUser === undefined ?
-        utility.createPermissionsObject(false, false, false, false)
-        : utility.fixPermissionsObject(shareEntryForUser.permissions);
-}
-module.exports.getFilePermissions = getFilePermissions;
-
-
-/**
  * Checks if provided title is already existent in specified folder
  * @param title
  * @param isFolder specified is title is folder or document title
@@ -90,34 +58,33 @@ module.exports.checkTitleIsNoDuplicate = checkTitleIsNoDuplicate;
 
 /**
  * Creates a file (folder/document) in specified folder (parentId) with title
- * @param ownerId userId of owner
+ * @param userId userId of user requesting create
  * @param parentId id of parent folder
  * @param isFolder true if folder, false if document
  * @param title
  * @returns {Promise.<string>}
  */
-async function create(ownerId, parentId, isFolder, title) {
-    utility.requireVarWithType('ownerId', 'string', ownerId);
+async function create(userId, parentId, isFolder, title) {
+    utility.requireVarWithType('userId', 'string', userId);
     utility.requireVarWithType('parentId', 'string', parentId);
     utility.requireVarWithType('title', 'string', title);
     utility.requireVarWithType('isFolder', 'boolean', isFolder);
     title = title.trim();
 
-    // title is no duplicate
+    // check user is allowed to create file in parent folder
+    const permissions = await getFilePermissions(userId, parentId, true);
+    utility.conditionalThrowWithStatus(permissions.permissions.manage === false, 'not allowed to manage parentId', 403);
+
+    // check title is no duplicate
     utility.conditionalThrowWithStatus(
         !await checkTitleIsNoDuplicate(title, isFolder, parentId),
         'title already exists', 409);
-
-    // user is allowed to create file in parent folder
-    const permissions = await getFilePermissions(ownerId, parentId, true);
-    utility.conditionalThrowWithStatus(permissions.manage === false, 'not allowed to manage parentId', 403);
-
 
     // create folder/document (file)
     let file = {
         'title': title,
         'parentId': parentId,
-        'ownerId': ownerId
+        'ownerId': permissions.ownerId
     };
     file = isFolder ? new Folder(file) : new Document(file);
     // save file to db
@@ -145,3 +112,38 @@ async function create(ownerId, parentId, isFolder, title) {
     return file._id.toString();
 }
 module.exports.create = create;
+
+
+/**
+ * Retrieves user-permissions and ownerId for a specified file
+ * @param userId
+ * @param fileId
+ * @param isFolder
+ * @returns {Promise.<{ownerId: string, permissions: {read: boolean, annotate: boolean, edit: boolean, manage: boolean}}>}
+ */
+async function getFilePermissions(userId, fileId, isFolder) {
+    const projection = { ownerId: 1, shareIds: 1 };
+    let fileEntry;
+    try {
+        fileEntry = isFolder ?
+            await Folder.findById(fileId, projection)
+            : await Document.findById(fileId, projection);
+    } catch (err) {
+        utility.throwAndLog(err, 'unknown mongo error');
+    }
+
+    if (fileEntry.ownerId.toString() === userId)
+        return { ownerId: userId, permissions: utility.createPermissionsObject(true, true, true, true) };
+
+    const shares = await Share.find({ _id: { $in: fileEntry.shareIds }}, { userId: 1, permissions: 1});
+    const shareEntryForUser = shares.find((elem) => {
+        return elem.userId === userId;
+    });
+    const permissions = shareEntryForUser === undefined ?
+        utility.createPermissionsObject(false, false, false, false)
+        : utility.fixPermissionsObject(shareEntryForUser.permissions);
+    return { ownerId: fileEntry.ownerId.toString(), permissions: permissions };
+}
+module.exports.getFilePermissions = getFilePermissions;
+
+
