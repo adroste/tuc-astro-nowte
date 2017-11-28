@@ -149,6 +149,7 @@ module.exports.getFilePermissions = getFilePermissions;
 
 /**
  * Creates listing for a specified folder
+ * TODO unit test
  * @param userId
  * @param folderId
  * @returns {Promise.<{title: string, isShared: boolean, documents: Array.<{id: string, title: string, isShared: boolean}>, folders: Array.<{id: string, title: string, isShared: boolean}>}>}
@@ -159,7 +160,7 @@ async function getFolderListing(userId, folderId) {
 
     // check if user is allowed to read folder
     const permissions = await getFilePermissions(userId, folderId, true);
-    utility.conditionalThrowWithStatus(permissions.read === false, 'not allowed to read folderId', 403);
+    utility.conditionalThrowWithStatus(permissions.permissions.read === false, 'not allowed to read folderId', 403);
 
     const entry = await Folder.findById(folderId).
         populate({ path: 'childIds', select: 'title shareIds'}).
