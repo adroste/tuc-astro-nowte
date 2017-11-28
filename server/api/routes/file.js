@@ -23,5 +23,13 @@ router.post('/create', utility.asyncMiddleware(async (req, res, next) => {
 }));
 
 
+router.get('/list-folder/:folderId', utility.asyncMiddleware(async (req, res, next) => {
+    const userId = await user.validateSessionAsyncWrapper(req.query['sessionToken']);
+    const listing = await file.getFolderListing(userId, req.params.folderId);
+    res.status(200);
+    res.json(listing);
+}));
+
+
 
 module.exports = router;

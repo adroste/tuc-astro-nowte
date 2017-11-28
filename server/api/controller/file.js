@@ -147,3 +147,43 @@ async function getFilePermissions(userId, fileId, isFolder) {
 module.exports.getFilePermissions = getFilePermissions;
 
 
+/**
+ * Creates listing for a specified folder
+ * @param userId
+ * @param folderId
+ * @returns {Promise.<{title: string, isShared: boolean, documents: Array.<{id: string, title: string, isShared: boolean}>, folders: Array.<{id: string, title: string, isShared: boolean}>}>}
+ */
+async function getFolderListing(userId, folderId) {
+    utility.requireVarWithType('userId', 'string', userId);
+    utility.requireVarWithType('parentId', 'string', folderId);
+
+    // check if user is allowed to read folder
+    const permissions = await getFilePermissions(userId, folderId, true);
+    utility.conditionalThrowWithStatus(permissions.read === false, 'not allowed to read folderId', 403);
+
+    const entry = await Folder.findById(folderId).
+        populate({ path: 'childIds', select: 'title shareIds'}).
+        populate({ path: 'documentIds', select: 'title shareIds'});
+
+    const mapFunc = (obj) => {
+        return {
+            id: obj._id.toString(),
+            title: obj.title,
+            isShared: obj.shareIds.length > 0
+        };
+    };
+    const sortFunc = (a, b) => {
+        if(a.title < b.title) return -1;
+        if(a.title > b.title) return 1;
+        return 0;
+
+    };
+
+    return {
+        title: entry.title,
+        isShared: entry.shareIds.length > 0,
+        documents: entry.documentIds.map(mapFunc).sort(sortFunc),
+        folders: entry.childIds.map(mapFunc).sort(sortFunc),
+    };
+}
+module.exports.getFolderListing = getFolderListing;

@@ -114,6 +114,7 @@ describe('folder, doc basic creation/update', () => {
 
 
     test('get listing', async () => {
+        // TODO refactor, test on mocked structure below, move test
         throw new Error('not implemented');
         const res = await file.getFolderListing(testuser._id.toString(), testuser.folderId.toString());
         const t = 4;
