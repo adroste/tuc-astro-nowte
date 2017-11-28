@@ -5,6 +5,7 @@ import "./FileTree.css"
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import {  } from "react-contextmenu";
 import {getFolder} from "../ServerApi";
+import Button from "./base/Button";
 
 let uniqueContextId = 0;
 
@@ -26,6 +27,7 @@ export default class FileTree extends React.Component {
      * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created)
      * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created)
      * onDeleteClick {function(node: object)} called when the user wants to delete a file/folder
+     * displayButtons {bool} true if helper buttons for folder and document creation should be displayed
      */
     static get propTypes() {
         return {
@@ -37,6 +39,7 @@ export default class FileTree extends React.Component {
             onFileCreateClick: PropTypes.func.isRequired,
             onFolderCreateClick: PropTypes.func.isRequired,
             onDeleteClick: PropTypes.func.isRequired,
+            displayButtons: PropTypes.bool,
         };
     }
 
@@ -201,9 +204,19 @@ export default class FileTree extends React.Component {
             );
         };
 
+        const displayHelperButtons = () => {
+            return (
+                <div>
+                    <img src="/img/file_add.svg" className="header-icon"/>
+                    <img src="/img/folder_add.svg" className="header-icon"/>
+                </div>
+            );
+        };
+
         return (
             <div>
-                <h3 className="no-select">{this.props.label}</h3>
+                <h3 className="no-select no-margin">{this.props.label}</h3>
+                {this.props.displayButtons? displayHelperButtons(): ''}
                 {
                     this.props.data.length === 0? <div>loading...</div>:
 

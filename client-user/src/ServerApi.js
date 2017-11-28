@@ -16,13 +16,13 @@ export const getFolder = (folderId, onSuccess, onError) => {
     switch (getRand(3)){
         case 0:
             // empty folder
-            onSuccess({docs: [{name: "my first document", id: 0}]});
+            onSuccess({docs: [{name: "my first document", id: 213}]});
             return;
         case 1:
             onSuccess( {
                 folder: [
-                    {name: "my folder", id: 1},
-                    {name: "my other folder", id: 2},
+                    {name: "my folder", id: 123},
+                    {name: "my other folder", id: 233},
                 ],
                 docs: [
                     {name: "my file", id: 1},

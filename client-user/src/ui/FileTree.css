@@ -2,6 +2,10 @@
     user-select: none;
 }
 
+.no-margin {
+    margin: 0 0 0 0;
+}
+
 .header-icon {
     width: 1em;
     height: 1em;

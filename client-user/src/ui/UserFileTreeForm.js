@@ -161,6 +161,7 @@ export default class UserFileTreeForm extends React.Component {
                 onFileCreateClick={this.handleFileCreateClick}
                 onFolderCreateClick={this.handleFolderCreateClick}
                 onDeleteClick={this.handleDeleteClick}
+                displayButtons="true"
             />
         );
     };
@@ -174,26 +175,6 @@ export default class UserFileTreeForm extends React.Component {
             );
         }
         return rows;
-    };
-
-    removeNode = (node) => {
-        if(!node.parent)
-            return;
-        // remove link from parent
-        const children = node.parent.children;
-        let index = -1;
-        for(let i = 0; i < children.length; ++i) {
-            if(children[i].id === node.id) {
-                if(children[i].children === node.children){
-                    index = i;
-                    break;
-                }
-            }
-        }
-        if(index !== -1) {
-            children.splice(index, 1);
-            this.forceUpdate();
-        }
     };
 
     handleFolderLoad = (node) => {
@@ -246,11 +227,33 @@ export default class UserFileTreeForm extends React.Component {
         alert("creating folder in: " + folderNode.name);
     };
 
+    removeNode = (id, isFolder) => {
+        const node =
+            isFolder? this.state.folder[id] : this.state.docs[id];
+        // remove link from parent
+        let folderDict = copy(this.state.folder);
+        let parent = folderDict[node.parent];
+        const idx = isFolder?
+            parent.folder.indexOf(id) : parent.docs.indexOf(id);
+
+        if(idx !== -1){
+            if(isFolder){
+                parent.folder.splice(idx, 1);
+            } else {
+                parent.docs.splice(idx, 1);
+            }
+
+            this.setState ({
+                folder: folderDict,
+            });
+        }
+    };
+
     handleDeleteClick = (node) => {
         if(node.children) {
-            API.removeFolder(node.id, () => this.removeNode(node), this.handleRequestError);
+            API.removeFolder(node.id, () => this.removeNode(node.id, true), this.handleRequestError);
         } else {
-            API.removeFile(node.id, () => this.removeNode(node), this.handleRequestError);
+            API.removeFile(node.id, () => this.removeNode(node.id, false), this.handleRequestError);
         }
     };
 
