@@ -11,31 +11,33 @@ function getRand(num) {
     return Math.floor(Math.random() * num);
 }
 
+let randId = 1;
+
 export const getFolder = (folderId, onSuccess, onError) => {
     // reply with dummy folder for now
     switch (getRand(3)){
         case 0:
             // empty folder
-            onSuccess({docs: [{name: "my first document", id: 213}]});
+            onSuccess({docs: [{name: "my first document", id: randId++}]});
             return;
         case 1:
             onSuccess( {
                 folder: [
-                    {name: "my folder", id: 123},
-                    {name: "my other folder", id: 233},
+                    {name: "my folder", id: randId++},
+                    {name: "my other folder", id: randId++},
                 ],
                 docs: [
-                    {name: "my file", id: 1},
-                    {name: "my other file", id: 2},
+                    {name: "my file", id: randId++},
+                    {name: "my other file", id: randId++},
                 ],
             });
             return;
         case 2:
             onSuccess({
                 docs: [
-                    {name: "aaaaiiisd.txt", id: 5},
-                    {name: "test1233", id: 3},
-                    {name: "test12343", id: 4},
+                    {name: "aaaaiiisd.txt", id: randId++},
+                    {name: "test1233", id: randId++},
+                    {name: "test12343", id: randId++},
                 ],
             });
             return;
@@ -49,15 +51,15 @@ export const getShares = (userId, onSuccess, onError) => {
         case 0:
             onSuccess({
                 users: [
-                    {name: "peter", email: "peter1@2.de", id: 5, docs: [{name: "mydoc1", id: 14}], folder: []}
+                    {name: "peter", email: "peter1@2.de", id: randId++, docs: [{name: "mydoc1", id: randId++}], folder: []}
                 ]
             });
             return;
         case 1:
             onSuccess({
                 users: [
-                    {name: "peter", email: "peter1@2.de", id: 5, docs: [{name: "mydoc1", id: 14}], folder: []},
-                    {name: "hans", email: "hanspeter1@2.de", id: 6, docs: [], folder: [{name: "my shared folder", id: 2324}]}
+                    {name: "peter", email: "peter1@2.de", id: randId++, docs: [{name: "mydoc1", id: randId++}], folder: []},
+                    {name: "hans", email: "hanspeter1@2.de", id: randId++, docs: [], folder: [{name: "my shared folder", id: randId++}]}
                 ]
             });
             return;

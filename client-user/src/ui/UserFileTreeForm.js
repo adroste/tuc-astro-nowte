@@ -101,6 +101,9 @@ export default class UserFileTreeForm extends React.Component {
     loadServerFolderData = (data, parentId, folderDict, docsDict) => {
 
         let parentNode = folderDict[parentId];
+        if(folderDict[parentId] === parentId)
+            alert("wtf");
+
         parentNode.loading = false;
         parentNode.toggled = true;
 
@@ -111,6 +114,9 @@ export default class UserFileTreeForm extends React.Component {
                 // TODO maybe not overwrite if an entry exists?
                 folderDict[child.id] = this.makeUnloadedFolder(child.name, child.id, parentId);
                 parentNode.folder.push(child.id);
+
+                if(folderDict[parentId] === parentId)
+                    alert("wtf 2");
             }
         }
 
@@ -119,8 +125,14 @@ export default class UserFileTreeForm extends React.Component {
             for(let child of data.docs) {
                 docsDict[child.id] = this.makeDocument(child.name, child.id, parentId);
                 parentNode.docs.push(child.id);
+
+                if(folderDict[parentId] === parentId)
+                    alert("wtf3");
             }
         }
+
+        if(folderDict[parentId] === parentId)
+            alert("wtf4");
     };
 
     handleFolderReceive = (data, folderId) => {
@@ -128,7 +140,11 @@ export default class UserFileTreeForm extends React.Component {
         const folderDict = this.folder;
         const docsDict = this.docs;
 
+        if(folderDict[folderId].parent === folderId)
+            alert("gone wring before receive");
         this.loadServerFolderData(data, folderId, folderDict, docsDict);
+        if(folderDict[folderId].parent === folderId)
+            alert("gone wring in receive");
 
         this.recomputeFolderViews();
     };
@@ -188,6 +204,9 @@ export default class UserFileTreeForm extends React.Component {
 
         // set folder to load
         let folderDict = this.folder;
+        if(folderDict[node.id].parent === node.id)
+            alert("gone before in folder load");
+
         folderDict[node.id].toggled = true;
 
         this.activeNode.id = node.id;
@@ -195,20 +214,35 @@ export default class UserFileTreeForm extends React.Component {
 
         this.recomputeFolderViews();
 
+        if(folderDict[node.id].parent === node.id)
+            alert("gone wrong in folder load");
+
         // request content if not loaded
         if(this.folder[node.id].loading)
             API.getFolder(node.id, (data) => this.handleFolderReceive(data, node.id), this.handleRequestError);
+
+        if(folderDict[node.id].parent === node.id)
+            alert("gone wrong after folder load");
     };
 
     handleFolderClose = (node) => {
         // just set toggled to false
         let folderDict = this.folder;
+        if(folderDict[node.id].parent === node.id)
+            alert("gone wrong before folder close");
+
         folderDict[node.id].toggled = false;
 
         this.activeNode.id = node.id;
         this.activeNode.isFolder = true;
 
+        if(folderDict[node.id].parent === node.id)
+            alert("gone wrong in folder close");
+
         this.recomputeFolderViews();
+
+        if(folderDict[node.id].parent === node.id)
+            alert("gone wrong after folder close");
     };
 
     handleFileLoad = (file) => {
