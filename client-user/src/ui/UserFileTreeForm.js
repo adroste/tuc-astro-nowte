@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FileTree from "./FileTree";
 import * as API from '../ServerApi'
+import {ModalContainer, ModalDialog} from 'react-modal-dialog';
+import InputDialog from "./InputDialog";
 
 // helper
 const copy = (object) => {
@@ -39,7 +41,10 @@ export default class UserFileTreeForm extends React.Component {
             },
 
             // shared by other users
-            shares: []
+            shares: [],
+
+            // a modal window that should be shown
+            activeDialog: null,
         };
 
         // add root folder entry
@@ -256,8 +261,30 @@ export default class UserFileTreeForm extends React.Component {
         // TODO check permission level if shared folder
 
         // create placeholder file or open dialog
+        this.setState({
+           activeDialog: <InputDialog
+               title={"New " + (isFolder?"Folder":"File")}
+               onCreate={isFolder? (folder) => this.handleFolderCreate(folderId, folder) :(filename) => this.handleFileCreate(folderId, filename)}
+               onCancel={this.closeDialog}
+           />
+        });
+        //alert("file/folder may be created in " + this.folder[folderId].name);
+    };
 
-        alert("file/folder may be created in " + this.folder[folderId].name);
+    handleFileCreate = (folderId, filename) => {
+        this.closeDialog();
+        alert("creating new file " + filename);
+    };
+
+    handleFolderCreate = (folderId, foldername) => {
+        this.closeDialog();
+        alert("creating new folder " + foldername);
+    };
+
+    closeDialog = () => {
+        this.setState({
+           activeDialog: null,
+        });
     };
 
     removeNode = (id, isFolder) => {
@@ -357,11 +384,17 @@ export default class UserFileTreeForm extends React.Component {
         };
     };
 
+    //  {this.state.activeDialog !== null? this.state.activeDialog : ""}
     render() {
         return (
             <div>
                 {this.getFileTree("My Files", this.state.root, this.userId)}
                 {this.getSharedFiles()}
+                {this.state.activeDialog?
+                    <ModalContainer onClose={() => {}}>
+                        {this.state.activeDialog}
+                    </ModalContainer>:''}
+
             </div>
         );
     }
