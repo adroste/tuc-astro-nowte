@@ -172,6 +172,11 @@ export default class UserFileTreeForm extends React.Component {
         alert(error);
     };
 
+    // error caused by the user (like creating two files with the same name)
+    handleUserError = (error) => {
+        alert(error);
+    };
+
     getFileTree = (label, root, userId) => {
         return (
             <FileTree
@@ -272,9 +277,16 @@ export default class UserFileTreeForm extends React.Component {
     };
 
     handleFileCreate = (folderId, filename) => {
-        this.closeDialog();
-
-        // TODO check if file already exists etc.
+        // name collision
+        const parent = this.folder[folderId];
+        for(let fileId of parent.docs){
+            if(this.docs[fileId].name === filename){
+                // file already exists
+                this.handleUserError("a file with the same name already exists");
+                this.closeDialog();
+                return;
+            }
+        }
 
         // server request
         API.createFile(folderId, filename, (data) => this.handleFileCreated(data.id, folderId, filename),
@@ -282,6 +294,7 @@ export default class UserFileTreeForm extends React.Component {
     };
 
     handleFileCreated = (fileId, parentId, filename) => {
+        this.closeDialog();
         // add doc
         this.docs[fileId] = this.makeDocument(filename, fileId, parentId);
 
@@ -292,7 +305,16 @@ export default class UserFileTreeForm extends React.Component {
     };
 
     handleFolderCreate = (folderId, foldername) => {
-        this.closeDialog();
+        // name collision
+        const parent = this.folder[folderId];
+        for(let fid of parent.folder){
+            if(this.folder[fid].name === foldername){
+                // file already exists
+                this.handleUserError("a folder with the same name already exists");
+                this.closeDialog();
+                return;
+            }
+        }
 
         // TODO check if folder already exists etc.
         API.createFolder(folderId, foldername, (data) => this.handleFolderCreated(data.id, folderId, foldername),
@@ -300,10 +322,11 @@ export default class UserFileTreeForm extends React.Component {
     };
 
     handleFolderCreated = (folderId, parentId, foldername) => {
+        this.closeDialog();
+
         this.folder[folderId] = this.makeUnloadedFolder(foldername, folderId, parentId);
         // set the folder to loaded since it was just created
         this.folder[folderId].loading = false;
-        this.folder[folderId].toggled = true;
 
         this.folder[parentId].folder.push(folderId);
 
