@@ -27,6 +27,7 @@ export default class FileTree extends React.Component {
      * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created or null if the create button was clicked)
      * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created or null if the create button was clicked)
      * onDeleteClick {function(node: object)} called when the user wants to delete a file/folder
+     * onShareClick {function(node: object)} called when a file/folder should be shared
      * displayButtons {bool} true if helper buttons for folder and document creation should be displayed
      */
     static get propTypes() {
@@ -39,6 +40,7 @@ export default class FileTree extends React.Component {
             onFileCreateClick: PropTypes.func.isRequired,
             onFolderCreateClick: PropTypes.func.isRequired,
             onDeleteClick: PropTypes.func.isRequired,
+            onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
         };
     }
@@ -157,7 +159,7 @@ export default class FileTree extends React.Component {
     };
 
     onShareClick = (node) => {
-        alert("share");
+        this.props.onShareClick(node);
     };
 
     render() {

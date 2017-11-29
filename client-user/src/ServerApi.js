@@ -106,3 +106,18 @@ export const moveFile = (fileId, folderId, onSuccess, onError) => {
 export const moveFolder = (srcFolderId, dstFolderId, onSuccess, onError) => {
     onSuccess();
 };
+
+export const getUserId = (email, onSuccess, onError) => {
+    switch (email){
+        case "someone@example.com":
+            onSuccess(1);
+            return;
+        case "joe@example.com":
+            onSuccess(2);
+            return;
+        case "max@mustermann.de":
+            onSuccess(3);
+            return;
+    }
+    onError("user not found");
+};

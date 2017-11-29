@@ -4,6 +4,7 @@ import FileTree from "./FileTree";
 import * as API from '../ServerApi'
 import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "./InputDialog";
+import ShareDialog from "./ShareDialog";
 
 // helper
 const copy = (object) => {
@@ -188,9 +189,20 @@ export default class UserFileTreeForm extends React.Component {
                 onFileCreateClick={(node) => this.handleFileCreateClick(node, userId, false)}
                 onFolderCreateClick={(node) => this.handleFileCreateClick(node, userId, true)}
                 onDeleteClick={this.handleDeleteClick}
+                onShareClick={this.handleShareClick}
                 displayButtons="true"
             />
         );
+    };
+
+    handleShareClick = (node) => {
+        this.setState({
+           activeDialog: <ShareDialog
+                title={"Share " + node.name}
+                onCancel={this.closeDialog}
+                onShare={this.closeDialog}
+                    />
+        });
     };
 
     handleFolderLoad = (node) => {
@@ -422,6 +434,8 @@ export default class UserFileTreeForm extends React.Component {
         for(let folderId of node.folder) {
             view.children.push(this.loadFolderView(folderId, view, ownerId));
         }
+        // TODO sort alphanumeric
+
 
         for(let docId of node.docs) {
             view.children.push(this.loadDocView(docId, view, ownerId));
