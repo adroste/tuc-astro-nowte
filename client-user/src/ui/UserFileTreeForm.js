@@ -202,7 +202,7 @@ export default class UserFileTreeForm extends React.Component {
 
         // request content if not loaded
         if(this.folder[node.id].loading)
-            API.getFolder(node.id, (data) => this.handleFolderReceive(data, node.id), this.handleRequestError);
+            API.getFolder(node.id, (data) => this.handleFolderReceive(data, node.id));
     };
 
     handleFolderClose = (node) => {
@@ -273,12 +273,41 @@ export default class UserFileTreeForm extends React.Component {
 
     handleFileCreate = (folderId, filename) => {
         this.closeDialog();
-        alert("creating new file " + filename);
+
+        // TODO check if file already exists etc.
+
+        // server request
+        API.createFile(folderId, filename, (data) => this.handleFileCreated(data.id, folderId, filename),
+            (error) => {this.closeDialog(); this.handleRequestError(error);});
+    };
+
+    handleFileCreated = (fileId, parentId, filename) => {
+        // add doc
+        this.docs[fileId] = this.makeDocument(filename, fileId, parentId);
+
+        // add file
+        this.folder[parentId].docs.push(fileId);
+
+        this.recomputeFolderViews();
     };
 
     handleFolderCreate = (folderId, foldername) => {
         this.closeDialog();
-        alert("creating new folder " + foldername);
+
+        // TODO check if folder already exists etc.
+        API.createFolder(folderId, foldername, (data) => this.handleFolderCreated(data.id, folderId, foldername),
+            (error) => {this.closeDialog(); this.handleRequestError(error);});
+    };
+
+    handleFolderCreated = (folderId, parentId, foldername) => {
+        this.folder[folderId] = this.makeUnloadedFolder(foldername, folderId, parentId);
+        // set the folder to loaded since it was just created
+        this.folder[folderId].loading = false;
+        this.folder[folderId].toggled = true;
+
+        this.folder[parentId].folder.push(folderId);
+
+        this.recomputeFolderViews();
     };
 
     closeDialog = () => {
@@ -301,6 +330,12 @@ export default class UserFileTreeForm extends React.Component {
                 parent.folder.splice(idx, 1);
             } else {
                 parent.docs.splice(idx, 1);
+            }
+
+            // compare with active thingy
+            if(this.activeNode.id === id && this.activeNode.isFolder === isFolder){
+                this.activeNode.id = null;
+                this.activeNode.owner = null;
             }
 
             this.recomputeFolderViews();
