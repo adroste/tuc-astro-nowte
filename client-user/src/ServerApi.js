@@ -68,11 +68,11 @@ export const getShares = (userId, onSuccess, onError) => {
 };
 
 export const createFile = (folderId, filename, onSuccess, onError) => {
-
+    onSuccess({id: randId++});
 };
 
 export const createFolder = (folderId, foldername, onSuccess, onError) => {
-
+    onSuccess({id: randId++});
 };
 
 export const removeFile = (fileId, onSuccess, onError) => {
@@ -84,25 +84,25 @@ export const removeFolder = (folderId, onSuccess, onError) => {
 };
 
 export const shareFile = (fileId, userId, permission, onSuccess, onError) => {
-
+    onSuccess();
 };
 
 export const shareFolder = (fileId, userId, permission, onSuccess, onError) => {
-
+    onSuccess();
 };
 
 export const renameFile = (fileId, title, onSuccess, onError) => {
-
+    onSuccess();
 };
 
 export const renameFolder = (folderId, title, onSuccess, onError) => {
-
+    onSuccess();
 };
 
 export const moveFile = (fileId, folderId, onSuccess, onError) => {
-
+    onSuccess();
 };
 
 export const moveFolder = (srcFolderId, dstFolderId, onSuccess, onError) => {
-
+    onSuccess();
 };

@@ -24,8 +24,8 @@ export default class FileTree extends React.Component {
      * onFolderLoad {function(folder: object)} called when a folder should be retrieved (folder is the folder node)
      * onFolderClose {function(folder: object)} called when a folder should be closed (folder is the folder node)
      * onFileLoad {function(file: object)} called when a file should be opened (file is the file node)
-     * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created)
-     * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created)
+     * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created or null if the create button was clicked)
+     * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created or null if the create button was clicked)
      * onDeleteClick {function(node: object)} called when the user wants to delete a file/folder
      * displayButtons {bool} true if helper buttons for folder and document creation should be displayed
      */
@@ -118,6 +118,13 @@ export default class FileTree extends React.Component {
     };
 
     onCreateFileClick = (node) => {
+        if(node === null){
+            // button click
+            this.props.onFileCreateClick(null);
+            return;
+        }
+
+
         const folder = this.getFolder(node);
         if(folder !== null) {
             this.props.onFileCreateClick(folder);
@@ -127,6 +134,12 @@ export default class FileTree extends React.Component {
     };
 
     onCreateFolderClick = (node) => {
+        if(node === null){
+            // button click
+            this.props.onFolderCreateClick(null);
+            return;
+        }
+
         const folder = this.getFolder(node);
         if(folder !== null){
             this.props.onFolderCreateClick(folder);
@@ -206,9 +219,13 @@ export default class FileTree extends React.Component {
 
         const displayHelperButtons = () => {
             return (
+                /*<div>
+                    <img src="/img/file_add.svg" className="header-icon" onClick={() => this.onCreateFileClick(null)}/>
+                    <img src="/img/folder_add.svg" className="header-icon" onClick={() => this.onCreateFolderClick(null)}/>
+                </div>*/
                 <div>
-                    <img src="/img/file_add.svg" className="header-icon"/>
-                    <img src="/img/folder_add.svg" className="header-icon"/>
+                    <Button label="doc" onClick={() => this.onCreateFileClick(null)}/>
+                    <Button label="folder" onClick={() => this.onCreateFolderClick(null)}/>
                 </div>
             );
         };
