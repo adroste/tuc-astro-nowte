@@ -221,9 +221,11 @@ describe('working on a validated user', () => {
     });
 
     test('login', done => {
-        user.login(testuser.email, 'password', (err, sessionToken) => {
+        user.login(testuser.email, 'password', (err, sessionToken, name, folderId) => {
             user.extractJwt(sessionToken, (err, decoded) => {
                 expect(decoded.userId).toMatch(testuser._id.toString());
+                expect(typeof name).toBe('string');
+                expect(typeof folderId).toBe('string');
                 done();
             });
         });

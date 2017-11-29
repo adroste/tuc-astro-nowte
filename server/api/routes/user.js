@@ -47,7 +47,7 @@ router.post('/create', (req, res, next) => {
 
 
 router.post('/login', (req, res, next) => {
-    user.login(req.body['email'], req.body['password'], (err, sessionToken, name) => {
+    user.login(req.body['email'], req.body['password'], (err, sessionToken, name, folderId, userId) => {
         if (err) {
             if (err.status === 401)
                 res.setHeader('WWW-Authenticate', err.authHeader);
@@ -56,7 +56,9 @@ router.post('/login', (req, res, next) => {
         res.status(201); // Created
         res.json({
             sessionToken: sessionToken,
-            name: name
+            name: name,
+            folderId: folderId,
+            userId: userId
         });
     });
 });
