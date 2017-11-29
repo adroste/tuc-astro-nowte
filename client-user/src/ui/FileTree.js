@@ -236,16 +236,12 @@ export default class FileTree extends React.Component {
             <div>
                 <h3 className="no-select no-margin">{this.props.label}</h3>
                 {this.props.displayButtons? displayHelperButtons(): ''}
-                {
-                    this.props.data.length === 0? <div>loading...</div>:
-
-                    <Treebeard
+                <Treebeard
                     data={this.props.data}
                     onToggle={this.handleToggle}
                     decorators = {decorators}
                     style = {styles}
-                    />
-                }
+                />
             </div>
         );
     }

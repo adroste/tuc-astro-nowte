@@ -1,4 +1,6 @@
 // helper class for the communication with the server
+import { SERVER_URL } from "./Globals";
+import {store} from "./Redux";
 
 "use strict";
 
@@ -12,37 +14,22 @@ function getRand(num) {
 }
 
 let randId = 1;
+const REQUEST_HEADERS = new Headers({
+    'Accept': 'application/json, text/plain, */*',
+    'Content-Type': 'application/json'
+});
 
 export const getFolder = (folderId, onSuccess, onError) => {
-    // reply with dummy folder for now
-    switch (getRand(3)){
-        case 0:
-            // empty folder
-            onSuccess({docs: [{name: "my first document", id: randId++}]});
-            return;
-        case 1:
-            onSuccess( {
-                folder: [
-                    {name: "my folder", id: randId++},
-                    {name: "my other folder", id: randId++},
-                ],
-                docs: [
-                    {name: "my file", id: randId++},
-                    {name: "my other file", id: randId++},
-                ],
-            });
-            return;
-        case 2:
-            onSuccess({
-                docs: [
-                    {name: "aaaaiiisd.txt", id: randId++},
-                    {name: "test1233", id: randId++},
-                    {name: "test12343", id: randId++},
-                ],
-            });
-            return;
-    }
-    onError("unknown");
+
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/user/' + folderId + '?sessionToken=' + sessionToken;
+    fetch(url, {
+        method: "GET",
+        headers: REQUEST_HEADERS,
+    }).then(
+        (response) => getJsonBody(response, 200, onSuccess, onError),
+        onError
+    );
 };
 
 export const getShares = (userId, onSuccess, onError) => {
@@ -68,11 +55,29 @@ export const getShares = (userId, onSuccess, onError) => {
 };
 
 export const createFile = (folderId, filename, onSuccess, onError) => {
-    onSuccess({id: randId++});
+    create(folderId, false, filename, onSuccess, onError);
 };
 
 export const createFolder = (folderId, foldername, onSuccess, onError) => {
-    onSuccess({id: randId++});
+    create(folderId, true, foldername, onSuccess, onError);
+};
+
+const create = (parentId, isFolder, title, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/user/create';
+    fetch(url, {
+        method: "POST",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            parentId: parentId,
+            isFolder: isFolder,
+            title: title,
+        })
+    }).then(
+        (response) => getJsonBody(response, 201, onSuccess, onError),
+        onError
+    );
 };
 
 export const removeFile = (fileId, onSuccess, onError) => {
@@ -120,4 +125,14 @@ export const getUserId = (email, onSuccess, onError) => {
             return;
     }
     onError("user not found");
+};
+
+
+// helper to retrieve the json from a response
+const getJsonBody = (respone, successStatusCode, onSuccess, onError) => {
+    if(respone.status === successStatusCode){
+        respone.json().then(onSuccess, onError);
+    } else {
+        respone.json().then((data) => onError("code: " + respone.status + " " + data.error.message), onError);
+    }
 };

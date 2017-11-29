@@ -5,6 +5,7 @@ import * as API from '../ServerApi'
 import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "./InputDialog";
 import ShareDialog from "./ShareDialog";
+import {store} from "../Redux";
 
 // helper
 const copy = (object) => {
@@ -31,10 +32,8 @@ export default class UserFileTreeForm extends React.Component {
     constructor(props){
         super(props);
 
-
-        // TODO set correct user root folder and user id
-        this.root = 0;
-        this.userId = 0;
+        this.root = store.getState().user.rootFolder;
+        this.userId = store.getState().user.userId;
         this.state = {
             // user root folder
             root: {
@@ -112,20 +111,21 @@ export default class UserFileTreeForm extends React.Component {
         parentNode.loading = false;
         parentNode.toggled = true;
 
+        // TODO add isShared
         // add children
         // folder
-        if(data.folder) {
-            for(let child of data.folder) {
+        if(data.folders) {
+            for(let child of data.folders) {
                 // TODO maybe not overwrite if an entry exists?
-                folderDict[child.id] = this.makeUnloadedFolder(child.name, child.id, parentId);
+                folderDict[child.id] = this.makeUnloadedFolder(child.title, child.id, parentId);
                 parentNode.folder.push(child.id);
             }
         }
 
         // files
-        if(data.docs) {
-            for(let child of data.docs) {
-                docsDict[child.id] = this.makeDocument(child.name, child.id, parentId);
+        if(data.documents) {
+            for(let child of data.documents) {
+                docsDict[child.id] = this.makeDocument(child.title, child.id, parentId);
                 parentNode.docs.push(child.id);
             }
         }
@@ -301,7 +301,7 @@ export default class UserFileTreeForm extends React.Component {
         }
 
         // server request
-        API.createFile(folderId, filename, (data) => this.handleFileCreated(data.id, folderId, filename),
+        API.createFile(folderId, filename, (data) => this.handleFileCreated(data.fileId, folderId, filename),
             (error) => {this.closeDialog(); this.handleRequestError(error);});
     };
 
@@ -329,7 +329,7 @@ export default class UserFileTreeForm extends React.Component {
         }
 
         // TODO check if folder already exists etc.
-        API.createFolder(folderId, foldername, (data) => this.handleFolderCreated(data.id, folderId, foldername),
+        API.createFolder(folderId, foldername, (data) => this.handleFolderCreated(data.fileId, folderId, foldername),
             (error) => {this.closeDialog(); this.handleRequestError(error);});
     };
 
