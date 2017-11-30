@@ -6,7 +6,7 @@
     "history": "^4.7.2",
     "prop-types": "^15.6.0",
     "react": "^15.6.2",
-    "react-contextmenu": "^2.8.0",
+    "react-contextmenu": "^2.9.0",
     "react-dom": "^15.6.2",
     "react-modal-dialog": "^4.0.7",
     "react-redux": "^5.0.6",

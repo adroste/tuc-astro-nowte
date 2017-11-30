@@ -22,7 +22,7 @@ const REQUEST_HEADERS = new Headers({
 export const getFolder = (folderId, onSuccess, onError) => {
 
     const sessionToken = store.getState().user.token;
-    const url = SERVER_URL + '/api/user/' + folderId + '?sessionToken=' + sessionToken;
+    const url = SERVER_URL + '/api/file/list-folder/' + folderId + '?sessionToken=' + sessionToken;
     fetch(url, {
         method: "GET",
         headers: REQUEST_HEADERS,
