@@ -78,7 +78,7 @@ export default class UserLoginForm extends React.Component {
 
     handleSuccesfullRegistration = (body) => {
         // retrieve session token
-        this.props.onUserLoggedIn(body.sessionToken, this.email);
+        this.props.onUserLoggedIn(body.sessionToken, this.email, body.name, body.folderId, body.userId);
     };
 
     handleUnsuccesfullRegistration = (code, data) => {

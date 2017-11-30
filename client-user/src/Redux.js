@@ -9,7 +9,9 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 const initialState = {
     token: undefined,
     email: undefined,
-    username: undefined
+    username: undefined,
+    rootFolder: undefined,
+    userId: undefined,
 };
 
 /**
@@ -21,7 +23,10 @@ const dispatcher = (state = initialState, action) => {
         case "LOGIN":
             return Object.assign({}, state, {
                 token: action.token,
-                email: action.email
+                email: action.email,
+                username: action.username,
+                rootFolder: action.rootFolder,
+                userId: action.userId,
             });
 
         case "AWAIT_VALIDATION":

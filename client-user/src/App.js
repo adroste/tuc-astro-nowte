@@ -15,6 +15,7 @@ import {BrowserRouter as Router, Route} from 'react-router-dom';
 import EmailValidationDoneScreen from "./screens/EmailValidationDoneScreen";
 import ResetPasswordDoneScreen from "./screens/ResetPasswordDoneScreen";
 import AwaitingPasswordChangeScreen from "./screens/AwaitingPasswordChangeScreen";
+import LoggedInScreen from "./screens/LoggedInScreen";
 
 class App extends Component {
 
@@ -32,6 +33,7 @@ class App extends Component {
                         <Route exact path="/reset-password-done" component={ResetPasswordDoneScreen}/>
                         <Route path="/email-validation-done/:emailValidationToken" component={EmailValidationDoneScreen}/>
                         <Route exact path="/awaiting-password-change" component={AwaitingPasswordChangeScreen}/>
+                        <Route exact path="/logged-in" component={LoggedInScreen}/>
                     </div>
                 </Router>
             </Provider>
