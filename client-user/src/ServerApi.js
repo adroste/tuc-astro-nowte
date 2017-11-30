@@ -64,7 +64,7 @@ export const createFolder = (folderId, foldername, onSuccess, onError) => {
 
 const create = (parentId, isFolder, title, onSuccess, onError) => {
     const sessionToken = store.getState().user.token;
-    const url = SERVER_URL + '/api/user/create';
+    const url = SERVER_URL + '/api/file/create';
     fetch(url, {
         method: "POST",
         headers: REQUEST_HEADERS,
