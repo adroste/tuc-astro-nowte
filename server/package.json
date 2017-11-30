@@ -2,10 +2,10 @@
   "name": "nowte-server",
   "version": "0.0.1",
   "description": "",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "jest",
-    "start": "nodemon server.js"
+    "start": "nodemon src/server.js"
   },
   "author": "progmem",
   "license": "UNLICENSED",
@@ -21,6 +21,11 @@
     "validator": "^9.0.0"
   },
   "devDependencies": {
+    "esdoc": "^1.0.4",
+    "esdoc-ecmascript-proposal-plugin": "^1.0.0",
+    "esdoc-external-nodejs-plugin": "^1.0.0",
+    "esdoc-node": "^1.0.2",
+    "esdoc-standard-plugin": "^1.0.0",
     "jest": "^21.2.1",
     "nodemon": "^1.12.1"
   }
