@@ -6,11 +6,16 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router();
 const user = require('../controller/user');
 
 
-router.put('/change-password', (req, res, next) => {
+/**
+ * Express.Router object containing user-api routes + handlers
+ */
+const userRoutes = express.Router();
+
+
+userRoutes.put('/change-password', (req, res, next) => {
     const actionHandler = (err) => {
         if (err) {
             if (err.status === 401)
@@ -29,7 +34,7 @@ router.put('/change-password', (req, res, next) => {
 });
 
 
-router.post('/create', (req, res, next) => {
+userRoutes.post('/create', (req, res, next) => {
     user.createUser(req.body['name'], req.body['email'], req.body['password'], (err, userEntry) => {
         if (err)
             return next(err);
@@ -46,7 +51,7 @@ router.post('/create', (req, res, next) => {
 });
 
 
-router.post('/login', (req, res, next) => {
+userRoutes.post('/login', (req, res, next) => {
     user.login(req.body['email'], req.body['password'], (err, sessionToken, name, folderId, userId) => {
         if (err) {
             if (err.status === 401)
@@ -64,7 +69,7 @@ router.post('/login', (req, res, next) => {
 });
 
 
-router.post('/logout', (req, res, next) => {
+userRoutes.post('/logout', (req, res, next) => {
     user.logout(req.body['sessionToken'], err => {
         if (err) {
             if (err.status === 401)
@@ -77,7 +82,7 @@ router.post('/logout', (req, res, next) => {
 });
 
 
-router.post('/request-password-reset', (req, res, next) => {
+userRoutes.post('/request-password-reset', (req, res, next) => {
     user.createAndSendPasswordResetToken(req.body['email'], err => {
         if (err)
             return next(err);
@@ -87,7 +92,7 @@ router.post('/request-password-reset', (req, res, next) => {
 });
 
 
-router.post('/resend-validation-email', (req, res, next) => {
+userRoutes.post('/resend-validation-email', (req, res, next) => {
     user.createAndSendEmailValidationToken(req.body['email'], err => {
         if (err)
             return next(err);
@@ -97,7 +102,7 @@ router.post('/resend-validation-email', (req, res, next) => {
 });
 
 
-router.post('/validate-email', (req, res, next) => {
+userRoutes.post('/validate-email', (req, res, next) => {
     user.validateUserEmail(req.body['emailValidationToken'], err => {
         if (err)
             return next(err);
@@ -107,4 +112,4 @@ router.post('/validate-email', (req, res, next) => {
 });
 
 
-module.exports = router;
+module.exports = userRoutes;

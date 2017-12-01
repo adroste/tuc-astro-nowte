@@ -6,13 +6,18 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router();
 const user = require('../controller/user');
 const file = require('../controller/file');
-const utility = require('./utility');
+const RoutesUtil = require('./RoutesUtil');
 
 
-router.post('/create', utility.asyncMiddleware(async (req, res, next) => {
+/**
+ * Express.Router object containing file-api routes + handlers
+ */
+const fileRoutes = express.Router();
+
+
+fileRoutes.post('/create', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     // TODO validate session REFACTOR to promise
     const userId = await user.validateSessionAsyncWrapper(req.body['sessionToken']);
     const fileId = await file.create(userId, req.body['parentId'], req.body['isFolder'], req.body['title']);
@@ -23,7 +28,7 @@ router.post('/create', utility.asyncMiddleware(async (req, res, next) => {
 }));
 
 
-router.get('/list-folder/:folderId', utility.asyncMiddleware(async (req, res, next) => {
+fileRoutes.get('/list-folder/:folderId', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const userId = await user.validateSessionAsyncWrapper(req.query['sessionToken']);
     const listing = await file.getFolderListing(userId, req.params.folderId);
     res.status(200);
@@ -31,5 +36,4 @@ router.get('/list-folder/:folderId', utility.asyncMiddleware(async (req, res, ne
 }));
 
 
-
-module.exports = router;
+module.exports = fileRoutes;
