@@ -12,8 +12,8 @@ const ConfigTool = require('../../init/ConfigTool');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mailer = require('../../init/mailer-init');
-const User = require('../models/user').User;
-const Folder = require('../models/folder').Folder;
+const UserModel = require('../models/UserModel');
+const FolderModel = require('../models/FolderModel');
 const mongoose = require('mongoose');
 
 
@@ -219,7 +219,7 @@ function changePassword(userId, newPassword, cb) {
         if (err)
             return cb(err); // err.status is already set to 400 Bad Request
 
-        User.update({_id: userId}, {$set: {password: hash}}, (err, rawResponse) => {
+        UserModel.update({_id: userId}, {$set: {password: hash}}, (err, rawResponse) => {
             if (err) {
                 console.error(err);
                 return cb(new Error('unknown mongo error'));
@@ -267,7 +267,7 @@ function changePasswordViaCurrentPassword(email, currentPassword, newPassword, c
     // important: fix email format
     email = email.trim().toLowerCase();
 
-    User.findOne({ email: email }, { _id: 1, password: 1 }, (err, userEntry) => {
+    UserModel.findOne({ email: email }, { _id: 1, password: 1 }, (err, userEntry) => {
         if (err)
             return cb(new Error('unknown mongo error'));
         if (userEntry === null) {
@@ -338,7 +338,7 @@ function createAndSendEmailValidationToken(email, cb) {
     // important: fix email format
     email = email.trim().toLowerCase();
 
-    User.findOne({ email: email }, { _id: 1, emailValidated: 1 }, (err, userEntry) => {
+    UserModel.findOne({ email: email }, { _id: 1, emailValidated: 1 }, (err, userEntry) => {
         if (err)
             return cb(new Error('unknown mongo error'));
         if (userEntry === null) {
@@ -393,7 +393,7 @@ function createAndSendPasswordResetToken(email, cb) {
     // important: fix email format
     email = email.trim().toLowerCase();
 
-    User.findOne({ email: email }, { _id: 1 }, (err, userEntry) => {
+    UserModel.findOne({ email: email }, { _id: 1 }, (err, userEntry) => {
         if (err)
             return cb(new Error('unknown mongo error'));
         if (userEntry === null) {
@@ -470,7 +470,7 @@ function createUser(name, email, password, cb) {
         const userId = mongoose.Types.ObjectId();
 
         // 3. create root folder
-        let rootFolder = new Folder({
+        let rootFolder = new FolderModel({
             'title': '/',
             'parentId': null,
             'ownerId': userId
@@ -483,7 +483,7 @@ function createUser(name, email, password, cb) {
             }
 
             // 4. creating user instance
-            const user = new User({
+            const user = new UserModel({
                 '_id': userId,
                 'name': name,
                 'email': email,
@@ -548,7 +548,7 @@ function login(email, password, cb) {
     email = email.trim().toLowerCase();
 
     // 1. find user by email
-    User.findOne({ email: email }, { _id: 1, name:1, emailValidated: 1, password: 1, sessions: 1, folderId: 1 }, (err, userEntry) => {
+    UserModel.findOne({ email: email }, { _id: 1, name:1, emailValidated: 1, password: 1, sessions: 1, folderId: 1 }, (err, userEntry) => {
         if (err) {
             console.error(err);
             return cb(new Error('unknown mongo error'));
@@ -610,7 +610,7 @@ function logout(token, cb) {
         if (err)
             return cb(err); // err.status already set
 
-        User.findById(decoded['userId'], { sessions: 1 }, (err, userEntry) => {
+        UserModel.findById(decoded['userId'], { sessions: 1 }, (err, userEntry) => {
             if (err) {
                 console.error(err);
                 return cb(new Error('unknown mongo error'));
@@ -665,7 +665,7 @@ function removeExpiredSessionsFromUserEntry(userEntry) {
  * @param cb func(err)
  */
 function revokeAllSessions(userId, cb) {
-    User.findById(userId, { sessions: 1 }, (err, userEntry) => {
+    UserModel.findById(userId, { sessions: 1 }, (err, userEntry) => {
         if (err) {
             console.error(err);
             return cb(new Error('unknown mongo error'));
@@ -727,7 +727,7 @@ function validateSession(token, cb) {
         }
 
         // 2. querying user
-        User.findById(decoded.userId, { sessions: 1 }, (err, userEntry) => {
+        UserModel.findById(decoded.userId, { sessions: 1 }, (err, userEntry) => {
             if (err) {
                 console.error(err);
                 return cb(new Error('unknown mongo error'));
@@ -775,7 +775,7 @@ function validateUserEmail(token, cb) {
         if (err)
             return cb(err); // err.status is already set to 400 Bad Request
 
-        User.update({ _id: decoded['userId'] }, { $set: { emailValidated: true } }, (err, rawResponse) => {
+        UserModel.update({ _id: decoded['userId'] }, { $set: { emailValidated: true } }, (err, rawResponse) => {
             if (err) {
                 console.error(err);
                 return cb(new Error('unknown mongo error'));

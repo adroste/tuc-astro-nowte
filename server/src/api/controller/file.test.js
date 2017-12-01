@@ -5,10 +5,10 @@
 
 'use strict';
 
-const User = require('../models/user').User;
+const UserModel = require('../models/UserModel');
 const user = require('./user');
-const Folder = require('../models/folder').Folder;
-const Document = require('../models/document').Document;
+const FolderModel = require('../models/FolderModel');
+const DocumentModel = require('../models/DocumentModel');
 const file = require('./file');
 const db = require('../../init/mongo-init');
 
@@ -16,9 +16,9 @@ const db = require('../../init/mongo-init');
 // clear user collection
 async function clearAll() {
     try {
-        await User.remove({});
-        await Folder.remove({});
-        await Document.remove({});
+        await UserModel.remove({});
+        await FolderModel.remove({});
+        await DocumentModel.remove({});
     } catch (err) {
         console.error(err);
     }
@@ -39,7 +39,7 @@ beforeAll(done => {
 });
 
 
-describe('folder, doc basic creation/update', () => {
+describe('folder, doc basic creation/update', async () => {
     test('checkTitleIsNoDuplicate, parent not found', async () => {
         try {
             const res = await file.checkTitleIsNoDuplicate('', true, '5a1b1eacd94b1e24b8310e43');
@@ -89,13 +89,13 @@ describe('folder, doc basic creation/update', () => {
 
     test('create document, own tree', async () => {
         const res = await file.create(testuser._id.toString(), testuser.folderId.toString(), false, ' my first doc  ');
-        const entry = await Document.findById(res);
+        const entry = await DocumentModel.findById(res);
         expect(entry.title).toMatch('my first doc');
     });
 
     test('create folder, own tree', async () => {
         const res = await file.create(testuser._id.toString(), testuser.folderId.toString(), true, ' my first folder  ');
-        const entry = await Folder.findById(res);
+        const entry = await FolderModel.findById(res);
         expect(entry.title).toMatch('my first folder');
     });
 

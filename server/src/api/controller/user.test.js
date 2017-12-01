@@ -5,13 +5,13 @@
 
 'use strict';
 
-const User = require('../models/user').User;
+const UserModel = require('../models/UserModel');
 const user = require('./user');
 const db = require('../../init/mongo-init');
 
 // clear user collection
 function clearUsers(done) {
-    User.remove({}, err => {
+    UserModel.remove({}, err => {
         if (err)
             console.error(err);
         done();
@@ -136,7 +136,7 @@ describe('working on a user', () => {
     });
 
     test('query user by email', done => {
-        User.findOne({email: testuser.email}, (err, user) => {
+        UserModel.findOne({email: testuser.email}, (err, user) => {
             expect(user._id).toEqual(testuser._id);
             expect(user.name).toBe(testuser.name);
             expect(user.password).toBe(testuser.password);
@@ -173,7 +173,7 @@ describe('working on a user', () => {
     test('change password via password reset token', done => {
         user.createPasswordResetToken(testuser._id.toString(), (err, token) => {
             user.changePasswordViaResetToken(token, '12345678', err => {
-                User.findById(testuser._id, (err, doc) => {
+                UserModel.findById(testuser._id, (err, doc) => {
                     user.comparePassword('12345678', doc.password, (err, passwordsMatch) => {
                         expect(passwordsMatch).toBe(true);
                         done();
@@ -185,7 +185,7 @@ describe('working on a user', () => {
 
     test('change password via current password', done => {
         user.changePasswordViaCurrentPassword(testuser.email, 'password', '12345678', err => {
-            User.findById(testuser._id, (err, doc) => {
+            UserModel.findById(testuser._id, (err, doc) => {
                 user.comparePassword('12345678', doc.password, (err, passwordsMatch) => {
                     expect(passwordsMatch).toBe(true);
                     done();
@@ -260,7 +260,7 @@ describe('working on a validated user', () => {
         testuser.save((err, userEntry) => {
             expect(userEntry.sessions.length).toBe(3);
             user.revokeAllSessions(testuser._id.toString(), (err) => {
-                User.findById(testuser._id.toString(), (err, userEntry) => {
+                UserModel.findById(testuser._id.toString(), (err, userEntry) => {
                     expect(userEntry.sessions.length).toBe(0);
                     done();
                 });
@@ -271,7 +271,7 @@ describe('working on a validated user', () => {
     test('logout', done => {
         user.login(testuser.email, 'password', (err, sessionToken) => {
             user.logout(sessionToken, err => {
-                User.findById(testuser._id.toString(), (err, userEntry) => {
+                UserModel.findById(testuser._id.toString(), (err, userEntry) => {
                     expect(userEntry.sessions.length).toBe(0);
                     done();
                 });

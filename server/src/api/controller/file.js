@@ -9,9 +9,9 @@
 // Includes
 // -------------------------------------------
 const ConfigTool = require('../../init/ConfigTool');
-const Folder = require('../models/folder').Folder;
-const Document = require('../models/document').Document;
-const Share = require('../models/share').Share;
+const FolderModel = require('../models/FolderModel');
+const DocumentModel = require('../models/DocumentModel');
+const ShareModel = require('../models/ShareModel');
 const ControllerUtil = require('./ControllerUtil');
 
 
@@ -33,7 +33,7 @@ async function checkTitleIsNoDuplicate(title, isFolder, parentId) {
 
     let parentFolder;
     try {
-        parentFolder = await Folder.findById(parentId, isFolder ? { childIds: 1 } : { documentIds : 1});
+        parentFolder = await FolderModel.findById(parentId, isFolder ? { childIds: 1 } : { documentIds : 1});
     } catch (err) {
         ControllerUtil.throwAndLog(err, 'unknown mongo error');
     }
@@ -42,8 +42,8 @@ async function checkTitleIsNoDuplicate(title, isFolder, parentId) {
     let fileEntries;
     try {
         fileEntries = isFolder ?
-            await Folder.find({ _id: { $in: parentFolder.childIds }}, { title: 1 })
-            : await Document.find({ _id: { $in: parentFolder.documentIds }}, { title: 1 });
+            await FolderModel.find({ _id: { $in: parentFolder.childIds }}, { title: 1 })
+            : await DocumentModel.find({ _id: { $in: parentFolder.documentIds }}, { title: 1 });
     } catch (err) {
         ControllerUtil.throwAndLog(err, 'unknown mongo error');
     }
@@ -86,7 +86,7 @@ async function create(userId, parentId, isFolder, title) {
         'parentId': parentId,
         'ownerId': permissions.ownerId
     };
-    file = isFolder ? new Folder(file) : new Document(file);
+    file = isFolder ? new FolderModel(file) : new DocumentModel(file);
     // save file to db
     try {
         await file.save();
@@ -101,7 +101,7 @@ async function create(userId, parentId, isFolder, title) {
     let rawResponse;
     try {
         const pushop = isFolder ? { childIds: file._id } : { documentIds: file._id };
-        rawResponse = await Folder.update({ _id: parentId }, { $push: pushop});
+        rawResponse = await FolderModel.update({ _id: parentId }, { $push: pushop});
     } catch (err) {
         ControllerUtil.throwAndLog(err, 'unknown mongo error');
     }
@@ -126,8 +126,8 @@ async function getFilePermissions(userId, fileId, isFolder) {
     let fileEntry;
     try {
         fileEntry = isFolder ?
-            await Folder.findById(fileId, projection)
-            : await Document.findById(fileId, projection);
+            await FolderModel.findById(fileId, projection)
+            : await DocumentModel.findById(fileId, projection);
     } catch (err) {
         ControllerUtil.throwAndLog(err, 'unknown mongo error');
     }
@@ -135,7 +135,7 @@ async function getFilePermissions(userId, fileId, isFolder) {
     if (fileEntry.ownerId.toString() === userId)
         return { ownerId: userId, permissions: ControllerUtil.createPermissionsObject(true, true, true, true) };
 
-    const shares = await Share.find({ _id: { $in: fileEntry.shareIds }}, { userId: 1, permissions: 1});
+    const shares = await ShareModel.find({ _id: { $in: fileEntry.shareIds }}, { userId: 1, permissions: 1});
     const shareEntryForUser = shares.find((elem) => {
         return elem.userId === userId;
     });
@@ -162,7 +162,7 @@ async function getFolderListing(userId, folderId) {
     const permissions = await getFilePermissions(userId, folderId, true);
     ControllerUtil.conditionalThrowWithStatus(permissions.permissions.read === false, 'not allowed to read folderId', 403);
 
-    const entry = await Folder.findById(folderId).
+    const entry = await FolderModel.findById(folderId).
         populate({ path: 'childIds', select: 'title shareIds'}).
         populate({ path: 'documentIds', select: 'title shareIds'});
 

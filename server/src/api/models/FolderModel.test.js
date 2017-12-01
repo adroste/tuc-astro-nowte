@@ -6,11 +6,11 @@
 'use strict';
 
 const db = require('../../init/mongo-init');
-const Folder = require('./folder').Folder;
+const FolderModel = require('./FolderModel');
 
 describe('folder tests', () => {
     test('create simple folder', () => {
-        const folder = new Folder({
+        const folder = new FolderModel({
             title: 'My Folder',
             ownerId: '5a0871918fbac02a8a7439e7'
         });
@@ -19,7 +19,7 @@ describe('folder tests', () => {
     });
 
     test('create folder with children and documents', done => {
-        const folder = new Folder({
+        const folder = new FolderModel({
             title: 'My Second Folder',
             ownerId: '5a0871918fbac02a8a7439e7',
             childIds: [
@@ -30,7 +30,7 @@ describe('folder tests', () => {
         });
         folder.save((err, folderEntry) => {
             if (!err) {
-                Folder.findByIdAndRemove(folderEntry._id, err => {
+                FolderModel.findByIdAndRemove(folderEntry._id, err => {
                     if (!err)
                         done();
                 });

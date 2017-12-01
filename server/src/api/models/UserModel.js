@@ -5,6 +5,7 @@
 
 'use strict';
 
+
 const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
@@ -57,7 +58,9 @@ const userSchema = new Schema({
     sessions: [sessionSchema]
 });
 
+/**
+ * Mongoose Model of User Schema
+ */
+const UserModel = mongoose.model('User', userSchema);
 
-const User = mongoose.model('User', userSchema);
-
-exports.User = User;
+module.exports = UserModel;

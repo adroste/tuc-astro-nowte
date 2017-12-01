@@ -31,6 +31,9 @@ const shareSchema = new Schema({
 });
 
 
-const Share = mongoose.model('Share', shareSchema);
+/**
+ * Mongoose Model of Share Schema
+ */
+const ShareModel = mongoose.model('Share', shareSchema);
 
-exports.Share = Share;
+module.exports = ShareModel;
