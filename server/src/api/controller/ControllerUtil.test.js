@@ -5,18 +5,16 @@
 
 'use strict';
 
-const utility = require('./utility');
+const ControllerUtil = require('./ControllerUtil');
 
 describe('error helpers', () => {
     test('requireVarWithType throws', () => {
         try {
-            utility.requireVarWithType('test123', 'string', 5);
+            ControllerUtil.requireVarWithType('test123', 'string', 5);
         }
         catch (err) {
             expect(err.message).toMatch('test123 invalid type, test123 is required');
             expect(err.status).toBe(400);
         }
     });
-
-
 });
