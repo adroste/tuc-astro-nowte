@@ -8,7 +8,7 @@
 // -------------------------------------------
 // Includes
 // -------------------------------------------
-const config = require('../../init/config');
+const ConfigTool = require('../../init/ConfigTool');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mailer = require('../../init/mailer-init');
@@ -20,16 +20,16 @@ const mongoose = require('mongoose');
 // -------------------------------------------
 // Globals
 // -------------------------------------------
-const FRONTEND_URL = config.get('web-frontend.url');
-const SALTING_ROUNDS = config.get('user.password-salting-rounds');
+const FRONTEND_URL = ConfigTool.get('web-frontend.url');
+const SALTING_ROUNDS = ConfigTool.get('user.password-salting-rounds');
 // TODO advanced: private key rotation
-const PRIVATE_KEY = config.get('user.private-key');
-const MAIL_ACTIVATE_USER_SUBJECT = config.get('templates.mail.activateUserAccount.subject');
-const MAIL_ACTIVATE_USER_BODY = config.get('templates.mail.activateUserAccount.body');
+const PRIVATE_KEY = ConfigTool.get('user.private-key');
+const MAIL_ACTIVATE_USER_SUBJECT = ConfigTool.get('templates.mail.activateUserAccount.subject');
+const MAIL_ACTIVATE_USER_BODY = ConfigTool.get('templates.mail.activateUserAccount.body');
 // TODO validate email request url should lead to a react screen witch handles api call instead of naked api call
 const REQUEST_URL_VALIDATE_EMAIL = FRONTEND_URL + '/email-validation-done/:token';
-const MAIL_RESET_PASSWORD_SUBJECT = config.get('templates.mail.resetPassword.subject');
-const MAIL_RESET_PASSWORD_BODY = config.get('templates.mail.resetPassword.body');
+const MAIL_RESET_PASSWORD_SUBJECT = ConfigTool.get('templates.mail.resetPassword.subject');
+const MAIL_RESET_PASSWORD_BODY = ConfigTool.get('templates.mail.resetPassword.body');
 const REQUEST_URL_RESET_PASSWORD = FRONTEND_URL + '/reset-password/:token';
 
 

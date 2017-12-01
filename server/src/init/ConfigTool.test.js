@@ -5,18 +5,18 @@
 
 'use strict';
 
-const config = require('./config');
+const ConfigTool = require('./ConfigTool');
 
 test('read valid property', () => {
-    expect(config.get('server.http-port')).toBe(3000);
+    expect(ConfigTool.get('server.http-port')).toBe(3000);
 });
 
 test('try to read invalid property', () => {
     expect(() => {
-        config.get('magmag');
+        ConfigTool.get('magmag');
     }).toThrow('config has no property: magmag');
 
     expect(() => {
-        config.get('server.http-port.magmag');
+        ConfigTool.get('server.http-port.magmag');
     }).toThrow('config has no property: server.http-port.magmag');
 });

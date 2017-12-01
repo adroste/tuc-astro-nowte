@@ -5,10 +5,10 @@
 
 'use strict';
 
-const config = require('./config');
+const ConfigTool = require('./ConfigTool');
 const mongoose = require('mongoose');
 
-const MONGO_URL = config.get('server.mongo-url');
+const MONGO_URL = ConfigTool.get('server.mongo-url');
 mongoose.Promise = Promise;
 
 

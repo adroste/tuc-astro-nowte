@@ -5,10 +5,10 @@
 
 'use strict';
 
-const config = require('./config');
+const ConfigTool = require('./ConfigTool');
 const nodemailer = require('nodemailer');
 
-const options = config.get('mail.connection');
+const options = ConfigTool.get('mail.connection');
 const transporter = nodemailer.createTransport(options);
 
 // verify connection configuration
@@ -21,4 +21,4 @@ transporter.verify(function(error, success) {
 });
 
 module.exports = transporter;
-exports.FROM = config.get('mail.from');
+exports.FROM = ConfigTool.get('mail.from');

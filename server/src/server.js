@@ -5,7 +5,7 @@
 
 'use strict';
 
-const config = require('./init/config');
+const ConfigTool = require('./init/ConfigTool');
 const express = require('express');
 const cors = require('cors');
 const jsonParser = require('body-parser').json;
@@ -14,7 +14,7 @@ const userRoutes = require('./api/routes/user');
 const fileRoutes = require('./api/routes/file');
 const db = require('./init/mongo-init');
 
-const PORT =  config.get('server.http-port');
+const PORT =  ConfigTool.get('server.http-port');
 const app = express();
 
 

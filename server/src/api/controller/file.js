@@ -8,7 +8,7 @@
 // -------------------------------------------
 // Includes
 // -------------------------------------------
-const config = require('../../init/config');
+const ConfigTool = require('../../init/ConfigTool');
 const Folder = require('../models/folder').Folder;
 const Document = require('../models/document').Document;
 const Share = require('../models/share').Share;
