@@ -10,7 +10,7 @@ const mailer = require('./mailer-init');
 const TEST_MAIL_ADDRESS_RECIPIENT = 'mail@progmem.de';
 
 // skipped the test for annoyance reasons
-test.skip('send test mail', () => {
+test('send test mail', async () => {
     const mailOptions = {
         from: mailer.FROM, // sender address
         to: TEST_MAIL_ADDRESS_RECIPIENT, // list of receivers
@@ -19,9 +19,7 @@ test.skip('send test mail', () => {
         html: '<b>This is a test mail. (HTML Body)</b>' // html body
     };
 
-    // send mail with defined transport object
-    mailer.sendMail(mailOptions, (error, info) => {
-        expect(error).toBeNull();
-        console.log('you should check if: ' + TEST_MAIL_ADDRESS_RECIPIENT + ' got a mail from: ' + mailer.FROM);
-    });
+    const info = await mailer.sendMail(mailOptions);
+    expect(info).toBeDefined();
+    console.log('you should check if: ' + TEST_MAIL_ADDRESS_RECIPIENT + ' got a mail from: ' + mailer.FROM);
 });

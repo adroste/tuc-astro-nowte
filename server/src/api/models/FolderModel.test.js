@@ -18,7 +18,7 @@ describe('folder tests', () => {
         expect(err).toBeUndefined();
     });
 
-    test('create folder with children and documents', done => {
+    test('create folder with children and documents', async () => {
         const folder = new FolderModel({
             title: 'My Second Folder',
             ownerId: '5a0871918fbac02a8a7439e7',
@@ -28,13 +28,13 @@ describe('folder tests', () => {
                 '5a0871918fbac02a8a7439e7'
             ]
         });
-        folder.save((err, folderEntry) => {
-            if (!err) {
-                FolderModel.findByIdAndRemove(folderEntry._id, err => {
-                    if (!err)
-                        done();
-                });
-            }
-        });
+        const folderEntry = await folder.save();
+        const res = await FolderModel.findByIdAndRemove(folderEntry._id);
+        expect(res.title).toMatch('My Second Folder');
     });
+});
+
+
+afterAll(() => {
+    db.close();
 });
