@@ -9,7 +9,7 @@ const UserModel = require('../models/UserModel');
 const user = require('./user');
 const FolderModel = require('../models/FolderModel');
 const DocumentModel = require('../models/DocumentModel');
-const file = require('./file');
+const FileController = require('./FileController');
 const db = require('../../init/mongo-init');
 
 
@@ -42,7 +42,7 @@ beforeAll(done => {
 describe('folder, doc basic creation/update', async () => {
     test('checkTitleIsNoDuplicate, parent not found', async () => {
         try {
-            const res = await file.checkTitleIsNoDuplicate('', true, '5a1b1eacd94b1e24b8310e43');
+            const res = await FileController.checkTitleIsNoDuplicate('', true, '5a1b1eacd94b1e24b8310e43');
         } catch(err) {
             expect(err.status).toBe(404);
             expect(err.message).toMatch('parentId not found');
@@ -50,29 +50,29 @@ describe('folder, doc basic creation/update', async () => {
     });
 
     test('checkTitleIsNoDuplicate, success', async () => {
-        const res = await file.checkTitleIsNoDuplicate('', true, testuser.folderId.toString());
+        const res = await FileController.checkTitleIsNoDuplicate('', true, testuser.folderId.toString());
         expect(res).toBe(true);
     });
 
     test('checkTitleIsNoDuplicate, duplicate', async () => {
-        const doc = await file.create(testuser._id.toString(), testuser.folderId.toString(), false, 'duplicate title');
-        const res = await file.checkTitleIsNoDuplicate('  duplicate title   ', false, testuser.folderId.toString());
+        const doc = await FileController.create(testuser._id.toString(), testuser.folderId.toString(), false, 'duplicate title');
+        const res = await FileController.checkTitleIsNoDuplicate('  duplicate title   ', false, testuser.folderId.toString());
         expect(res).toBe(false);
     });
 
 
     test('getFilePermissions, user root folder', async () => {
-        const res = await file.getFilePermissions(testuser._id.toString(), testuser.folderId.toString(), true);
+        const res = await FileController.getFilePermissions(testuser._id.toString(), testuser.folderId.toString(), true);
         expect(res.permissions.manage).toBe(true);
         expect(res.ownerId).toMatch(testuser._id.toString());
     });
 
     test('getFilePermissions, no permissions', async () => {
-        const res = await file.getFilePermissions('5a1b7373a517712ed795e557', testuser.folderId.toString(), true);
+        const res = await FileController.getFilePermissions('5a1b7373a517712ed795e557', testuser.folderId.toString(), true);
         expect(res.permissions.read).toBe(false);
 
         try {
-            const res2 = await file.create('5a1b7373a517712ed795e557', testuser.folderId.toString(), false, 'title2345');
+            const res2 = await FileController.create('5a1b7373a517712ed795e557', testuser.folderId.toString(), false, 'title2345');
         } catch(err) {
             expect(err.message).toMatch("not allowed to manage parentId");
         }
@@ -88,20 +88,20 @@ describe('folder, doc basic creation/update', async () => {
 
 
     test('create document, own tree', async () => {
-        const res = await file.create(testuser._id.toString(), testuser.folderId.toString(), false, ' my first doc  ');
+        const res = await FileController.create(testuser._id.toString(), testuser.folderId.toString(), false, ' my first doc  ');
         const entry = await DocumentModel.findById(res);
         expect(entry.title).toMatch('my first doc');
     });
 
     test('create folder, own tree', async () => {
-        const res = await file.create(testuser._id.toString(), testuser.folderId.toString(), true, ' my first folder  ');
+        const res = await FileController.create(testuser._id.toString(), testuser.folderId.toString(), true, ' my first folder  ');
         const entry = await FolderModel.findById(res);
         expect(entry.title).toMatch('my first folder');
     });
 
     test('create document, no permissions', async () => {
         try {
-            const res2 = await file.create('5a1b7373a517712ed795e557', testuser.folderId.toString(), false, 'example');
+            const res2 = await FileController.create('5a1b7373a517712ed795e557', testuser.folderId.toString(), false, 'example');
         } catch (err) {
             expect(err.status).toBe(403);
             expect(err.message).toMatch('not allowed to manage parentId')
@@ -116,7 +116,7 @@ describe('folder, doc basic creation/update', async () => {
     test('get listing', async () => {
         // TODO refactor, test on mocked structure below, move test
         throw new Error('not implemented');
-        const res = await file.getFolderListing(testuser._id.toString(), testuser.folderId.toString());
+        const res = await FileController.getFolderListing(testuser._id.toString(), testuser.folderId.toString());
         const t = 4;
     });
 
