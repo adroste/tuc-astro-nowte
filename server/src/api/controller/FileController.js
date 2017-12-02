@@ -15,20 +15,18 @@ const ErrorUtil = require('../utilities/ErrorUtil');
 
 
 /**
- * File controller contains methods for file actions
+ * FileController contains methods for file actions
  */
 class FileController {
     /**
      * Checks if provided title is already existent in specified folder
-     * @param title
-     * @param isFolder specified is title is folder or document title
-     * @param parentId id of folder
+     * @param {string} title title of file
+     * @param {boolean} isFolder specifies if title of file is a folder or document title
+     * @param {string} parentId id of folder
      * @returns {Promise.<boolean>} true if no duplicate
+     * @throws {Error} with msg: 'parentId not found' & status: 404 if folder with parentId could not be found
      */
     static async checkTitleIsNoDuplicate(title, isFolder, parentId) {
-        ErrorUtil.requireVarWithType('parentId', 'string', parentId);
-        ErrorUtil.requireVarWithType('title', 'string', title);
-        ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
         title = title.trim();
 
         let parentFolder;
@@ -56,18 +54,18 @@ class FileController {
 
 
     /**
-     * Creates a file (folder/document) in specified folder (parentId) with title
-     * @param userId userId of user requesting create
-     * @param parentId id of parent folder
-     * @param isFolder true if folder, false if document
-     * @param title
-     * @returns {Promise.<string>}
+     * Creates a file (folder/document) in a specified folder (parentId) with title
+     * @param {string} userId userId of user requesting create
+     * @param {string} parentId id of parent folder
+     * @param {boolean} isFolder true if new file is a folder, false if document
+     * @param {string} title title of the file (folder/document)
+     * @returns {Promise.<string>} fileId of the created file
+     * @throws {Error} with msg: 'not allowed to manage parentId' with status: 403 if user has no manage permissions on specified folder
+     * @throws {Error} with msg: 'title already exists' with status: 409 if file with title already exists in folder with parentId
+     * @throws {Error} msg contains: 'validation failed' with status: 400 if specified data does not match Model requirements
+     * @throws {Error} with msg: 'parentId not found' & status: 404 if folder with parentId could not be found
      */
     static async create(userId, parentId, isFolder, title) {
-        ErrorUtil.requireVarWithType('userId', 'string', userId);
-        ErrorUtil.requireVarWithType('parentId', 'string', parentId);
-        ErrorUtil.requireVarWithType('title', 'string', title);
-        ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
         title = title.trim();
 
         // check user is allowed to create file in parent folder
@@ -115,10 +113,10 @@ class FileController {
 
     /**
      * Retrieves user-permissions and ownerId for a specified file
-     * @param userId
-     * @param fileId
-     * @param isFolder
-     * @returns {Promise.<{ownerId: string, value: number}>}
+     * @param {string} userId id of user
+     * @param {string} fileId id of file
+     * @param {boolean} isFolder indicates whether file is a folder or a document
+     * @returns {Promise.<{ownerId: string, value: number}>} object containing ownerId and value (PermissionsEnum)
      */
     static async getFilePermissions(userId, fileId, isFolder) {
         const projection = {ownerId: 1, shareIds: 1};
@@ -146,14 +144,12 @@ class FileController {
     /**
      * Creates listing for a specified folder
      * @todo unit test
-     * @param userId
-     * @param folderId
+     * @param {string} userId userId of user requesting listing
+     * @param {string} folderId id of folder
      * @returns {Promise.<{title: string, isShared: boolean, documents: Array.<{id: string, title: string, isShared: boolean}>, folders: Array.<{id: string, title: string, isShared: boolean}>}>}
+     * @throws {Error} with msg: 'not allowed to read folderId' with status: 403 if user has no read permissions on specified folder
      */
     static async getFolderListing(userId, folderId) {
-        ErrorUtil.requireVarWithType('userId', 'string', userId);
-        ErrorUtil.requireVarWithType('parentId', 'string', folderId);
-
         // check if user is allowed to read folder
         const permissions = await this.getFilePermissions(userId, folderId, true);
         ErrorUtil.conditionalThrowWithStatus(permissions.value < PermissionsEnum.READ, 'not allowed to read folderId', 403);
