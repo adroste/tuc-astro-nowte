@@ -5,14 +5,15 @@
 
 'use strict';
 
-const ConfigTool = require('./ConfigTool');
+const ConfigTool = require('../ConfigTool');
 const nodemailer = require('nodemailer');
 
 const options = ConfigTool.get('mail.connection');
-const transporter = nodemailer.createTransport(options);
+const transport = nodemailer.createTransport(options);
+
 
 // verify connection configuration
-transporter.verify(function(error, success) {
+transport.verify(function(error, success) {
     if (error) {
         console.error('Could not connect to mail server: ' + error.toString());
     } else {
@@ -20,5 +21,12 @@ transporter.verify(function(error, success) {
     }
 });
 
-module.exports = transporter;
-exports.FROM = ConfigTool.get('mail.from');
+
+/**
+ * (Node)mailer object to send mails
+ * @property {string} FROM mail address used for transport
+ */
+const mailer = Object.assign(transport, { FROM: ConfigTool.get('mail.from')});
+
+
+module.exports = mailer;

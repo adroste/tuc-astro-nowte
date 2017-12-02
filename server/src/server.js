@@ -5,7 +5,7 @@
 
 'use strict';
 
-const ConfigTool = require('./init/ConfigTool');
+const ConfigTool = require('./ConfigTool');
 const express = require('express');
 const cors = require('cors');
 const jsonParser = require('body-parser').json;
