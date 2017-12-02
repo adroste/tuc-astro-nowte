@@ -8,7 +8,7 @@
 // -------------------------------------------
 // Includes
 // -------------------------------------------
-const ConfigTool = require('../../init/ConfigTool');
+const ConfigTool = require('../../ConfigTool');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mailer = require('../../init/mailer-init');

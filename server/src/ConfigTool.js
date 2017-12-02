@@ -9,9 +9,9 @@ const ENV = process.env.NODE_ENV;
 let configJSON;
 
 if (ENV === 'production')
-    configJSON = require('../../config/production.json');
+    configJSON = require('../config/production.json');
 else
-    configJSON = require('../../config/development.json');
+    configJSON = require('../config/development.json');
 
 /**
  * ConfigTool class for reading json configs based on NODE_ENV
