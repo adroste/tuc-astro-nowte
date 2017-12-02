@@ -8,7 +8,7 @@
 const express = require('express');
 const user = require('../controller/user');
 const FileController = require('../controller/FileController');
-const RoutesUtil = require('./RoutesUtil');
+const RoutesUtil = require('../utilities/RoutesUtil');
 
 
 /**

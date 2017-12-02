@@ -10,6 +10,7 @@ const user = require('./user');
 const FolderModel = require('../models/FolderModel');
 const DocumentModel = require('../models/DocumentModel');
 const FileController = require('./FileController');
+const PermissionsEnum = require('../utilities/PermissionsEnum');
 const db = require('../../init/mongo-init');
 
 
@@ -63,13 +64,13 @@ describe('folder, doc basic creation/update', async () => {
 
     test('getFilePermissions, user root folder', async () => {
         const res = await FileController.getFilePermissions(testuser._id.toString(), testuser.folderId.toString(), true);
-        expect(res.permissions.manage).toBe(true);
+        expect(res.value).toBe(PermissionsEnum.MANAGE);
         expect(res.ownerId).toMatch(testuser._id.toString());
     });
 
     test('getFilePermissions, no permissions', async () => {
         const res = await FileController.getFilePermissions('5a1b7373a517712ed795e557', testuser.folderId.toString(), true);
-        expect(res.permissions.read).toBe(false);
+        expect(res.value).toBe(PermissionsEnum.NONE);
 
         try {
             const res2 = await FileController.create('5a1b7373a517712ed795e557', testuser.folderId.toString(), false, 'title2345');

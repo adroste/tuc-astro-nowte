@@ -1,47 +1,13 @@
 /**
  * @author progmem
- * @date 27.11.17
+ * @date 02.12.17
  */
 
-"use strict";
 
 /**
- * Utilities for API-Controllers
+ * Static class for providing Error-Helper methods
  */
-class ControllerUtil  {
-    /**
-     * Creates a permission object
-     * @param {boolean} read
-     * @param {boolean} annotate
-     * @param {boolean} edit
-     * @param {boolean} manage
-     * @returns {{read: boolean, annotate: boolean, edit: boolean, manage: boolean}}
-     */
-    static createPermissionsObject(read = true, annotate = false, edit = false, manage = false) {
-        return this.fixPermissionsObject({
-            read: Boolean(read),
-            annotate: Boolean(annotate),
-            edit: Boolean(edit),
-            manage: Boolean(manage)
-        });
-    }
-
-
-    /**
-     * Fixes permissions on a permission object
-     * @param {{read: boolean, annotate: boolean, edit: boolean, manage: boolean}} obj permissions object
-     * @returns {{read: boolean, annotate: boolean, edit: boolean, manage: boolean}}
-     */
-    static fixPermissionsObject(obj) {
-        return {
-            read: Boolean(obj.read),
-            annotate: Boolean(obj.annotate || obj.edit || obj.manage),
-            edit: Boolean(obj.edit || obj.manage),
-            manage: Boolean(obj.manage)
-        }
-    }
-
-
+class ErrorUtil {
     /**
      * Throws error with message '{name} invalid type, {name} is required', status 400 Bad Request if type does not match
      * @param {string} name name of parameter
@@ -85,4 +51,6 @@ class ControllerUtil  {
         throw err;
     }
 }
-module.exports = ControllerUtil;
+
+
+module.exports = ErrorUtil;

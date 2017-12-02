@@ -10,7 +10,8 @@ const ConfigTool = require('../../ConfigTool');
 const FolderModel = require('../models/FolderModel');
 const DocumentModel = require('../models/DocumentModel');
 const ShareModel = require('../models/ShareModel');
-const ControllerUtil = require('./ControllerUtil');
+const PermissionsEnum = require('../utilities/PermissionsEnum');
+const ErrorUtil = require('../utilities/ErrorUtil');
 
 
 /**
@@ -25,18 +26,18 @@ class FileController {
      * @returns {Promise.<boolean>} true if no duplicate
      */
     static async checkTitleIsNoDuplicate(title, isFolder, parentId) {
-        ControllerUtil.requireVarWithType('parentId', 'string', parentId);
-        ControllerUtil.requireVarWithType('title', 'string', title);
-        ControllerUtil.requireVarWithType('isFolder', 'boolean', isFolder);
+        ErrorUtil.requireVarWithType('parentId', 'string', parentId);
+        ErrorUtil.requireVarWithType('title', 'string', title);
+        ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
         title = title.trim();
 
         let parentFolder;
         try {
             parentFolder = await FolderModel.findById(parentId, isFolder ? {childIds: 1} : {documentIds: 1});
         } catch (err) {
-            ControllerUtil.throwAndLog(err, 'unknown mongo error');
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
-        ControllerUtil.conditionalThrowWithStatus(parentFolder === null, 'parentId not found', 404);
+        ErrorUtil.conditionalThrowWithStatus(parentFolder === null, 'parentId not found', 404);
 
         let fileEntries;
         try {
@@ -44,7 +45,7 @@ class FileController {
                 await FolderModel.find({_id: {$in: parentFolder.childIds}}, {title: 1})
                 : await DocumentModel.find({_id: {$in: parentFolder.documentIds}}, {title: 1});
         } catch (err) {
-            ControllerUtil.throwAndLog(err, 'unknown mongo error');
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
 
         const matchingEntry = fileEntries.find((elem) => {
@@ -63,18 +64,18 @@ class FileController {
      * @returns {Promise.<string>}
      */
     static async create(userId, parentId, isFolder, title) {
-        ControllerUtil.requireVarWithType('userId', 'string', userId);
-        ControllerUtil.requireVarWithType('parentId', 'string', parentId);
-        ControllerUtil.requireVarWithType('title', 'string', title);
-        ControllerUtil.requireVarWithType('isFolder', 'boolean', isFolder);
+        ErrorUtil.requireVarWithType('userId', 'string', userId);
+        ErrorUtil.requireVarWithType('parentId', 'string', parentId);
+        ErrorUtil.requireVarWithType('title', 'string', title);
+        ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
         title = title.trim();
 
         // check user is allowed to create file in parent folder
         const permissions = await this.getFilePermissions(userId, parentId, true);
-        ControllerUtil.conditionalThrowWithStatus(permissions.permissions.manage === false, 'not allowed to manage parentId', 403);
+        ErrorUtil.conditionalThrowWithStatus(permissions.value < PermissionsEnum.MANAGE, 'not allowed to manage parentId', 403);
 
         // check title is no duplicate
-        ControllerUtil.conditionalThrowWithStatus(
+        ErrorUtil.conditionalThrowWithStatus(
             !await this.checkTitleIsNoDuplicate(title, isFolder, parentId),
             'title already exists', 409);
 
@@ -91,9 +92,9 @@ class FileController {
             await file.save();
         } catch (err) {
             if (err.message.startsWith('Document validation failed') || err.message.startsWith('Folder validation failed'))
-                ControllerUtil.conditionalThrowWithStatus(true, err.message, 400);
+                ErrorUtil.conditionalThrowWithStatus(true, err.message, 400);
             else
-                ControllerUtil.throwAndLog(err, 'unknown mongo error');
+                ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
 
         // add fileId to parent folder (link back)
@@ -102,9 +103,9 @@ class FileController {
             const pushop = isFolder ? {childIds: file._id} : {documentIds: file._id};
             rawResponse = await FolderModel.update({_id: parentId}, {$push: pushop});
         } catch (err) {
-            ControllerUtil.throwAndLog(err, 'unknown mongo error');
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
-        ControllerUtil.conditionalThrowWithStatus(rawResponse.n === 0, 'parentId not found', 404);
+        ErrorUtil.conditionalThrowWithStatus(rawResponse.n === 0, 'parentId not found', 404);
 
         // TODO FIX concurrency check, repair if backlink via id fails
 
@@ -117,7 +118,7 @@ class FileController {
      * @param userId
      * @param fileId
      * @param isFolder
-     * @returns {Promise.<{ownerId: string, permissions: {read: boolean, annotate: boolean, edit: boolean, manage: boolean}}>}
+     * @returns {Promise.<{ownerId: string, value: number}>}
      */
     static async getFilePermissions(userId, fileId, isFolder) {
         const projection = {ownerId: 1, shareIds: 1};
@@ -127,20 +128,18 @@ class FileController {
                 await FolderModel.findById(fileId, projection)
                 : await DocumentModel.findById(fileId, projection);
         } catch (err) {
-            ControllerUtil.throwAndLog(err, 'unknown mongo error');
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
 
         if (fileEntry.ownerId.toString() === userId)
-            return {ownerId: userId, permissions: ControllerUtil.createPermissionsObject(true, true, true, true)};
+            return {ownerId: userId, value: PermissionsEnum.MANAGE};
 
         const shares = await ShareModel.find({_id: {$in: fileEntry.shareIds}}, {userId: 1, permissions: 1});
         const shareEntryForUser = shares.find((elem) => {
             return elem.userId === userId;
         });
-        const permissions = shareEntryForUser === undefined ?
-            ControllerUtil.createPermissionsObject(false, false, false, false)
-            : ControllerUtil.fixPermissionsObject(shareEntryForUser.permissions);
-        return {ownerId: fileEntry.ownerId.toString(), permissions: permissions};
+        const permissions = shareEntryForUser === undefined ? PermissionsEnum.NONE : shareEntryForUser.permissions;
+        return {ownerId: fileEntry.ownerId.toString(), value: permissions};
     }
 
 
@@ -152,12 +151,12 @@ class FileController {
      * @returns {Promise.<{title: string, isShared: boolean, documents: Array.<{id: string, title: string, isShared: boolean}>, folders: Array.<{id: string, title: string, isShared: boolean}>}>}
      */
     static async getFolderListing(userId, folderId) {
-        ControllerUtil.requireVarWithType('userId', 'string', userId);
-        ControllerUtil.requireVarWithType('parentId', 'string', folderId);
+        ErrorUtil.requireVarWithType('userId', 'string', userId);
+        ErrorUtil.requireVarWithType('parentId', 'string', folderId);
 
         // check if user is allowed to read folder
         const permissions = await this.getFilePermissions(userId, folderId, true);
-        ControllerUtil.conditionalThrowWithStatus(permissions.permissions.read === false, 'not allowed to read folderId', 403);
+        ErrorUtil.conditionalThrowWithStatus(permissions.value < PermissionsEnum.READ, 'not allowed to read folderId', 403);
 
         const entry = await FolderModel.findById(folderId).populate({
             path: 'childIds',
