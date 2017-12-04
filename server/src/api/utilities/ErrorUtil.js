@@ -25,14 +25,17 @@ class ErrorUtil {
 
 
     /**
-     * Rethrows error (with custom message if set) but logs it to console before
+     * Rethrows error (with custom message & status if set) but logs it to console before
      * @param {Error} err Error object
      * @param {string} msg custom message
+     * @param {number} statuscode status code (error.status), defaults to 500
      * @throws {Error} rethrows err (with custom message if set)
      */
-    static throwAndLog(err, msg) {
+    static throwAndLog(err, msg, statuscode = 500) {
         console.error(err);
-        throw new Error(msg !== undefined ? msg : err.message);
+        const err2 = new Error(msg !== undefined ? msg : err.message);
+        err2.status = statuscode;
+        throw err2;
     }
 
 
