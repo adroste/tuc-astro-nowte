@@ -197,7 +197,7 @@ export default class UserRegistrationForm extends React.Component {
         return (
             <div className="UserRegistrationForm" onKeyPress={this.handleKeyPress}>
                 <LabelledInputBox
-                    label="Username"
+                    label="Name"
                     name="name"
                     onChange={(value) => this.name = value}
                     child={this.state.nameChild}
