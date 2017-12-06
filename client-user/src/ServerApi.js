@@ -110,11 +110,30 @@ export const removeFolder = (folderId, onSuccess, onError) => {
 };
 
 export const shareFile = (fileId, userEmail, permission, onSuccess, onError) => {
-    onSuccess();
+    share(fileId, false, userEmail, permission, onSuccess, onError);
 };
 
 export const shareFolder = (fileId, userEmail, permission, onSuccess, onError) => {
-    onSuccess();
+    share(fileId, true, userEmail, permission, onSuccess, onError);
+};
+
+const share = (fileId, isFolder, userEmail, permission, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/create-share';
+    fetch(url, {
+        method: "POST",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            fileId: fileId,
+            isFolder: isFolder,
+            permissions: permission,
+            shareUserId: userEmail,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
 };
 
 export const renameFile = (fileId, title, onSuccess, onError) => {

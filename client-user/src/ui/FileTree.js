@@ -183,8 +183,10 @@ export default class FileTree extends React.Component {
                         <ContextMenuTrigger id={contextID}>
                             <div>
                                 <img src={iconPath} className="header-icon"/>
+                                {props.node.isShared? <img src="/img/people.svg" className="header-icon"/> : ""}
                                 {props.node.name}
                             </div>
+
                         </ContextMenuTrigger>
 
 

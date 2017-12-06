@@ -75,7 +75,7 @@ export default class UserFileTreeForm extends React.Component {
         API.getShares(this.userId, this.handleUserShares, this.handleRequestError);
     }
 
-    makeUnloadedFolder = (name, folderId, parentId) => {
+    makeUnloadedFolder = (name, folderId, parentId, isShared = false) => {
         return {
             name: name,
             id: folderId,
@@ -83,15 +83,17 @@ export default class UserFileTreeForm extends React.Component {
             loading: true,
             folder: [],
             docs: [],
-            parent: parentId
+            parent: parentId,
+            isShared: isShared,
         }
     };
 
-    makeDocument = (name, docId, parentId) => {
+    makeDocument = (name, docId, parentId, isShared = false) => {
         return {
             name: name,
             id: docId,
             parent: parentId,
+            isShared: isShared,
         }
     };
 
@@ -111,13 +113,12 @@ export default class UserFileTreeForm extends React.Component {
         parentNode.loading = false;
         parentNode.toggled = true;
 
-        // TODO add isShared
         // add children
         // folder
         if(data.folders) {
             for(let child of data.folders) {
                 // TODO maybe not overwrite if an entry exists?
-                folderDict[child.id] = this.makeUnloadedFolder(child.title, child.id, parentId);
+                folderDict[child.id] = this.makeUnloadedFolder(child.title, child.id, parentId, child.isShared);
                 parentNode.folder.push(child.id);
             }
         }
@@ -125,7 +126,7 @@ export default class UserFileTreeForm extends React.Component {
         // files
         if(data.documents) {
             for(let child of data.documents) {
-                docsDict[child.id] = this.makeDocument(child.title, child.id, parentId);
+                docsDict[child.id] = this.makeDocument(child.title, child.id, parentId, child.isShared);
                 parentNode.docs.push(child.id);
             }
         }
@@ -200,9 +201,64 @@ export default class UserFileTreeForm extends React.Component {
            activeDialog: <ShareDialog
                 title={"Share " + node.name}
                 onCancel={this.closeDialog}
-                onShare={this.closeDialog}
+                onShare={(email) => this.handleShareCreate(email, node)}
                     />
         });
+    };
+
+    /**
+     * request a share for a specific file/folder
+     * @param email
+     * @param node
+     */
+    handleShareCreate = (email, node) => {
+        this.closeDialog();
+
+        // request share for this node
+        if(node.children){
+            API.shareFolder(node.id, email, 2,
+                () => {
+                    this.handleFolderShared(node.id);
+                    this.recomputeFolderViews();
+                    }, this.handleRequestError);
+        }
+        else{
+            API.shareFile(node.id, email, 2,
+                () =>  {
+                    this.handleFileShared(node.id);
+                    this.recomputeFolderViews();
+                }, this.handleRequestError);
+        }
+    };
+
+    /**
+     * marks file as shared (without state change)
+     * @param fileId
+     */
+    handleFileShared = (fileId) => {
+        const node = this.docs[fileId];
+        node.isShared = true;
+    };
+
+    /**
+     * maks folder, subfolder and subdocuments as shared (without state change)
+     * @param folderId
+     */
+    handleFolderShared = (folderId) => {
+        const folder = this.folder[folderId];
+        if(!folder.isShared){
+            folder.isShared = true;
+
+            // subfolders are shared as well
+            for(let subFolderId of folder.folder) {
+                this.handleFolderShared(subFolderId);
+            }
+
+            // subfiles are shared as well
+            for(let docId of folder.docs) {
+                this.handleFileShared(docId);
+            }
+        }
     };
 
     handleFolderLoad = (node) => {
@@ -428,6 +484,7 @@ export default class UserFileTreeForm extends React.Component {
             children: [],
             parent: parent,
             ownerId: ownerId,
+            isShared: node.isShared,
         };
 
         // load children
@@ -453,6 +510,7 @@ export default class UserFileTreeForm extends React.Component {
             active: (!this.activeNode.isFolder && this.activeNode.id === docId),
             parent: parent,
             ownerId: ownerId,
+            isShared: node.isShared,
         };
     };
 
