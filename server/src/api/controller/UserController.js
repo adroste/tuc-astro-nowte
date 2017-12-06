@@ -402,8 +402,8 @@ class UserController {
      * @param {string} token sessionToken
      * @returns {Promise<string>} resolves to userId
      * @throws {Error} msg contains: 'invalid token' with status: 401 (authHeader: 'login realm="login"') if provided token is invalid/expired
-     * @throws {Error} msg contains: 'user not found' with status: 404 if userId from token does not exist in db
      * @throws {Error} msg contains: 'session expired' with status: 401 (authHeader: 'login realm="login"') if provided session got revoked/expired
+     * @throws {Error} msg contains: 'user not found' with status: 404 if userId from token does not exist in db
      */
     static async validateSession(token) {
         let decoded;

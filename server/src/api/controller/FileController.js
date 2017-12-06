@@ -65,7 +65,7 @@ class FileController {
      * @throws {Error} msg contains: 'validation failed' with status: 400 if specified data does not match Model requirements
      * @throws {Error} with msg: 'parentId not found' & status: 404 if folder with parentId could not be found
      */
-    static async create(userId, parentId, isFolder, title) {
+    static async createFile(userId, parentId, isFolder, title) {
         title = title.trim();
 
         // check user is allowed to create file in parent folder
@@ -117,6 +117,7 @@ class FileController {
      * @param {string} fileId id of file
      * @param {boolean} isFolder indicates whether file is a folder or a document
      * @returns {Promise.<{ownerId: string, value: number}>} object containing ownerId and value (PermissionsEnum)
+     * @throws {Error} msg: 'fileId not found' if no file with fileId could be found in db (isFolder = false => Document)
      */
     static async getFilePermissions(userId, fileId, isFolder) {
         const projection = {ownerId: 1, shareIds: 1};
@@ -128,13 +129,14 @@ class FileController {
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
+        ErrorUtil.conditionalThrowWithStatus(fileEntry === null, 'fileId not found', 404);
 
         if (fileEntry.ownerId.toString() === userId)
             return {ownerId: userId, value: PermissionsEnum.MANAGE};
 
         const shares = await ShareModel.find({_id: {$in: fileEntry.shareIds}}, {userId: 1, permissions: 1});
         const shareEntryForUser = shares.find((elem) => {
-            return elem.userId === userId;
+            return elem.userId.toString() === userId;
         });
         const permissions = shareEntryForUser === undefined ? PermissionsEnum.NONE : shareEntryForUser.permissions;
         return {ownerId: fileEntry.ownerId.toString(), value: permissions};
@@ -179,6 +181,54 @@ class FileController {
             documents: entry.documentIds.map(mapFunc).sort(sortFunc),
             folders: entry.childIds.map(mapFunc).sort(sortFunc),
         };
+    }
+
+
+    /**
+     * Creates a file-share (document/folder) for a user with provided permissions
+     * @param {string} userId id of user setting share
+     * @param {string} fileId id of file to share (document or folder id)
+     * @param {boolean} isFolder indicates whether fileId is a folderId or a documentId
+     * @param {string} shareUserId id of user to share the file with
+     * @param {number} permissions number according to: {@link PermissionsEnum}
+     * @returns {Promise<string>} shareId of the created share
+     * @throws {Error} with msg: 'not allowed to create share for fileId' with status: 403 if user does not own the file
+     * @throws {Error} msg: 'fileId not found' if no file with fileId could be found in db (isFolder = false => Document)
+     * @throws {Error} from {@link FileController.getFilePermissions} (called with userId, fileId, isFolder)
+     */
+    static async createShare(userId, fileId, isFolder, shareUserId, permissions) {
+        // check if user has permission to create share
+        const filePermissions = await FileController.getFilePermissions(userId, fileId, isFolder);
+        ErrorUtil.conditionalThrowWithStatus(userId !== filePermissions.ownerId, 'not allowed to create share for fileId', 403);
+
+        // create share entry
+        const share = new ShareModel({
+            fileId: fileId,
+            isFolder: isFolder,
+            userId: shareUserId,
+            permissions: permissions
+        });
+
+        // add shareId to file
+        const selection = { _id: fileId };
+        const pushOp = { $push: { shareIds: share._id }};
+        let rawResponse;
+        try {
+            rawResponse = isFolder ? await FolderModel.update(selection, pushOp)
+                : await DocumentModel.update(selection, pushOp);
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(rawResponse.n === 0, 'fileId not found', 404);
+
+        // save share entry to db (after file update to prevent unnecessary rollbacks)
+        try {
+            await share.save();
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+
+        return share._id.toString();
     }
 }
 
