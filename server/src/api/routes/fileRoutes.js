@@ -18,7 +18,7 @@ const ErrorUtil = require('../utilities/ErrorUtil');
 const fileRoutes = express.Router();
 
 
-fileRoutes.post('/create', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+fileRoutes.post('/create-file', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const sessionToken = req.body['sessionToken'];
     const parentId = req.body['parentId'];
     const isFolder = req.body['isFolder'];
@@ -29,11 +29,30 @@ fileRoutes.post('/create', RoutesUtil.asyncMiddleware(async (req, res, next) => 
     ErrorUtil.requireVarWithType('title', 'string', title);
 
     const userId = await UserController.validateSession(sessionToken);
-    const fileId = await FileController.create(userId, parentId, isFolder, title);
+    const fileId = await FileController.createFile(userId, parentId, isFolder, title);
     res.status(201); // Created
     res.json({
         fileId: fileId
     });
+}));
+
+
+fileRoutes.post('/create-share', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.body['sessionToken'];
+    const fileId = req.body['fileId'];
+    const isFolder = req.body['isFolder'];
+    const shareUserId = req.body['shareUserId'];
+    const permissions = req.body['permissions'];
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+    ErrorUtil.requireVarWithType('fileId', 'string', fileId);
+    ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
+    ErrorUtil.requireVarWithType('shareUserId', 'string', shareUserId);
+    ErrorUtil.requireVarWithType('permissions', 'number', permissions);
+
+    const userId = await UserController.validateSession(sessionToken);
+    await FileController.createShare(userId, fileId, isFolder, shareUserId, permissions);
+    res.status(204);
+    res.json({});
 }));
 
 
