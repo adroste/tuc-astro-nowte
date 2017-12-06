@@ -32,6 +32,7 @@ class ErrorUtil {
      * @throws {Error} rethrows err (with custom message if set)
      */
     static throwAndLog(err, msg, statuscode = 500) {
+        // TODO error log does not contain calling method
         console.error(err);
         const err2 = new Error(msg !== undefined ? msg : err.message);
         err2.status = statuscode;
@@ -44,13 +45,16 @@ class ErrorUtil {
      * @param {boolean} condition true triggers throw
      * @param {string} msg error message (error.message)
      * @param {number} statuscode status code (error.status)
+     * @param {string|null} authHeader authentication header (null if not set)
      * @throws {Error} throws if condition is met with supplied msg and statuscode
      */
-    static conditionalThrowWithStatus(condition, msg, statuscode) {
+    static conditionalThrowWithStatus(condition, msg, statuscode, authHeader = null) {
         if (!condition)
             return;
         const err = new Error(msg);
         err.status = statuscode;
+        if (authHeader !== null)
+            err.authHeader = authHeader;
         throw err;
     }
 }

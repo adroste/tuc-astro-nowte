@@ -12,6 +12,9 @@ const PRIVATE_KEY = ConfigTool.get('user.private-key');
 const SALTING_ROUNDS = ConfigTool.get('user.password-salting-rounds');
 
 
+/**
+ * Static class for providing helper methods for user actions
+ */
 class UserUtil {
     /**
      * Checks if password is between 8 and 100 characters, if not throws Error object (for convenience)
