@@ -56,7 +56,7 @@ describe('working on a user', async () => {
 
     beforeEach(async () => {
         await clearUsers();
-        testuser = await UserController.createUser('Schwanzus Longus', 'sw@example.com', 'password');
+        testuser = await UserController.createUser('Schwanzus Longus', 'sw3@example.com', 'password');
     });
 
     test('query user by email', async () => {
@@ -78,7 +78,7 @@ describe('working on a user', async () => {
 
     test('send email validation token (wrong email)', async () => {
         try {
-            await UserController.createAndSendEmailValidationToken('sw@examle.com');
+            await UserController.createAndSendEmailValidationToken('sw3@examle.com');
         } catch (err) {
             expect(err.message).toMatch('user not found');
         }
@@ -86,7 +86,7 @@ describe('working on a user', async () => {
 
     test('send password reset token (wrong email)', async () => {
         try {
-            await UserController.createAndSendPasswordResetToken('sw@examle.com');
+            await UserController.createAndSendPasswordResetToken('sw3@examle.com');
         } catch (err) {
             expect(err.message).toMatch('user not found');
         }
@@ -116,7 +116,7 @@ describe('working on a validated user', async () => {
 
     beforeEach(async () => {
         await clearUsers();
-        testuser = await UserController.createUser('Schwanzus Longus', 'sw@example.com', 'password');
+        testuser = await UserController.createUser('Schwanzus Longus', 'sw4@example.com', 'password');
         testuser.emailValidated = true;
         await testuser.save();
     });

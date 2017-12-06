@@ -6,7 +6,7 @@
 'use strict';
 
 const express = require('express');
-const user = require('../controller/user');
+const UserController = require('../controller/UserController');
 const FileController = require('../controller/FileController');
 const RoutesUtil = require('../utilities/RoutesUtil');
 const ErrorUtil = require('../utilities/ErrorUtil');
@@ -28,8 +28,7 @@ fileRoutes.post('/create', RoutesUtil.asyncMiddleware(async (req, res, next) => 
     ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
     ErrorUtil.requireVarWithType('title', 'string', title);
 
-    // TODO validate session REFACTOR to promise
-    const userId = await user.validateSessionAsyncWrapper(sessionToken);
+    const userId = await UserController.validateSession(sessionToken);
     const fileId = await FileController.create(userId, parentId, isFolder, title);
     res.status(201); // Created
     res.json({
@@ -44,7 +43,7 @@ fileRoutes.get('/list-folder/:folderId', RoutesUtil.asyncMiddleware(async (req, 
     ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
     ErrorUtil.requireVarWithType('folderId', 'string', folderId);
 
-    const userId = await user.validateSessionAsyncWrapper(sessionToken);
+    const userId = await UserController.validateSession(sessionToken);
     const listing = await FileController.getFolderListing(userId, folderId);
     res.status(200);
     res.json(listing);

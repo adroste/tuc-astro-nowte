@@ -6,7 +6,9 @@
 'use strict';
 
 const express = require('express');
-const user = require('../controller/user');
+const UserController = require('../controller/UserController');
+const RoutesUtil = require('../utilities/RoutesUtil');
+const ErrorUtil = require('../utilities/ErrorUtil');
 
 
 /**
@@ -15,101 +17,94 @@ const user = require('../controller/user');
 const userRoutes = express.Router();
 
 
-userRoutes.put('/change-password', (req, res, next) => {
-    const actionHandler = (err) => {
-        if (err) {
-            if (err.status === 401)
-                res.setHeader('WWW-Authenticate', err.authHeader);
-            return next(err);
-        }
-        res.status(204); // No Content
-        res.json({});
-    };
-
+userRoutes.put('/change-password', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const passwordResetToken = req.body['passwordResetToken'];
-    if (typeof passwordResetToken !== 'undefined')
-        user.changePasswordViaResetToken(passwordResetToken, req.body['newPassword'], actionHandler);
-    else
-        user.changePasswordViaCurrentPassword(req.body['email'], req.body['currentPassword'], req.body['newPassword'], actionHandler);
-});
+    const newPassword = req.body['newPassword'];
+    ErrorUtil.requireVarWithType('newPassword', 'string', newPassword);
+
+    if (typeof passwordResetToken !== 'undefined') {
+        await UserController.changePasswordViaResetToken(passwordResetToken, newPassword);
+    }
+    else {
+        const email = req.body['email'];
+        const currentPassword = req.body['currentPassword'];
+        ErrorUtil.requireVarWithType('email', 'string', email);
+        ErrorUtil.requireVarWithType('currentPassword', 'string', currentPassword);
+        await UserController.changePasswordViaCurrentPassword(email, currentPassword, newPassword);
+    }
+
+    res.status(204); // No Content
+    res.json({});
+}));
 
 
-userRoutes.post('/create', (req, res, next) => {
-    user.createUser(req.body['name'], req.body['email'], req.body['password'], (err, userEntry) => {
-        if (err)
-            return next(err);
-        res.status(204); // No Content
-        res.json({});
+userRoutes.post('/create', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const name = req.body['name'];
+    const email = req.body['email'];
+    const password = req.body['password'];
+    ErrorUtil.requireVarWithType('name', 'string', name);
+    ErrorUtil.requireVarWithType('email', 'string', email);
+    ErrorUtil.requireVarWithType('password', 'string', password);
 
-        // create emailValidationToken and send validate link via email
-        user.createAndSendEmailValidationToken(userEntry.email, err => {
-            // if it fails, it fails silently for the user
-            if (err)
-                console.error('Could not create and send emailValidationToken after user creation for user: ' + userEntry.email + ' with err: ' + err);
-        });
-    });
-});
+    const userEntry = await UserController.createUser(name, email, password);
+    res.status(204); // No Content
+    res.json({});
 
-
-userRoutes.post('/login', (req, res, next) => {
-    user.login(req.body['email'], req.body['password'], (err, sessionToken, name, folderId, userId) => {
-        if (err) {
-            if (err.status === 401)
-                res.setHeader('WWW-Authenticate', err.authHeader);
-            return next(err);
-        }
-        res.status(201); // Created
-        res.json({
-            sessionToken: sessionToken,
-            name: name,
-            folderId: folderId,
-            userId: userId
-        });
-    });
-});
+    // create emailValidationToken and send validate link via email, silently in background
+    await UserController.createAndSendEmailValidationToken(userEntry.email);
+}));
 
 
-userRoutes.post('/logout', (req, res, next) => {
-    user.logout(req.body['sessionToken'], err => {
-        if (err) {
-            if (err.status === 401)
-                res.setHeader('WWW-Authenticate', err.authHeader);
-            return next(err);
-        }
-        res.status(204); // No Content
-        res.json({});
-    });
-});
+userRoutes.post('/login', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const email = req.body['email'];
+    const password = req.body['password'];
+    ErrorUtil.requireVarWithType('email', 'string', email);
+    ErrorUtil.requireVarWithType('password', 'string', password);
+
+    const info = await UserController.login(email, password);
+    res.status(201); // Created
+    res.json(info);
+}));
 
 
-userRoutes.post('/request-password-reset', (req, res, next) => {
-    user.createAndSendPasswordResetToken(req.body['email'], err => {
-        if (err)
-            return next(err);
-        res.status(204); // No Content
-        res.json({});
-    });
-});
+userRoutes.post('/logout', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.body['sessionToken'];
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+
+    await UserController.logout(sessionToken);
+    res.status(204); // No Content
+    res.json({});
+}));
 
 
-userRoutes.post('/resend-validation-email', (req, res, next) => {
-    user.createAndSendEmailValidationToken(req.body['email'], err => {
-        if (err)
-            return next(err);
-        res.status(204); // No Content
-        res.json({});
-    });
-});
+userRoutes.post('/request-password-reset', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const email = req.body['email'];
+    ErrorUtil.requireVarWithType('email', 'string', email);
+
+    await UserController.createAndSendPasswordResetToken(email);
+    res.status(204); // No Content
+    res.json({});
+}));
 
 
-userRoutes.post('/validate-email', (req, res, next) => {
-    user.validateUserEmail(req.body['emailValidationToken'], err => {
-        if (err)
-            return next(err);
-        res.status(204); // No Content
-        res.json({});
-    });
-});
+userRoutes.post('/resend-validation-email', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const email = req.body['email'];
+    ErrorUtil.requireVarWithType('email', 'string', email);
+
+    await UserController.createAndSendEmailValidationToken(email);
+    res.status(204); // No Content
+    res.json({});
+}));
+
+
+userRoutes.post('/validate-email', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const emailValidationToken = req.body['emailValidationToken'];
+    ErrorUtil.requireVarWithType('emailValidationToken', 'string', emailValidationToken);
+
+    await UserController.validateUserEmail(emailValidationToken);
+    res.status(204); // No Content
+    res.json({});
+}));
 
 
 module.exports = userRoutes;

@@ -247,6 +247,7 @@ class UserController {
      * @param {string} email valid user email
      * @param {string} currentPassword current users password as plaintext
      * @param {string} newPassword new password to set as plaintext
+     * @returns {Promise<void>} Promise has no return/resolve value
      * @throws {Error} msg: 'user not found' with status: 404 if no user with provided email could be found in db
      * @throws {Error} msg: 'invalid currentPassword' with status: 401 (authHeader: 'login realm="login"') if provided password does not match the db entry
      * @throws {Error} from {@link changePassword} (called with newPassword)
@@ -275,6 +276,7 @@ class UserController {
      * Changes a users password by providing password rest token to a new password.
      * @param {string} token passwortResetToken
      * @param {string} newPassword new password to set
+     * @returns {Promise<void>} Promise has no return/resolve value
      * @throws {Error} from {@link UserUtil.extractJwt} (called with supplied token)
      * @throws {Error} from {@link changePassword} (called with newPassword)
      */
@@ -344,6 +346,7 @@ class UserController {
     /**
      * Logout a provided session (via session token)
      * @param token sessionToken
+     * @returns {Promise<void>} Promise has no return/resolve value
      * @throws {Error} msg contains: 'user not found' with status: 404 if userId from token does not exist in db
      * @throws {Error} msg contains: 'invalid session' with status: 401 (authHeader: 'login realm="login"') if sessionId from token does not exist in db
      * @throws {Error} from {@link UserUtil.extractJwt} (called with token)

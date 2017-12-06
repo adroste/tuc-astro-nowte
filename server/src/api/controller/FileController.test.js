@@ -6,10 +6,10 @@
 'use strict';
 
 const UserModel = require('../models/UserModel');
-const user = require('./user');
 const FolderModel = require('../models/FolderModel');
 const DocumentModel = require('../models/DocumentModel');
 const FileController = require('./FileController');
+const UserController = require('./UserController');
 const PermissionsEnum = require('../utilities/PermissionsEnum');
 const db = require('../../init/mongo-init');
 
@@ -27,16 +27,11 @@ async function clearAll() {
 
 
 let testuser;
-beforeAll(done => {
-    clearAll().then(() => {
-        user.createUser('Schwanzus Longus', 'sw@example.com', 'password', (err, user) => {
-            user.emailValidated = true;
-            user.save((err, user) => {
-                testuser = user;
-                done();
-            });
-        });
-    });
+beforeAll(async () => {
+    await clearAll();
+    testuser = await UserController.createUser('Schwanzus Longus', 'sw4@example.com', 'password');
+    testuser.emailValidated = true;
+    await testuser.save();
 });
 
 

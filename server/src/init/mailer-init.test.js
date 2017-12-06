@@ -10,7 +10,7 @@ const mailer = require('./mailer-init');
 const TEST_MAIL_ADDRESS_RECIPIENT = 'mail@progmem.de';
 
 // skipped the test for annoyance reasons
-test('send test mail', async () => {
+test.skip('send test mail', async () => {
     const subject = 'Test Mail from Astro-Nowte unit test';
     const body = 'This is a test mail.';
 
