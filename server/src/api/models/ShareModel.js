@@ -28,7 +28,7 @@ const shareSchema = new Schema({
         type: Number,
         required: [true, 'permissions is required']
     }
-});
+}, { usePushEach: true }); // TODO remove with mongoose v5
 
 
 /**

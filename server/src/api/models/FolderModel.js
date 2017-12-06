@@ -38,7 +38,7 @@ const folderSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Share'
     }]
-});
+}, { usePushEach: true }); // TODO remove with mongoose v5
 
 
 /**

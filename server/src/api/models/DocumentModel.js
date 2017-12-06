@@ -33,7 +33,7 @@ const docSchema = new Schema({
     data: {
         type: Schema.Types.Mixed
     }
-});
+}, { usePushEach: true }); // TODO remove with mongoose v5
 
 
 /**
