@@ -18,6 +18,9 @@ const FRONTEND_URL = ConfigTool.get('web-frontend.url');
 const MAIL_ACTIVATE_USER_SUBJECT = ConfigTool.get('templates.mail.activateUserAccount.subject');
 const MAIL_ACTIVATE_USER_BODY = ConfigTool.get('templates.mail.activateUserAccount.body');
 const REQUEST_URL_VALIDATE_EMAIL = FRONTEND_URL + '/email-validation-done/:token';
+const MAIL_RESET_PASSWORD_SUBJECT = ConfigTool.get('templates.mail.resetPassword.subject');
+const MAIL_RESET_PASSWORD_BODY = ConfigTool.get('templates.mail.resetPassword.body');
+const REQUEST_URL_RESET_PASSWORD = FRONTEND_URL + '/reset-password/:token';
 
 
 /**
