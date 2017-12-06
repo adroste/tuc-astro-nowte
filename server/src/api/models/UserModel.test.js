@@ -6,10 +6,10 @@
 'use strict';
 
 const validator = require('validator');
-const User = require('./user').User;
+const UserModel = require('./UserModel');
 
 describe('valid user', () => {
-    const user = new User({
+    const user = new UserModel({
         name: 'Mäçx Muëstermann ',
         email: ' Max.Mustermann@web.de  ',
         // bcrypt of 'password'
@@ -44,13 +44,13 @@ describe('valid user', () => {
 
 describe('faulty user', () => {
     test('empty user (error is defined)', () => {
-        const user = new User({});
+        const user = new UserModel({});
         const err = user.validateSync();
         expect(err).toBeDefined();
     });
 
     test('name is required', () => {
-        const user = new User({
+        const user = new UserModel({
             email: ' Max.Mustermann@web.de  ',
             // bcrypt of 'password'
             password: '$2y$10$Fmi6jDvpY13xWyovsOdi6OJKdvdFVex.vBAu5jz1qAsWDjPej3eTu'
@@ -64,7 +64,7 @@ describe('faulty user', () => {
     });
 
     test('email is required', () => {
-        const user = new User({
+        const user = new UserModel({
             name: 'Mäçx Muëstermann ',
             // bcrypt of 'password'
             password: '$2y$10$Fmi6jDvpY13xWyovsOdi6OJKdvdFVex.vBAu5jz1qAsWDjPej3eTu'
@@ -78,7 +78,7 @@ describe('faulty user', () => {
     });
 
     test('password is required', () => {
-        const user = new User({
+        const user = new UserModel({
             name: 'Mäçx Muëstermann ',
             email: ' Max.Mustermann@web.de  '
         });
@@ -87,7 +87,7 @@ describe('faulty user', () => {
     });
 
     test('email must be valid', () => {
-        const user = new User({
+        const user = new UserModel({
             name: 'Mäçx Muëstermann ',
             email: ' Max.Mustermannweb.de  ',
             // bcrypt of 'password'
@@ -107,7 +107,7 @@ describe('user sessions', () => {
 
     beforeEach(() => {
         // clear the array
-        user = new User({
+        user = new UserModel({
             name: 'Mäçx Muëstermann ',
             email: ' Max.Mustermann@web.de  ',
             // bcrypt of 'password'

@@ -25,12 +25,15 @@ const shareSchema = new Schema({
         required: [true, 'userId is required']
     },
     permissions: {
-        type: Schema.Types.Mixed,
-        required: [true, 'permission is required']
+        type: Number,
+        required: [true, 'permissions is required']
     }
-});
+}, { usePushEach: true }); // TODO remove with mongoose v5
 
 
-const Share = mongoose.model('Share', shareSchema);
+/**
+ * Mongoose Model of Share Schema
+ */
+const ShareModel = mongoose.model('Share', shareSchema);
 
-exports.Share = Share;
+module.exports = ShareModel;

@@ -5,13 +5,13 @@
 
 'use strict';
 
-const ConfigTool = require('./init/ConfigTool');
+const ConfigTool = require('./ConfigTool');
 const express = require('express');
 const cors = require('cors');
 const jsonParser = require('body-parser').json;
 const logger = require('morgan');
-const userRoutes = require('./api/routes/user');
-const fileRoutes = require('./api/routes/file');
+const userRoutes = require('./api/routes/userRoutes');
+const fileRoutes = require('./api/routes/fileRoutes');
 const db = require('./init/mongo-init');
 
 const PORT =  ConfigTool.get('server.http-port');

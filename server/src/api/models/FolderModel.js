@@ -1,6 +1,6 @@
 /**
  * @author progmem
- * @date 26.11.17
+ * @date 12.11.17
  */
 
 'use strict';
@@ -10,7 +10,7 @@ const Schema = mongoose.Schema;
 mongoose.Promise = global.Promise;
 
 
-const docSchema = new Schema({
+const folderSchema = new Schema({
     title: {
         type: String,
         trim: true,
@@ -19,23 +19,31 @@ const docSchema = new Schema({
     parentId: {
         type: Schema.Types.ObjectId,
         ref: 'Folder',
-        required: [true, 'parentId is required']
+        // null if root-dir
     },
     ownerId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: [true, 'ownerId is required']
     },
+    childIds: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Folder'
+    }],
+    documentIds: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Document'
+    }],
     shareIds: [{
         type: Schema.Types.ObjectId,
         ref: 'Share'
-    }],
-    data: {
-        type: Schema.Types.Mixed
-    }
-});
+    }]
+}, { usePushEach: true }); // TODO remove with mongoose v5
 
 
-const Document = mongoose.model('Document', docSchema);
+/**
+ * Mongoose Model of Folder Schema
+ */
+const FolderModel = mongoose.model('Folder', folderSchema);
 
-exports.Document = Document;
+module.exports = FolderModel;
