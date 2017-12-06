@@ -54,29 +54,6 @@ export default class FileTree extends React.Component {
         };
     }
 
-    constructor(props)
-    {
-        super(props);
-
-        this.state = {
-            files: {
-                name: 'root',
-                toggled: true,
-                children: [
-                    {
-                        name: 'folder1',
-                        toggled: true,
-                        children: [
-                            {name: 'file2'}
-                        ]
-                    },
-                    { name: 'file1' }
-                ]
-            }
-        }
-    }
-
-
     handleToggle = (node, toggled) => {
         // disable the last element that was clicked
 
