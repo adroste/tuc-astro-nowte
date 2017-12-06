@@ -29,6 +29,7 @@ export default class FileTree extends React.Component {
      * onDeleteClick {function(node: object)} called when the user wants to delete a file/folder
      * onShareClick {function(node: object)} called when a file/folder should be shared
      * displayButtons {bool} true if helper buttons for folder and document creation should be displayed
+     * displayShared {bool] if true displays people symbol if a file/folder is marked as shared (isShared = true)
      */
     static get propTypes() {
         return {
@@ -42,11 +43,15 @@ export default class FileTree extends React.Component {
             onDeleteClick: PropTypes.func.isRequired,
             onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
+            displayShared: PropTypes.bool,
         };
     }
 
     static get defaultProps() {
-        return {};
+        return {
+            displayButtons: true,
+            displayShared: true,
+        };
     }
 
     constructor(props)
@@ -183,7 +188,7 @@ export default class FileTree extends React.Component {
                         <ContextMenuTrigger id={contextID}>
                             <div>
                                 <img src={iconPath} className="header-icon"/>
-                                {props.node.isShared? <img src="/img/people.svg" className="header-icon"/> : ""}
+                                {props.node.isShared && this.props.displayShared ? <img src="/img/people.svg" className="header-icon"/> : ""}
                                 {props.node.name}
                             </div>
 
