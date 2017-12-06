@@ -4,13 +4,12 @@ import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import LabelledInputBox from "./base/LabelledInputBox";
 import Button from "./base/Button";
 import "./ShareDialog.css"
-import * as API from '../ServerApi'
 
 export default class ShareDialog extends React.Component {
     /**
      * propTypes
      * title {string} title of the dialog
-     * onShare {function(userId: number, permission: string)  called when object should be shared. userId of the user to share with and permission level the user should have
+     * onShare {function(email: string, permission: string)  called when object should be shared. email of the user to share with and permission level the user should have
      * onCancel {function()} called when forcibly closed
      */
     static get propTypes() {
@@ -40,18 +39,13 @@ export default class ShareDialog extends React.Component {
         if(this.email === "")
             return;
 
-        // retrieve userId from email
-        API.getUserId(this.email, this.handleUserIdReceived, this.handleError);
+        this.props.onShare(this.email, this.permission);
     };
 
     handleError = (error) => {
         this.setState({
             inputChild: <div className="error-text">{error}<br/></div>
         });
-    };
-
-    handleUserIdReceived = (userId) => {
-        this.props.onShare(userId, this.permission);
     };
 
     render() {
