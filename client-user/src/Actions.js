@@ -17,6 +17,12 @@ export const login = (token, email, username, folderId, userId) => {
     };
 };
 
+export const logOut = () => {
+    return {
+        type: "LOGOUT",
+    }
+};
+
 export const requestValidation = (email) => {
     return {
         type: "AWAIT_VALIDATION",

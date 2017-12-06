@@ -28,6 +28,9 @@ const dispatcher = (state = initialState, action) => {
                 rootFolder: action.rootFolder,
                 userId: action.userId,
             });
+        case "LOGOUT":
+            // reset all data
+            return initialState;
 
         case "AWAIT_VALIDATION":
             return Object.assign({}, state, {

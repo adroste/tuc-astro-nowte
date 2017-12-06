@@ -28,7 +28,6 @@ export default class LoginScreen extends React.Component {
 
     onUserLoggedInHandler = (token, email, username, rootFolder, userId) => {
         store.dispatch(action.login(token, email, username, rootFolder, userId));
-        this.props.history.push("/logged-in");
     };
 
     onUserNotValidatedHandler = (email) => {

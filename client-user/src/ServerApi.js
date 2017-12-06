@@ -19,6 +19,27 @@ const REQUEST_HEADERS = new Headers({
     'Content-Type': 'application/json'
 });
 
+export const logOut = (onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    if(sessionToken === undefined){
+        // already logged out
+        onSuccess();
+        return;
+    }
+
+    const url = SERVER_URL + '/api/user/logout';
+    fetch(url, {
+        method: "POST",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
+};
+
 export const getFolder = (folderId, onSuccess, onError) => {
 
     const sessionToken = store.getState().user.token;
@@ -129,10 +150,19 @@ export const getUserId = (email, onSuccess, onError) => {
 
 
 // helper to retrieve the json from a response
-const getJsonBody = (respone, successStatusCode, onSuccess, onError) => {
-    if(respone.status === successStatusCode){
-        respone.json().then(onSuccess, onError);
+const getJsonBody = (response, successStatusCode, onSuccess, onError) => {
+    if(response.status === successStatusCode){
+        response.json().then(onSuccess, onError);
     } else {
-        respone.json().then((data) => onError("code: " + respone.status + " " + data.error.message), onError);
+        response.json().then((data) => onError("code: " + response.status + " " + data.error.message), onError);
+    }
+};
+
+// helper to check if the response code was correct
+const verifyResponseCode = (response, successStatusCode, onSuccess, onError) => {
+    if(response.status === successStatusCode) {
+        onSuccess();
+    } else {
+        response.json().then((data) => onError("code: " + response.status + " " + data.error.message), onError);
     }
 };
