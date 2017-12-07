@@ -10,6 +10,7 @@ const ConfigTool = require('../../ConfigTool');
 const FolderModel = require('../models/FolderModel');
 const DocumentModel = require('../models/DocumentModel');
 const ShareModel = require('../models/ShareModel');
+const UserModel = require('../models/UserModel');
 const PermissionsEnum = require('../utilities/PermissionsEnum');
 const ErrorUtil = require('../utilities/ErrorUtil');
 
@@ -134,6 +135,7 @@ class FileController {
         if (fileEntry.ownerId.toString() === userId)
             return {ownerId: userId, value: PermissionsEnum.MANAGE};
 
+        // TODO try catch & check
         const shares = await ShareModel.find({_id: {$in: fileEntry.shareIds}}, {userId: 1, permissions: 1});
         const shareEntryForUser = shares.find((elem) => {
             return elem.userId.toString() === userId;
@@ -156,6 +158,7 @@ class FileController {
         const permissions = await this.getFilePermissions(userId, folderId, true);
         ErrorUtil.conditionalThrowWithStatus(permissions.value < PermissionsEnum.READ, 'not allowed to read folderId', 403);
 
+        // TODO try catch & check
         const entry = await FolderModel.findById(folderId).populate({
             path: 'childIds',
             select: 'title shareIds'
@@ -185,8 +188,8 @@ class FileController {
 
 
     /**
-     * Creates a file-share (document/folder) for a user with provided permissions
-     * @param {string} userId id of user setting share
+     * Creates a file-share (document/folder) for a user (specified via userId) with provided permissions
+     * @param {string} userId id of user creating share
      * @param {string} fileId id of file to share (document or folder id)
      * @param {boolean} isFolder indicates whether fileId is a folderId or a documentId
      * @param {string} shareUserId id of user to share the file with

@@ -447,6 +447,24 @@ class UserController {
         return decoded.userId;
     }
 
+
+    /**
+     * Retrieves userId for user with email
+     * @param {string} email valid email address
+     * @returns {Promise<string>} id of user with provided email
+     * @throws {Error} msg: 'email not found' with status: 404 if user with provided email could not be found
+     */
+    static async getUserIdForEmail(email) {
+        let userId;
+        try {
+            userId = await UserModel.find({ email: email }, { _id: 1 });
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(userId === undefined, 'email not found', 404);
+        return userId.toString();
+    }
+
 }
 
 

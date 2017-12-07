@@ -41,15 +41,16 @@ fileRoutes.post('/create-share', RoutesUtil.asyncMiddleware(async (req, res, nex
     const sessionToken = req.body['sessionToken'];
     const fileId = req.body['fileId'];
     const isFolder = req.body['isFolder'];
-    const shareUserId = req.body['shareUserId'];
+    const shareEmail = req.body['shareEmail'];
     const permissions = req.body['permissions'];
     ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
     ErrorUtil.requireVarWithType('fileId', 'string', fileId);
     ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
-    ErrorUtil.requireVarWithType('shareUserId', 'string', shareUserId);
+    ErrorUtil.requireVarWithType('shareEmail', 'string', shareEmail);
     ErrorUtil.requireVarWithType('permissions', 'number', permissions);
 
     const userId = await UserController.validateSession(sessionToken);
+    const shareUserId = await UserController.getUserIdForEmail(shareEmail);
     await FileController.createShare(userId, fileId, isFolder, shareUserId, permissions);
     res.status(204);
     res.json({});
