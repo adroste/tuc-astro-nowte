@@ -128,7 +128,7 @@ const share = (fileId, isFolder, userEmail, permission, onSuccess, onError) => {
             fileId: fileId,
             isFolder: isFolder,
             permissions: permission,
-            shareUserId: userEmail,
+            shareEmail: userEmail,
         })
     }).then(
         (response) => verifyResponseCode(response, 204, onSuccess, onError),

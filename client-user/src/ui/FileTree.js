@@ -69,23 +69,6 @@ export default class FileTree extends React.Component {
         else{
             this.props.onFileLoad(node);
         }
-        /*if(this.state.cursor){
-            this.state.cursor.active = false;
-        }
-
-        node.active = true;
-        let isFolder = false;
-        if(node.children){
-            node.toggled = toggled;
-            isFolder = true;
-        }
-        this.setState({cursor: node});
-
-        if(this.props.onFolderLoad && isFolder && toggled)
-            this.props.onFolderLoad(node);
-
-        if(this.props.onFileLoad && !isFolder)
-            */
     };
 
     /**
