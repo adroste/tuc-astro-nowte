@@ -85,7 +85,7 @@ export const createFolder = (folderId, foldername, onSuccess, onError) => {
 
 const create = (parentId, isFolder, title, onSuccess, onError) => {
     const sessionToken = store.getState().user.token;
-    const url = SERVER_URL + '/api/file/create';
+    const url = SERVER_URL + '/api/file/create-file';
     fetch(url, {
         method: "POST",
         headers: REQUEST_HEADERS,
@@ -109,12 +109,31 @@ export const removeFolder = (folderId, onSuccess, onError) => {
     onSuccess();
 };
 
-export const shareFile = (fileId, userId, permission, onSuccess, onError) => {
-    onSuccess();
+export const shareFile = (fileId, userEmail, permission, onSuccess, onError) => {
+    share(fileId, false, userEmail, permission, onSuccess, onError);
 };
 
-export const shareFolder = (fileId, userId, permission, onSuccess, onError) => {
-    onSuccess();
+export const shareFolder = (fileId, userEmail, permission, onSuccess, onError) => {
+    share(fileId, true, userEmail, permission, onSuccess, onError);
+};
+
+const share = (fileId, isFolder, userEmail, permission, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/create-share';
+    fetch(url, {
+        method: "POST",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            fileId: fileId,
+            isFolder: isFolder,
+            permissions: permission,
+            shareUserId: userEmail,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
 };
 
 export const renameFile = (fileId, title, onSuccess, onError) => {
@@ -132,22 +151,6 @@ export const moveFile = (fileId, folderId, onSuccess, onError) => {
 export const moveFolder = (srcFolderId, dstFolderId, onSuccess, onError) => {
     onSuccess();
 };
-
-export const getUserId = (email, onSuccess, onError) => {
-    switch (email){
-        case "someone@example.com":
-            onSuccess(1);
-            return;
-        case "joe@example.com":
-            onSuccess(2);
-            return;
-        case "max@mustermann.de":
-            onSuccess(3);
-            return;
-    }
-    onError("user not found");
-};
-
 
 // helper to retrieve the json from a response
 const getJsonBody = (response, successStatusCode, onSuccess, onError) => {
