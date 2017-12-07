@@ -455,14 +455,14 @@ class UserController {
      * @throws {Error} msg: 'email not found' with status: 404 if user with provided email could not be found
      */
     static async getUserIdForEmail(email) {
-        let userId;
+        let userEntry;
         try {
-            userId = await UserModel.find({ email: email }, { _id: 1 });
+            userEntry = await UserModel.findOne({ email: email }, { _id: 1 });
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
-        ErrorUtil.conditionalThrowWithStatus(userId === undefined, 'email not found', 404);
-        return userId.toString();
+        ErrorUtil.conditionalThrowWithStatus(userEntry === undefined, 'email not found', 404);
+        return userEntry._id.toString();
     }
 
 }

@@ -109,7 +109,7 @@ describe('working on a user', async () => {
 
     test('get user id for email', async () => {
         const userId = await UserController.getUserIdForEmail(testuser.email);
-        expect(userId).toMatch(testuser._id.toString());
+        expect(userId).toBe(testuser._id.toString());
     });
 
     test('get user id for unknown email', async () => {
