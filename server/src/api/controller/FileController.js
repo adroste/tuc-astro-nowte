@@ -195,15 +195,19 @@ class FileController {
      * @param {string} shareUserId id of user to share the file with
      * @param {number} permissions number according to: {@link PermissionsEnum}
      * @returns {Promise<string>} shareId of the created share
+     * @throws {Error} with msg: 'cannot create share for same userId' with status: 400 if user with userId tries to share himself a file
      * @throws {Error} with msg: 'not allowed to create share for fileId' with status: 403 if user does not own the file
      * @throws {Error} msg: 'fileId not found' if no file with fileId could be found in db (isFolder = false => Document)
      * @throws {Error} from {@link FileController.getFilePermissions} (called with userId, fileId, isFolder)
      */
     static async createShare(userId, fileId, isFolder, shareUserId, permissions) {
+        ErrorUtil.conditionalThrowWithStatus(userId === shareUserId, 'cannot create share for same userId', 400);
+
         // check if user has permission to create share
         const filePermissions = await FileController.getFilePermissions(userId, fileId, isFolder);
         ErrorUtil.conditionalThrowWithStatus(userId !== filePermissions.ownerId, 'not allowed to create share for fileId', 403);
 
+        // TODO check if shareUserId already has a share for file (+ e.g. inherited by parent folder)
         // create share entry
         const share = new ShareModel({
             fileId: fileId,
