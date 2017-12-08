@@ -188,13 +188,9 @@ export default class FileTree extends React.Component {
 
         const displayHelperButtons = () => {
             return (
-                /*<div>
+                <div>
                     <img src="/img/file_add.svg" className="header-icon" onClick={() => this.onCreateFileClick(null)}/>
                     <img src="/img/folder_add.svg" className="header-icon" onClick={() => this.onCreateFolderClick(null)}/>
-                </div>*/
-                <div>
-                    <Button label="doc" onClick={() => this.onCreateFileClick(null)}/>
-                    <Button label="folder" onClick={() => this.onCreateFolderClick(null)}/>
                 </div>
             );
         };
