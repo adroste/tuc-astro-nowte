@@ -81,6 +81,23 @@ describe('basic project operations', async () => {
             expect(e.message).toMatch('not allowed to create path in projectId');
         }
     });
+
+    test('title is no duplicate', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'ctst');
+        await FileController.createPath(testuser._id.toString(), projectId, '/1/2/3/');
+        const res = await FileController.checkTitleIsNoDuplicate(projectId, '/1/2/', 'magmag');
+        expect(res).toBe(true);
+    });
+
+    test('title is duplicate', async () => {
+        throw new Error('not implemented yet');
+    });
+
+    test('create document', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test3');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/', ' my doc');
+
+    });
 });
 
 afterAll(() => {

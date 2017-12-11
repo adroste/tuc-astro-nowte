@@ -138,6 +138,90 @@ class FileController {
     static async getProjectAccessInfo(projectId) {
         // TODO populate userID from getAllProjectAccess
     }
+
+
+    /**
+     * Creates a new (empty) document inside path in project with projectId.
+     * @param {string} userId id of user creating document
+     * @param {string} projectId id of project to create document in
+     * @param {string} path path to put document in
+     * @param {string} title title of the document
+     * @param {boolean} [upsertPath] indicates if specified path should be upserted, defaults to false
+     * @returns {Promise<string>} resolves to documentId
+     * @throws {Error} msg: 'not allowed to create document in projectId' with status: 403 if user with userId has no manage permissions for projectId
+     * @throws {Error} msg: 'could not find projectId with path' with status: 404 if specified projectId or path inside projectId does not exist
+     * @throws {Error} msg: 'title already exists' with status: 409 if path already contains a document with the same title
+     * @throws {Error} from {@link FileController.createPath} (if upsertPath is set to true)
+     */
+    static async createDocument(userId, projectId, path, title, upsertPath = false) {
+        path = path.trim();
+        title = title.trim();
+
+        // ensure title is no duplicate
+        ErrorUtil.conditionalThrowWithStatus(
+            !this.checkTitleIsNoDuplicate(projectId, path, title),
+            'title already exists', 409);
+
+        // upsert
+        if (upsertPath)
+            await this.createPath(userId, projectId, path);
+
+        // ensure permissions
+        const access = await this.getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permission < PermissionsEnum.MANAGE,
+            'not allowed to create document in projectId', 403);
+
+        const documentEntry = new DocumentModel({
+            projectId: projectId,
+            createdById: userId
+        });
+
+        let rawResponse;
+        try {
+            rawResponse = await ProjectModel.update(
+                { _id: projectId, 'tree.path': path },
+                { $push: { 'tree.$.children': { documentId: documentEntry._id, title: title }}});
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(rawResponse.nModified === 0, 'could not find projectId with path', 404);
+
+        try {
+            await documentEntry.save();
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+
+        return documentEntry._id.toString();
+    }
+
+
+    /**
+     * Checks if provided title inside a path in a project already exists
+     * @param {string} projectId id of project
+     * @param {string} path path to search in
+     * @param {string} title title to check for
+     * @returns {Promise<boolean>} true if title is no duplicate
+     */
+    static async checkTitleIsNoDuplicate(projectId, path, title) {
+        path = path.trim();
+        title = title.trim();
+
+        let entry;
+        try {
+            entry = await ProjectModel.findOne({ _id: projectId, 'tree.path': path }, { 'tree.$': 1 });
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        if (entry === null)
+            return true;
+
+        const matching = entry.tree[0].children.find((elem) => {
+            return elem.title === title;
+        });
+        return matching === undefined;
+    }
 }
 
 

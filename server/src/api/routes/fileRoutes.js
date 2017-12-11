@@ -47,21 +47,23 @@ fileRoutes.post('/create-path', RoutesUtil.asyncMiddleware(async (req, res, next
 }));
 
 
-fileRoutes.post('/create-file', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+fileRoutes.post('/create-document', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const sessionToken = req.body['sessionToken'];
-    const parentId = req.body['parentId'];
-    const isFolder = req.body['isFolder'];
+    const projectId = req.body['projectId'];
+    const path = req.body['path'];
     const title = req.body['title'];
+    let upsertPath = req.body['upsertPath'];
     ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
-    ErrorUtil.requireVarWithType('parentId', 'string', parentId);
-    ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
+    ErrorUtil.requireVarWithType('projectId', 'string', projectId);
+    ErrorUtil.requireVarWithType('path', 'string', path);
     ErrorUtil.requireVarWithType('title', 'string', title);
+    upsertPath = typeof upsertPath === 'boolean' ? upsertPath : false;
 
     const userId = await UserController.validateSession(sessionToken);
-    const fileId = await FileController.createFile(userId, parentId, isFolder, title);
+    const documentId = await FileController.createDocument(userId, projectId, path, title, upsertPath);
     res.status(201); // Created
     res.json({
-        fileId: fileId
+        documentId: documentId
     });
 }));
 
