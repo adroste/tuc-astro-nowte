@@ -95,8 +95,24 @@ describe('basic project operations', async () => {
 
     test('create document', async () => {
         const projectId = await FileController.createProject(testuser._id.toString(), 'test3');
-        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/', ' my doc');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        const projectEntry = await ProjectModel.findById(projectId);
+        expect(projectEntry.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(projectEntry.tree[1].children[0].title).toBe('my doc');
+        const docEntry = await DocumentModel.findById(documentId);
+        expect(docEntry !== null).toBe(true);
+    });
 
+    test('list tree', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test4');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/folder/', 'letter ', true);
+        const tree = await FileController.listProjectTree(testuser._id.toString(), projectId);
+        expect(tree.length).toBe(2);
+        expect(tree[0].path).toBe('/');
+        expect(tree[0].children.length).toBe(0);
+        expect(tree[1].path).toBe('/folder/');
+        expect(tree[1].children.length).toBe(1);
+        expect(tree[1].children[0].title).toBe('letter');
     });
 });
 

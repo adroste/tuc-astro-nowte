@@ -68,36 +68,16 @@ fileRoutes.post('/create-document', RoutesUtil.asyncMiddleware(async (req, res, 
 }));
 
 
-fileRoutes.post('/create-share', RoutesUtil.asyncMiddleware(async (req, res, next) => {
-    const sessionToken = req.body['sessionToken'];
-    const fileId = req.body['fileId'];
-    const isFolder = req.body['isFolder'];
-    const shareEmail = req.body['shareEmail'];
-    const permissions = req.body['permissions'];
-    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
-    ErrorUtil.requireVarWithType('fileId', 'string', fileId);
-    ErrorUtil.requireVarWithType('isFolder', 'boolean', isFolder);
-    ErrorUtil.requireVarWithType('shareEmail', 'string', shareEmail);
-    ErrorUtil.requireVarWithType('permissions', 'number', permissions);
-
-    const userId = await UserController.validateSession(sessionToken);
-    const shareUserId = await UserController.getUserIdForEmail(shareEmail);
-    await FileController.createShare(userId, fileId, isFolder, shareUserId, permissions);
-    res.status(204);
-    res.json({});
-}));
-
-
-fileRoutes.get('/list-folder/:folderId', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+fileRoutes.get('/list-tree/:projectId', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const sessionToken = req.query['sessionToken'];
-    const folderId = req.params.folderId;
+    const projectId = req.params.projectId;
     ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
-    ErrorUtil.requireVarWithType('folderId', 'string', folderId);
+    ErrorUtil.requireVarWithType('projectId', 'string', projectId);
 
     const userId = await UserController.validateSession(sessionToken);
-    const listing = await FileController.getFolderListing(userId, folderId);
+    const tree = await FileController.listProjectTree(userId, projectId);
     res.status(200);
-    res.json(listing);
+    res.json(tree);
 }));
 
 

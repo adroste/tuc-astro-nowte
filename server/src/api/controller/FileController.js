@@ -222,6 +222,34 @@ class FileController {
         });
         return matching === undefined;
     }
+
+
+    /**
+     * Retrieves whole tree of a project (projectId)
+     * @param {string} userId id of user requesting tree
+     * @param {string} projectId id of project
+     * @returns {Promise<[treeSchema]>} Array of treeSchema {@link ProjectModel}
+     * @throws {Error} msg: 'not allowed to list project tree' with status: 403 if the user has no read permissions for the project
+     * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified if could be found
+     * @throws {Error} from {@link FileController.getUserProjectAccess}
+     */
+    static async listProjectTree(userId, projectId) {
+        // ensure permissions (READ)
+        const access = await this.getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permission < PermissionsEnum.READ,
+            'not allowed to list project tree', 403);
+
+        let projectEntry;
+        try {
+            projectEntry = await ProjectModel.findById(projectId, { tree: 1 }).lean();
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(projectEntry === null, 'projectId not found', 404);
+
+        return projectEntry.tree;
+    }
 }
 
 
