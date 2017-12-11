@@ -63,6 +63,9 @@ const projectSchema = new Schema({
 }, { usePushEach: true }); // TODO remove with mongoose v5
 
 
+// TODO performance: create index for access.userId: db.projects.ensureIndex({"access.userId" : 1})
+
+
 /**
  * Mongoose Model of Project Schema
  */
