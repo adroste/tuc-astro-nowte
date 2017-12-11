@@ -18,6 +18,35 @@ const ErrorUtil = require('../utilities/ErrorUtil');
 const fileRoutes = express.Router();
 
 
+fileRoutes.post('/create-project', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.body['sessionToken'];
+    const title = req.body['title'];
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+    ErrorUtil.requireVarWithType('title', 'string', title);
+
+    const userId = await UserController.validateSession(sessionToken);
+    const projectId = await FileController.createProject(userId, title);
+    res.status(201); // Created
+    res.json({
+        projectId: projectId
+    });
+}));
+
+fileRoutes.post('/create-path', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.body['sessionToken'];
+    const projectId = req.body['projectId'];
+    const path = req.body['path'];
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+    ErrorUtil.requireVarWithType('projectId', 'string', projectId);
+    ErrorUtil.requireVarWithType('path', 'string', path);
+
+    const userId = await UserController.validateSession(sessionToken);
+    await FileController.createPath(userId, projectId, path);
+    res.status(204);
+    res.json({});
+}));
+
+
 fileRoutes.post('/create-file', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const sessionToken = req.body['sessionToken'];
     const parentId = req.body['parentId'];

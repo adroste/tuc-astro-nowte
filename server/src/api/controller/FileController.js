@@ -62,6 +62,7 @@ class FileController {
      * @param {string} path string of path, starting and ending with a '/', e.g.: '/folder1/folder1.1/'
      * @returns {Promise<void>} Promise has no return/resolve value
      * @throws {Error} msg: 'invalid path format' with status: 400 if provided path does not start and end with a '/'
+     * @throws {Error} msg: 'not allowed to create path in projectId' with status: 403 if user with userId has no manage permissions for projectId
      * @throws {Error} from {@link FileController.getUserProjectAccess}
      */
     static async createPath(userId, projectId, path) {
@@ -80,7 +81,7 @@ class FileController {
 
         const subpaths = FileUtil.getAllSubpaths(path);
 
-        // create whole path by creating all subpath
+        // create whole path by creating all subpaths
         for (let subpath of subpaths) {
             try {
                 // single query here: slower but safe (atomic)
