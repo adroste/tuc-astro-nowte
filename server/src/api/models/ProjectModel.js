@@ -25,7 +25,7 @@ const accessSchema = new Schema({
         type: Number,
         required: [true, 'permissions is required']
     }
-}, { id: false, usePushEach: true }); // TODO remove with mongoose v5
+}, { _id: false, usePushEach: true }); // TODO remove with mongoose v5
 
 
 const childrenSchema = new Schema({
@@ -39,7 +39,7 @@ const childrenSchema = new Schema({
         trim: true,
         required: [true, 'title is required']
     }
-}, { id: false, usePushEach: true }); // TODO remove with mongoose v5
+}, { _id: false, usePushEach: true }); // TODO remove with mongoose v5
 
 
 const treeSchema = new Schema({
@@ -49,7 +49,7 @@ const treeSchema = new Schema({
         required: [true, 'path is required']
     },
     children: [childrenSchema]
-}, { id: false, usePushEach: true }); // TODO remove with mongoose v5
+}, { _id: false, usePushEach: true }); // TODO remove with mongoose v5
 
 
 const projectSchema = new Schema({
