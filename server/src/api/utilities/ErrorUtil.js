@@ -57,6 +57,33 @@ class ErrorUtil {
             err.authHeader = authHeader;
         throw err;
     }
+
+
+    /**
+     * Throws error if permissions out of range
+     * @param {number} n number to check
+     * @throws {Error} msg: 'permissions out of range' with status: 400 if permissions n is out of range
+     */
+    static checkPermissionsInRange(n) {
+        if (n >= 0 && n <= 5)
+            return;
+
+        const err = new Error('permissions out of range');
+        err.status = 400;
+        throw err;
+    }
+
+
+    /**
+     * Throws error if path does not start and end with a '/'
+     * @param {string} path path to check
+     * @throws {Error} msg: 'invalid path format' with status: 400 if provided path does not start and end with a '/'
+     */
+    static checkPathFormat(path) {
+        this.conditionalThrowWithStatus(
+            path.charAt(0) !== '/' || path.charAt(path.length - 1) !== '/',
+            'invalid path format', 400);
+    }
 }
 
 
