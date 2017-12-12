@@ -30,6 +30,38 @@ export const logOut = (onSuccess, onError) => {
     );
 };
 
+// see: https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/list-projects
+export const getProjects = (onSuccess, onError) => {
+
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/list-projects?sessionToken=' + sessionToken;
+    fetch(url, {
+        method: "GET",
+        headers: REQUEST_HEADERS,
+    }).then(
+        (response) => getJsonBody(response, 200, onSuccess, onError),
+        onError
+    );
+};
+
+// see: https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-project
+export const createProject = (title, onSuccess, onError) => {
+
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/create-project';
+    fetch(url, {
+        method: "POST",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            title: title,
+        })
+    }).then(
+        (response) => getJsonBody(response, 201, onSuccess, onError),
+        onError
+    );
+};
+
 // helper to retrieve the json from a response
 const getJsonBody = (response, successStatusCode, onSuccess, onError) => {
     if(response.status === successStatusCode){

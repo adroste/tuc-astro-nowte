@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import FileTree from "../ui/FileTree";
-import UserFileTreeForm from "../ui/UserFileTreeForm";
+import ProjectFileTreeContainer from "../ui/ProjectFileTreeContainer";
 import Button from "../ui/base/Button";
 import * as API from '../ServerApi'
 import {store} from "./../Redux";
 import * as action from './../Actions'
+import ProjectSelectContainer from "../ui/ProjectSelectContainer";
 
 export default class LoggedInScreen extends React.Component {
     /**
@@ -17,6 +18,14 @@ export default class LoggedInScreen extends React.Component {
 
     static get defaultProps() {
         return {};
+    }
+
+    constructor(props){
+        super(props);
+
+        this.state = {
+            project: null,
+        }
     }
 
     handleLogOutClick = () => {
@@ -33,7 +42,8 @@ export default class LoggedInScreen extends React.Component {
     render() {
         return (
             <div>
-                <UserFileTreeForm/>
+                <ProjectSelectContainer/>
+                <ProjectFileTreeContainer/>
                 <Button
                     label="Log out"
                     onClick={this.handleLogOutClick}
