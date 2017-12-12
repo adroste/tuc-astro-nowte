@@ -13,10 +13,12 @@ export default class ProjectSelectContainer extends React.Component {
     /**
      * propTypes
      * showDialog {function(Dialog: object) callback when a dialog should be displayed
+     * onProjectClick {function(id: string, title: string, permissions: number)} callback when a project should be opened
      */
     static get propTypes() {
         return {
-            showDialog: PropTypes.func.isRequired
+            showDialog: PropTypes.func.isRequired,
+            onProjectClick: PropTypes.func.isRequired,
         };
     }
 
@@ -88,7 +90,9 @@ export default class ProjectSelectContainer extends React.Component {
         })
     };
 
-
+    handleProjectClick = (project) => {
+        this.props.onProjectClick(project.id, project.title, project.permissions);
+    };
 
     handleError = (msg) => {
         alert(msg);
@@ -100,8 +104,7 @@ export default class ProjectSelectContainer extends React.Component {
         for (let p of this.state.projects) {
             list.push(
                 <div>
-                    <LinkedText label={p.title} onClick={() => {
-                    }}/>
+                    <LinkedText label={p.title} onClick={() => this.handleProjectClick(p)}/>
                     From: {p.ownerEmail}
                 </div>
             );

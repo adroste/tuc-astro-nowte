@@ -42,6 +42,17 @@ export default class LoggedInScreen extends React.Component {
         })
     };
 
+    handleProjectClick = (id, title, permissions) => {
+        // open the project
+        this.setState({
+            project: {
+                id: id,
+                title: title,
+                permissions: permissions,
+            }
+        });
+    };
+
     handleError = (err) => {
         alert(err);
     };
@@ -49,10 +60,18 @@ export default class LoggedInScreen extends React.Component {
     render() {
         return (
             <div>
-                <ProjectSelectContainer
-                    showDialog={this.handleShowDialog}
-                />
-                <ProjectFileTreeContainer/>
+                {this.state.project?
+                    // display project tree
+                    <ProjectFileTreeContainer/>:
+
+                    // select project
+                    <ProjectSelectContainer
+                        showDialog={this.handleShowDialog}
+                        onProjectClick={this.handleProjectClick}
+                    />
+                }
+
+
                 <Button
                     label="Log out"
                     onClick={this.handleLogOutClick}
