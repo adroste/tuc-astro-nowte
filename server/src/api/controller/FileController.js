@@ -257,7 +257,10 @@ class FileController {
      * Lists all projects a user has access to
      * @param {string} userId id of user
      * @param {boolean} populateGrantedBy if true 'access.grantedById' will be populated by user info object containing name and email
-     * @returns {Promise<[{_id: string, title: string, access: {grantedById: string, permissions: number}|{grantedBy: {name: string, email: string}, permissions: number}}]>} returns array of projects with _id, title and user access
+     * @returns {Promise<Array<{_id: string, title: string, access: Object}>>}
+     * returns array of projects with _id, title and user access, access object will look like:<br>
+     * { grantedById: string, permissions: number } - if populateGrantedBy is false,<br>
+     * { grantedBy: { name: string, email: string}, permissions: number} - if populateGrantedBy is true
      */
     static async listProjectsForUser(userId, populateGrantedBy = true) {
         let p;
