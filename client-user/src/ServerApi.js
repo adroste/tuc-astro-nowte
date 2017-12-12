@@ -66,7 +66,7 @@ export const createProject = (title, onSuccess, onError) => {
 export const getFileTree = (projectId, onSuccess, onError) => {
 
     const sessionToken = store.getState().user.token;
-    const url = SERVER_URL + '/api/file/list-tree/' + projectId + '&sessionToken=' + sessionToken;
+    const url = SERVER_URL + '/api/file/list-tree/' + projectId + '?sessionToken=' + sessionToken;
     fetch(url, {
         method: "GET",
         headers: REQUEST_HEADERS,
