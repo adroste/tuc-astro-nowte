@@ -226,6 +226,7 @@ class FileController {
 
     /**
      * Retrieves whole tree of a project (projectId)
+     * @todo convert all objectIds to strings
      * @param {string} userId id of user requesting tree
      * @param {string} projectId id of project
      * @returns {Promise<[treeSchema]>} Array of treeSchema {@link ProjectModel}
@@ -249,6 +250,40 @@ class FileController {
         ErrorUtil.conditionalThrowWithStatus(projectEntry === null, 'projectId not found', 404);
 
         return projectEntry.tree;
+    }
+
+
+    /**
+     * Lists all projects a user has access to
+     * @param {string} userId id of user
+     * @param {boolean} populateGrantedBy if true 'access.grantedById' will be populated by user info object containing name and email
+     * @returns {Promise<[{_id: string, title: string, access: {grantedById: string, permissions: number}|{grantedBy: {name: string, email: string}, permissions: number}}]>} returns array of projects with _id, title and user access
+     */
+    static async listProjectsForUser(userId, populateGrantedBy = true) {
+        let p;
+        try {
+            p = await ProjectModel.find(
+                { 'access.userId': userId },
+                { _id: 1, title: 1, 'access.$': 1 }).lean();
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+
+        for(let i = 0; i < p.length; i++) {
+            p[i]._id = p[i]._id.toString();
+            p[i].access = p[i].access[0];
+            delete p[i].access.userId;
+            if (populateGrantedBy) {
+                try {
+                    p[i].access.grantedBy = await UserModel.findById(p[i].access.grantedById.toString(), {_id: 0, name: 1, email: 1}).lean();
+                } catch (e) {
+                    ErrorUtil.throwAndLog(e, 'unknown mongo error');
+                }
+                delete p[i].access.grantedById;
+            }
+        }
+
+        return p;
     }
 }
 

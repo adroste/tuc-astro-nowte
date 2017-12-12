@@ -81,4 +81,15 @@ fileRoutes.get('/list-tree/:projectId', RoutesUtil.asyncMiddleware(async (req, r
 }));
 
 
+fileRoutes.get('/list-projects', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.query['sessionToken'];
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+
+    const userId = await UserController.validateSession(sessionToken);
+    const projects = await FileController.listProjectsForUser(userId, true);
+    res.status(200);
+    res.json(projects);
+}));
+
+
 module.exports = fileRoutes;

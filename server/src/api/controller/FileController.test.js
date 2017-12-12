@@ -114,6 +114,22 @@ describe('basic project operations', async () => {
         expect(tree[1].children.length).toBe(1);
         expect(tree[1].children[0].title).toBe('letter');
     });
+
+    test('list projects for user', async () => {
+        await ProjectModel.remove({});
+        let res = await FileController.listProjectsForUser(testuser._id.toString());
+        expect(res.length).toBe(0);
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test5');
+        const projectId2 = await FileController.createProject(testuser._id.toString(), ' ltest5');
+        res = await FileController.listProjectsForUser(testuser._id.toString(), false);
+        expect(res.length).toBe(2);
+        expect(res[0].title).toBe('test5');
+        expect(res[1]._id.toString()).toBe(projectId2);
+        expect(res[1].access.permissions).toBe(5);
+        expect(res[1].access.grantedById.toString()).toBe(testuser._id.toString());
+        res = await FileController.listProjectsForUser(testuser._id.toString(), true);
+        expect(res[0].access.grantedBy.email).toBe(testuser.email);
+    });
 });
 
 afterAll(() => {
