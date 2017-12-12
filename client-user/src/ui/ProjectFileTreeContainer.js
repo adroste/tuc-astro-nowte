@@ -6,6 +6,8 @@ import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "./InputDialog";
 import ShareDialog from "./ShareDialog";
 import {store} from "../Redux";
+import Button from "./base/Button";
+import LinkedText from "./base/LinkedText";
 
 // helper
 const copy = (object) => {
@@ -15,12 +17,17 @@ const copy = (object) => {
 /**
  * this renders the file tree of the user as well as files shared for him
  */
-export default class UserFileTreeForm extends React.Component {
+export default class ProjectFileTreeContainer extends React.Component {
+
     /**
      * propTypes
      */
     static get propTypes() {
-        return {};
+        return {
+            projectId: PropTypes.string.isRequired,
+            projectTitle: PropTypes.string.isRequired,
+            permissions: PropTypes.number.isRequired,
+        };
     }
 
     static get defaultProps() {
@@ -30,15 +37,20 @@ export default class UserFileTreeForm extends React.Component {
     constructor(props){
         super(props);
 
-        this.state = {
-        };
 
     }
 
     componentDidMount() {
-
+        API.getFileTree(this.props.projectId, this.handleFileTreeReceive, this.handleError);
     }
 
+    handleFileTreeReceive = (body) => {
+        alert(JSON.stringify(body));
+    };
+
+    handleError = (msg) => {
+        alert(msg);
+    };
 
     render() {
         /*return (
@@ -53,7 +65,7 @@ export default class UserFileTreeForm extends React.Component {
         );*/
         return (
             <div>
-                LoggedIn
+                <h3>Project</h3>
             </div>
         );
     }
