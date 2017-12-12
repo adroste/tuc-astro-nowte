@@ -43,10 +43,6 @@ const userSchema = new Schema({
         type: String,
         required: [true, 'password is required']
     },
-    folderId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Folder'
-    },
     created: {
         type: Date,
         default: Date.now

@@ -10,7 +10,6 @@ const UserUtil = require('../utilities/UserUtil');
 const ErrorUtil = require('../utilities/ErrorUtil');
 const mongoose = require('mongoose');
 const mailer = require('../../init/mailer-init');
-const FolderModel = require('../models/FolderModel');
 const UserModel = require('../models/UserModel');
 
 
@@ -28,7 +27,7 @@ const REQUEST_URL_RESET_PASSWORD = FRONTEND_URL + '/reset-password/:token';
  */
 class UserController {
     /**
-     * Creates a new user (+ root folder for user)
+     * Creates a new user
      * @param {string} name display name of the user e.g. 'Max Mustermann'
      * @param {string} email email address (valid format)
      * @param {string} password plaintext password to set (will get hashed during creation)
@@ -48,31 +47,11 @@ class UserController {
         // hashing pw
         const hash = await UserUtil.hashPassword(password);
 
-        // userId
-        const userId = mongoose.Types.ObjectId();
-
-        // create root folder
-        let rootFolder = new FolderModel({
-            'title': '/',
-            'parentId': null,
-            'ownerId': userId
-        });
-
-        // save root folder to db
-        let folderEntry;
-        try {
-            folderEntry = await rootFolder.save();
-        } catch (err) {
-            ErrorUtil.throwAndLog(err, 'unknown mongo error');
-        }
-
         // creating user instance
         const user = new UserModel({
-            '_id': userId,
             'name': name,
             'email': email,
-            'password': hash,
-            'folderId': folderEntry._id
+            'password': hash
         });
 
         // saving user instance to db
@@ -80,14 +59,6 @@ class UserController {
         try {
             userEntry = await user.save();
         } catch (err) {
-            // try to remove previously created folder
-            try {
-                await folderEntry.remove();
-            } catch (err2) {
-                // TODO log out folderId of folderEntry that could not be removed
-                console.error(err2);
-            }
-
             // if
             ErrorUtil.conditionalThrowWithStatus(err.message.startsWith('User validation failed'), err.message, 400);
             // else if
@@ -290,7 +261,7 @@ class UserController {
      * Authenticates user and creates session
      * @param {string} email valid user email
      * @param {string} password users password (plaintext)
-     * @returns {Promise<{sessionToken: string, name: string, folderId: string, userId: string}>} login info object containing sessionToken, name e.g. 'Max Mustermann', root folder id and user id
+     * @returns {Promise<{sessionToken: string, name: string, userId: string}>} login info object containing sessionToken, name e.g. 'Max Mustermann' and user id
      * @throws {Error} msg: 'user not found' with status: 401 (authHeader: 'login realm="login"') if provided email does not match any user db entry
      * @throws {Error} msg: 'user account not validated' with status: 401 (authHeader: 'emailValidation realm="emailValidation"') if user is not validated
      * @throws {Error} msg: 'invalid password' with status: 401 (authHeader: 'login realm="login"') if provided password does not match users passwords
@@ -309,8 +280,7 @@ class UserController {
                 name: 1,
                 emailValidated: 1,
                 password: 1,
-                sessions: 1,
-                folderId: 1
+                sessions: 1
             });
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
@@ -337,7 +307,6 @@ class UserController {
         return {
             sessionToken: token,
             name: userEntry.name,
-            folderId: userEntry.folderId.toString(),
             userId: userEntry._id.toString()
         };
     }
@@ -461,7 +430,7 @@ class UserController {
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
-        ErrorUtil.conditionalThrowWithStatus(userEntry === undefined, 'email not found', 404);
+        ErrorUtil.conditionalThrowWithStatus(userEntry === null, 'email not found', 404);
         return userEntry._id.toString();
     }
 

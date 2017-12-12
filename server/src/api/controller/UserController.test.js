@@ -147,7 +147,6 @@ describe('working on a validated user', async () => {
         const decoded = await UserUtil.extractJwt(info.sessionToken);
         expect(decoded.userId).toMatch(testuser._id.toString());
         expect(typeof info.name).toBe('string');
-        expect(typeof info.folderId).toBe('string');
     });
 
     test('validate a valid session', async () => {

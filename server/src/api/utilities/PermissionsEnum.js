@@ -14,7 +14,8 @@ const PermissionsEnum = {
     READ: 1,
     ANNOTATE: 2,
     EDIT: 3,
-    MANAGE: 4
+    MANAGE: 4,
+    OWNER: 5
 };
 
 

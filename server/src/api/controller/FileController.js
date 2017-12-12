@@ -7,12 +7,12 @@
 
 
 const ConfigTool = require('../../ConfigTool');
-const FolderModel = require('../models/FolderModel');
+const ProjectModel = require('../models/ProjectModel');
 const DocumentModel = require('../models/DocumentModel');
-const ShareModel = require('../models/ShareModel');
 const UserModel = require('../models/UserModel');
 const PermissionsEnum = require('../utilities/PermissionsEnum');
 const ErrorUtil = require('../utilities/ErrorUtil');
+const FileUtil = require('../utilities/FileUtil');
 
 
 /**
@@ -20,222 +20,235 @@ const ErrorUtil = require('../utilities/ErrorUtil');
  */
 class FileController {
     /**
-     * Checks if provided title is already existent in specified folder
-     * @param {string} title title of file
-     * @param {boolean} isFolder specifies if title of file is a folder or document title
-     * @param {string} parentId id of folder
-     * @returns {Promise.<boolean>} true if no duplicate
-     * @throws {Error} with msg: 'parentId not found' & status: 404 if folder with parentId could not be found
-     */
-    static async checkTitleIsNoDuplicate(title, isFolder, parentId) {
-        title = title.trim();
-
-        let parentFolder;
-        try {
-            parentFolder = await FolderModel.findById(parentId, isFolder ? {childIds: 1} : {documentIds: 1});
-        } catch (err) {
-            ErrorUtil.throwAndLog(err, 'unknown mongo error');
-        }
-        ErrorUtil.conditionalThrowWithStatus(parentFolder === null, 'parentId not found', 404);
-
-        let fileEntries;
-        try {
-            fileEntries = isFolder ?
-                await FolderModel.find({_id: {$in: parentFolder.childIds}}, {title: 1})
-                : await DocumentModel.find({_id: {$in: parentFolder.documentIds}}, {title: 1});
-        } catch (err) {
-            ErrorUtil.throwAndLog(err, 'unknown mongo error');
-        }
-
-        const matchingEntry = fileEntries.find((elem) => {
-            return elem.title === title;
-        });
-        return matchingEntry === undefined;
-    }
-
-
-    /**
-     * Creates a file (folder/document) in a specified folder (parentId) with title
-     * @param {string} userId userId of user requesting create
-     * @param {string} parentId id of parent folder
-     * @param {boolean} isFolder true if new file is a folder, false if document
-     * @param {string} title title of the file (folder/document)
-     * @returns {Promise.<string>} fileId of the created file
-     * @throws {Error} with msg: 'not allowed to manage parentId' with status: 403 if user has no manage permissions on specified folder
-     * @throws {Error} with msg: 'title already exists' with status: 409 if file with title already exists in folder with parentId
+     * Creates a project with specified title
+     * @param {string} userId id of user creating the project
+     * @param {string} title title for project
+     * @returns {Promise<string>} resolves to projectId
      * @throws {Error} msg contains: 'validation failed' with status: 400 if specified data does not match Model requirements
-     * @throws {Error} with msg: 'parentId not found' & status: 404 if folder with parentId could not be found
      */
-    static async createFile(userId, parentId, isFolder, title) {
+    static async createProject(userId, title) {
         title = title.trim();
 
-        // check user is allowed to create file in parent folder
-        const permissions = await this.getFilePermissions(userId, parentId, true);
-        ErrorUtil.conditionalThrowWithStatus(permissions.value < PermissionsEnum.MANAGE, 'not allowed to manage parentId', 403);
+        const project = new ProjectModel({
+            title: title,
+            access: [{
+                userId: userId,
+                grantedById: userId,
+                permissions: PermissionsEnum.OWNER
+            }],
+            tree: [{
+                path: "/",
+                children: []
+            }]
+        });
 
-        // check title is no duplicate
-        ErrorUtil.conditionalThrowWithStatus(
-            !await this.checkTitleIsNoDuplicate(title, isFolder, parentId),
-            'title already exists', 409);
-
-        // create folder/document (file)
-        let file = {
-            'title': title,
-            'parentId': parentId,
-            'ownerId': permissions.ownerId
-        };
-        file = isFolder ? new FolderModel(file) : new DocumentModel(file);
-
-        // save file to db
         try {
-            await file.save();
+            await project.save();
         } catch (err) {
-            if (err.message.startsWith('Document validation failed') || err.message.startsWith('Folder validation failed'))
+            if (err.message.includes('validation failed'))
                 ErrorUtil.conditionalThrowWithStatus(true, err.message, 400);
             else
                 ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
 
-        // add fileId to parent folder (link back)
-        let rawResponse;
-        try {
-            const pushop = isFolder ? {childIds: file._id} : {documentIds: file._id};
-            rawResponse = await FolderModel.update({_id: parentId}, {$push: pushop});
-        } catch (err) {
-            ErrorUtil.throwAndLog(err, 'unknown mongo error');
-        }
-        ErrorUtil.conditionalThrowWithStatus(rawResponse.n === 0, 'parentId not found', 404);
-
-        // TODO FIX concurrency check, repair if backlink via id fails
-
-        return file._id.toString();
+        return project._id.toString();
     }
 
 
     /**
-     * Retrieves user-permissions and ownerId for a specified file
-     * @param {string} userId id of user
-     * @param {string} fileId id of file
-     * @param {boolean} isFolder indicates whether file is a folder or a document
-     * @returns {Promise.<{ownerId: string, value: number}>} object containing ownerId and value (PermissionsEnum)
-     * @throws {Error} msg: 'fileId not found' if no file with fileId could be found in db (isFolder = false => Document)
+     * Creates whole path (and subpaths if they don't exist) in projectIds tree
+     * @param {string} userId id of user trying to create path
+     * @param {string} projectId id of project into the path is inserted
+     * @param {string} path string of path, starting and ending with a '/', e.g.: '/folder1/folder1.1/'
+     * @returns {Promise<void>} Promise has no return/resolve value
+     * @throws {Error} msg: 'invalid path format' with status: 400 if provided path does not start and end with a '/'
+     * @throws {Error} msg: 'not allowed to create path in projectId' with status: 403 if user with userId has no manage permissions for projectId
+     * @throws {Error} from {@link FileController.getUserProjectAccess}
      */
-    static async getFilePermissions(userId, fileId, isFolder) {
-        const projection = {ownerId: 1, shareIds: 1};
-        let fileEntry;
-        try {
-            fileEntry = isFolder ?
-                await FolderModel.findById(fileId, projection)
-                : await DocumentModel.findById(fileId, projection);
-        } catch (err) {
-            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+    static async createPath(userId, projectId, path) {
+        path = path.trim();
+
+        // check path starts and ends with '/'
+        ErrorUtil.conditionalThrowWithStatus(
+            path.charAt(0) !== '/' || path.charAt(path.length - 1) !== '/',
+            'invalid path format', 400);
+
+        // ensure permissions
+        const access = await this.getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permission < PermissionsEnum.MANAGE,
+            'not allowed to create path in projectId', 403);
+
+        const subpaths = FileUtil.getAllSubpaths(path);
+
+        // create whole path by creating all subpaths
+        for (let subpath of subpaths) {
+            try {
+                // single query here: slower but safe (atomic)
+                await ProjectModel.update(
+                    {_id: projectId, 'tree.path': {$ne: subpath}},
+                    {$push: {tree: {path: subpath, children: []}}});
+                let j = 0;
+            } catch (err) {
+                ErrorUtil.throwAndLog(err, 'unknown mongo error');
+            }
         }
-        ErrorUtil.conditionalThrowWithStatus(fileEntry === null, 'fileId not found', 404);
+    }
 
-        if (fileEntry.ownerId.toString() === userId)
-            return {ownerId: userId, value: PermissionsEnum.MANAGE};
 
-        // TODO try catch & check
-        const shares = await ShareModel.find({_id: {$in: fileEntry.shareIds}}, {userId: 1, permissions: 1});
-        const shareEntryForUser = shares.find((elem) => {
+    /**
+     * @todo unit test
+     * Retrieves access information for a specified user for a specified project
+     * @param {string} userId id of user to lookup
+     * @param {string} projectId id of project to retrieve access information from
+     * @returns {Promise<{grantedById: string|null, permission: number}>}
+     * @throws {Error} from {@link FileController.getAllProjectAccess}
+     */
+    static async getUserProjectAccess(userId, projectId) {
+        const access = await this.getAllProjectAccess(projectId);
+        const userAccess = access.find((elem) => {
             return elem.userId.toString() === userId;
         });
-        const permissions = shareEntryForUser === undefined ? PermissionsEnum.NONE : shareEntryForUser.permissions;
-        return {ownerId: fileEntry.ownerId.toString(), value: permissions};
+        if (userAccess === undefined)
+            return { grantedById: null, permissions: PermissionsEnum.NONE };
+        return { grantedById: userAccess.grantedById.toString(), permissions: userAccess.permissions };
     }
 
 
     /**
-     * Creates listing for a specified folder
      * @todo unit test
-     * @param {string} userId userId of user requesting listing
-     * @param {string} folderId id of folder
-     * @returns {Promise.<{title: string, isShared: boolean, documents: Array.<{id: string, title: string, isShared: boolean}>, folders: Array.<{id: string, title: string, isShared: boolean}>}>}
-     * @throws {Error} with msg: 'not allowed to read folderId' with status: 403 if user has no read permissions on specified folder
+     * Retrieves access object of specified project
+     * @param {string} projectId id of project
+     * @returns {Promise<[accessSchema]>} Array of accessSchema {@link ProjectModel}
+     * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified if could be found
      */
-    static async getFolderListing(userId, folderId) {
-        // check if user is allowed to read folder
-        const permissions = await this.getFilePermissions(userId, folderId, true);
-        ErrorUtil.conditionalThrowWithStatus(permissions.value < PermissionsEnum.READ, 'not allowed to read folderId', 403);
+    static async getAllProjectAccess(projectId) {
+        let projectEntry;
+        try {
+            projectEntry = await ProjectModel.findById(projectId, { access: 1 });
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(projectEntry === null, 'projectId not found', 404);
 
-        // TODO try catch & check
-        const entry = await FolderModel.findById(folderId).populate({
-            path: 'childIds',
-            select: 'title shareIds'
-        }).populate({path: 'documentIds', select: 'title shareIds'});
+        return projectEntry.access;
+    }
 
-        const mapFunc = (obj) => {
-            return {
-                id: obj._id.toString(),
-                title: obj.title,
-                isShared: obj.shareIds.length > 0
-            };
-        };
-        const sortFunc = (a, b) => {
-            if (a.title < b.title) return -1;
-            if (a.title > b.title) return 1;
-            return 0;
 
-        };
-
-        return {
-            title: entry.title,
-            isShared: entry.shareIds.length > 0,
-            documents: entry.documentIds.map(mapFunc).sort(sortFunc),
-            folders: entry.childIds.map(mapFunc).sort(sortFunc),
-        };
+    static async getProjectAccessInfo(projectId) {
+        // TODO populate userID from getAllProjectAccess
     }
 
 
     /**
-     * Creates a file-share (document/folder) for a user (specified via userId) with provided permissions
-     * @param {string} userId id of user creating share
-     * @param {string} fileId id of file to share (document or folder id)
-     * @param {boolean} isFolder indicates whether fileId is a folderId or a documentId
-     * @param {string} shareUserId id of user to share the file with
-     * @param {number} permissions number according to: {@link PermissionsEnum}
-     * @returns {Promise<string>} shareId of the created share
-     * @throws {Error} with msg: 'cannot create share for same userId' with status: 400 if user with userId tries to share himself a file
-     * @throws {Error} with msg: 'not allowed to create share for fileId' with status: 403 if user does not own the file
-     * @throws {Error} msg: 'fileId not found' if no file with fileId could be found in db (isFolder = false => Document)
-     * @throws {Error} from {@link FileController.getFilePermissions} (called with userId, fileId, isFolder)
+     * Creates a new (empty) document inside path in project with projectId.
+     * @param {string} userId id of user creating document
+     * @param {string} projectId id of project to create document in
+     * @param {string} path path to put document in
+     * @param {string} title title of the document
+     * @param {boolean} [upsertPath] indicates if specified path should be upserted, defaults to false
+     * @returns {Promise<string>} resolves to documentId
+     * @throws {Error} msg: 'not allowed to create document in projectId' with status: 403 if user with userId has no manage permissions for projectId
+     * @throws {Error} msg: 'could not find projectId with path' with status: 404 if specified projectId or path inside projectId does not exist
+     * @throws {Error} msg: 'title already exists' with status: 409 if path already contains a document with the same title
+     * @throws {Error} from {@link FileController.createPath} (if upsertPath is set to true)
      */
-    static async createShare(userId, fileId, isFolder, shareUserId, permissions) {
-        ErrorUtil.conditionalThrowWithStatus(userId === shareUserId, 'cannot create share for same userId', 400);
+    static async createDocument(userId, projectId, path, title, upsertPath = false) {
+        path = path.trim();
+        title = title.trim();
 
-        // check if user has permission to create share
-        const filePermissions = await FileController.getFilePermissions(userId, fileId, isFolder);
-        ErrorUtil.conditionalThrowWithStatus(userId !== filePermissions.ownerId, 'not allowed to create share for fileId', 403);
+        // ensure title is no duplicate
+        ErrorUtil.conditionalThrowWithStatus(
+            !this.checkTitleIsNoDuplicate(projectId, path, title),
+            'title already exists', 409);
 
-        // TODO check if shareUserId already has a share for file (+ e.g. inherited by parent folder)
-        // create share entry
-        const share = new ShareModel({
-            fileId: fileId,
-            isFolder: isFolder,
-            userId: shareUserId,
-            permissions: permissions
+        // upsert
+        if (upsertPath)
+            await this.createPath(userId, projectId, path);
+
+        // ensure permissions
+        const access = await this.getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permission < PermissionsEnum.MANAGE,
+            'not allowed to create document in projectId', 403);
+
+        const documentEntry = new DocumentModel({
+            projectId: projectId,
+            createdById: userId
         });
 
-        // add shareId to file
-        const selection = { _id: fileId };
-        const pushOp = { $push: { shareIds: share._id }};
         let rawResponse;
         try {
-            rawResponse = isFolder ? await FolderModel.update(selection, pushOp)
-                : await DocumentModel.update(selection, pushOp);
+            rawResponse = await ProjectModel.update(
+                { _id: projectId, 'tree.path': path },
+                { $push: { 'tree.$.children': { documentId: documentEntry._id, title: title }}});
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
-        ErrorUtil.conditionalThrowWithStatus(rawResponse.n === 0, 'fileId not found', 404);
+        ErrorUtil.conditionalThrowWithStatus(rawResponse.nModified === 0, 'could not find projectId with path', 404);
 
-        // save share entry to db (after file update to prevent unnecessary rollbacks)
         try {
-            await share.save();
+            await documentEntry.save();
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
 
-        return share._id.toString();
+        return documentEntry._id.toString();
+    }
+
+
+    /**
+     * Checks if provided title inside a path in a project already exists
+     * @param {string} projectId id of project
+     * @param {string} path path to search in
+     * @param {string} title title to check for
+     * @returns {Promise<boolean>} true if title is no duplicate
+     */
+    static async checkTitleIsNoDuplicate(projectId, path, title) {
+        path = path.trim();
+        title = title.trim();
+
+        let entry;
+        try {
+            entry = await ProjectModel.findOne({ _id: projectId, 'tree.path': path }, { 'tree.$': 1 });
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        if (entry === null)
+            return true;
+
+        const matching = entry.tree[0].children.find((elem) => {
+            return elem.title === title;
+        });
+        return matching === undefined;
+    }
+
+
+    /**
+     * Retrieves whole tree of a project (projectId)
+     * @param {string} userId id of user requesting tree
+     * @param {string} projectId id of project
+     * @returns {Promise<[treeSchema]>} Array of treeSchema {@link ProjectModel}
+     * @throws {Error} msg: 'not allowed to list project tree' with status: 403 if the user has no read permissions for the project
+     * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified if could be found
+     * @throws {Error} from {@link FileController.getUserProjectAccess}
+     */
+    static async listProjectTree(userId, projectId) {
+        // ensure permissions (READ)
+        const access = await this.getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permission < PermissionsEnum.READ,
+            'not allowed to list project tree', 403);
+
+        let projectEntry;
+        try {
+            projectEntry = await ProjectModel.findById(projectId, { tree: 1 }).lean();
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(projectEntry === null, 'projectId not found', 404);
+
+        return projectEntry.tree;
     }
 }
 
