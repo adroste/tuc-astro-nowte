@@ -33,77 +33,9 @@ export default class ProjectFileTreeContainer extends React.Component {
     constructor(props){
         super(props);
 
-        this.state = {
-            projects: []
-        };
+
     }
 
-    projects = [];
-
-    componentDidMount() {
-        API.getProjects(this.handleProjectsReceived, this.handleError);
-    }
-
-    handleProjectsReceived = (body) => {
-        // add to projects list
-        for(let project of body){
-            this.projects.push({
-                id: project.id,
-                title: project.title,
-                permissions: project.access.permissions,
-                ownerName: project.access.grantedBy.name,
-                ownerEmail: project.access.grantedBy.email,
-            });
-        }
-
-        this.setState({
-            projects: this.projects
-        });
-    };
-
-    handleCreateProjectClick = () => {
-        API.createProject("dummy", (body) => this.handleProjectCreated("dummy", body.projectId), this.handleError);
-    };
-
-    handleProjectCreated = (title, id) => {
-        // add project to projects list
-        const ownerName = store.getState().user.username;
-        const ownerEmail = store.getState().user.email;
-
-        this.projects.push({
-            id: id,
-            title: title,
-            permissions: 5, // owner
-            ownerName: ownerName,
-            ownerEmail: ownerEmail,
-        });
-
-        this.setState({
-            projects: this.projects,
-        })
-    };
-
-
-
-    handleError = (msg) => {
-        alert(msg);
-    };
-
-    getProjectView = () => {
-        let list = [];
-        // TODO make cool styling
-        for (let p of this.state.projects) {
-            list.push(
-                <div>
-                    <LinkedText label={p.title} onClick={() => {
-                    }}/>
-                    From: {p.ownerEmail}
-                </div>
-            );
-        }
-
-        return list;
-    };
 
     render() {
         /*return (
@@ -118,9 +50,7 @@ export default class ProjectFileTreeContainer extends React.Component {
         );*/
         return (
             <div>
-                <h3>Projects</h3>
-                <Button label="Create Project" onClick={this.handleCreateProjectClick}/>
-                {this.getProjectView()}
+                <h3>Project</h3>
             </div>
         );
     }
