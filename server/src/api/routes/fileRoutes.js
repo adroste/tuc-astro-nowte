@@ -39,6 +39,7 @@ fileRoutes.post('/create-path', RoutesUtil.asyncMiddleware(async (req, res, next
     ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
     ErrorUtil.requireVarWithType('projectId', 'string', projectId);
     ErrorUtil.requireVarWithType('path', 'string', path);
+    ErrorUtil.checkPathFormat(path);
 
     const userId = await UserController.validateSession(sessionToken);
     await FileController.createPath(userId, projectId, path);
@@ -58,6 +59,7 @@ fileRoutes.post('/create-document', RoutesUtil.asyncMiddleware(async (req, res, 
     ErrorUtil.requireVarWithType('path', 'string', path);
     ErrorUtil.requireVarWithType('title', 'string', title);
     upsertPath = typeof upsertPath === 'boolean' ? upsertPath : false;
+    ErrorUtil.checkPathFormat(path);
 
     const userId = await UserController.validateSession(sessionToken);
     const documentId = await FileController.createDocument(userId, projectId, path, title, upsertPath);

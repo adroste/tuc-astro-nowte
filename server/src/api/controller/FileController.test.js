@@ -124,7 +124,7 @@ describe('basic project operations', async () => {
         res = await FileController.listProjectsForUser(testuser._id.toString(), false);
         expect(res.length).toBe(2);
         expect(res[0].title).toBe('test5');
-        expect(res[1]._id.toString()).toBe(projectId2);
+        expect(res[1].id.toString()).toBe(projectId2);
         expect(res[1].access.permissions).toBe(5);
         expect(res[1].access.grantedById.toString()).toBe(testuser._id.toString());
         res = await FileController.listProjectsForUser(testuser._id.toString(), true);
