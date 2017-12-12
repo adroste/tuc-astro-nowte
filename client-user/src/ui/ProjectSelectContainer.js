@@ -12,9 +12,12 @@ import LinkedText from "./base/LinkedText";
 export default class ProjectSelectContainer extends React.Component {
     /**
      * propTypes
+     * showDialog {function(Dialog: object) callback when a dialog should be displayed
      */
     static get propTypes() {
-        return {};
+        return {
+            showDialog: PropTypes.func.isRequired
+        };
     }
 
     static get defaultProps() {
@@ -53,7 +56,18 @@ export default class ProjectSelectContainer extends React.Component {
     };
 
     handleCreateProjectClick = () => {
-        API.createProject("dummy", (body) => this.handleProjectCreated("dummy", body.projectId), this.handleError);
+        this.props.showDialog(<InputDialog
+            title="Create Project"
+            onCreate={(title) => {
+                this.props.showDialog(null);
+                this.handleCreateProject(title);
+            }}
+            onCancel={() => this.props.showDialog(null)}
+        />);
+    };
+
+    handleCreateProject = (title) => {
+        API.createProject(title, (body) => this.handleProjectCreated(title, body.projectId), this.handleError);
     };
 
     handleProjectCreated = (title, id) => {

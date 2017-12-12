@@ -7,6 +7,7 @@ import * as API from '../ServerApi'
 import {store} from "./../Redux";
 import * as action from './../Actions'
 import ProjectSelectContainer from "../ui/ProjectSelectContainer";
+import {ModalContainer} from "react-modal-dialog";
 
 export default class LoggedInScreen extends React.Component {
     /**
@@ -35,6 +36,12 @@ export default class LoggedInScreen extends React.Component {
         }, this.handleError);
     };
 
+    handleShowDialog = (dialog) => {
+        this.setState({
+            activeDialog: dialog,
+        })
+    };
+
     handleError = (err) => {
         alert(err);
     };
@@ -42,12 +49,19 @@ export default class LoggedInScreen extends React.Component {
     render() {
         return (
             <div>
-                <ProjectSelectContainer/>
+                <ProjectSelectContainer
+                    showDialog={this.handleShowDialog}
+                />
                 <ProjectFileTreeContainer/>
                 <Button
                     label="Log out"
                     onClick={this.handleLogOutClick}
                 />
+
+                {this.state.activeDialog?
+                    <ModalContainer>
+                        {this.state.activeDialog}
+                    </ModalContainer>:''}
             </div>
         );
     }
