@@ -62,7 +62,11 @@ export default class LoggedInScreen extends React.Component {
             <div>
                 {this.state.project?
                     // display project tree
-                    <ProjectFileTreeContainer/>:
+                    <ProjectFileTreeContainer
+                        projectId={this.state.project.id}
+                        projectTitle={this.state.project.title}
+                        permissions={this.state.project.permissions}
+                    />:
 
                     // select project
                     <ProjectSelectContainer

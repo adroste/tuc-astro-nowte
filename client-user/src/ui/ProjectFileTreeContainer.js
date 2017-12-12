@@ -23,7 +23,11 @@ export default class ProjectFileTreeContainer extends React.Component {
      * propTypes
      */
     static get propTypes() {
-        return {};
+        return {
+            projectId: PropTypes.string.isRequired,
+            projectTitle: PropTypes.string.isRequired,
+            permissions: PropTypes.number.isRequired,
+        };
     }
 
     static get defaultProps() {
@@ -36,6 +40,17 @@ export default class ProjectFileTreeContainer extends React.Component {
 
     }
 
+    componentDidMount() {
+        API.getFileTree(this.props.projectId, this.handleFileTreeReceive, this.handleError);
+    }
+
+    handleFileTreeReceive = (body) => {
+        alert(JSON.stringify(body));
+    };
+
+    handleError = (msg) => {
+        alert(msg);
+    };
 
     render() {
         /*return (
