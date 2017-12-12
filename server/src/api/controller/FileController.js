@@ -69,9 +69,7 @@ class FileController {
         path = path.trim();
 
         // check path starts and ends with '/'
-        ErrorUtil.conditionalThrowWithStatus(
-            path.charAt(0) !== '/' || path.charAt(path.length - 1) !== '/',
-            'invalid path format', 400);
+        ErrorUtil.checkPathFormat(path);
 
         // ensure permissions
         const access = await this.getUserProjectAccess(userId, projectId);
@@ -273,7 +271,8 @@ class FileController {
         }
 
         for(let i = 0; i < p.length; i++) {
-            p[i]._id = p[i]._id.toString();
+            p[i].id = p[i]._id.toString();
+            delete p[i]._id;
             p[i].access = p[i].access[0];
             delete p[i].access.userId;
             if (populateGrantedBy) {
