@@ -62,6 +62,59 @@ export const createProject = (title, onSuccess, onError) => {
     );
 };
 
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/list-tree
+export const getFileTree = (projectId, onSuccess, onError) => {
+
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/list-tree/' + projectId + '&sessionToken=' + sessionToken;
+    fetch(url, {
+        method: "GET",
+        headers: REQUEST_HEADERS,
+    }).then(
+        (response) => getJsonBody(response, 200, onSuccess, onError),
+        onError
+    );
+};
+
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-path
+export const createFolder = (projectId, path, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/create-path';
+    fetch(url, {
+        method: "POST",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+            path: path,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
+};
+
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-document
+export const createDocument = (projectId, path, title, createPath, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/create-document';
+    fetch(url, {
+        method: "POST",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+            path: path,
+            title: title,
+            upsertPath: createPath,
+        })
+    }).then(
+        (response) => getJsonBody(response, 201, onSuccess, onError),
+        onError
+    );
+};
+
+
 // helper to retrieve the json from a response
 const getJsonBody = (response, successStatusCode, onSuccess, onError) => {
     if(response.status === successStatusCode){
