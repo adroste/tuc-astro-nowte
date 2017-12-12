@@ -10,7 +10,6 @@ const initialState = {
     token: undefined,
     email: undefined,
     username: undefined,
-    rootFolder: undefined,
     userId: undefined,
 };
 
@@ -25,7 +24,6 @@ const dispatcher = (state = initialState, action) => {
                 token: action.token,
                 email: action.email,
                 username: action.username,
-                rootFolder: action.rootFolder,
                 userId: action.userId,
             });
         case "LOGOUT":

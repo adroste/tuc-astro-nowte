@@ -26,8 +26,8 @@ export default class LoginScreen extends React.Component {
         this.props.history.push("/forgot-password");
     };
 
-    onUserLoggedInHandler = (token, email, username, rootFolder, userId) => {
-        store.dispatch(action.login(token, email, username, rootFolder, userId));
+    onUserLoggedInHandler = (token, email, username, userId) => {
+        store.dispatch(action.login(token, email, username, userId));
     };
 
     onUserNotValidatedHandler = (email) => {
