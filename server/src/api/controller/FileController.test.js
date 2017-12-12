@@ -130,6 +130,24 @@ describe('basic project operations', async () => {
         res = await FileController.listProjectsForUser(testuser._id.toString(), true);
         expect(res[0].access.grantedBy.email).toBe(testuser.email);
     });
+
+    test('set user permissions, user == shareUser', async () => {
+        const usid = '5a2ff6694584c97c375288d3';
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test6');
+
+        await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.OWNER);
+        let access = await FileController.getUserProjectAccess(usid, projectId);
+        expect(access.permissions).toBe(PermissionsEnum.OWNER);
+
+        await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.READ);
+        access = await FileController.getUserProjectAccess(usid, projectId);
+        expect(access.permissions).toBe(PermissionsEnum.READ);
+
+        await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.NONE);
+        access = await FileController.getUserProjectAccess(usid, projectId);
+        expect(access.permissions).toBe(PermissionsEnum.NONE);
+        expect(access.grantedById).toBe(null);
+    });
 });
 
 afterAll(() => {

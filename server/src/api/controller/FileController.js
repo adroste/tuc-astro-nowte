@@ -99,7 +99,7 @@ class FileController {
      * Retrieves access information for a specified user for a specified project
      * @param {string} userId id of user to lookup
      * @param {string} projectId id of project to retrieve access information from
-     * @returns {Promise<{grantedById: string|null, permission: number}>}
+     * @returns {Promise<{grantedById: string|null, permissions: number}>}
      * @throws {Error} from {@link FileController.getAllProjectAccess}
      */
     static async getUserProjectAccess(userId, projectId) {
@@ -135,6 +135,7 @@ class FileController {
 
     static async getProjectAccessInfo(projectId) {
         // TODO populate userID from getAllProjectAccess
+        // TODO case: userId refers to a non existing user
     }
 
 
@@ -286,6 +287,51 @@ class FileController {
         }
 
         return p;
+    }
+
+
+    /**
+     * Grants or updates a users permissions for a project.
+     * @param {string} userId id of user updating permissions
+     * @param {string} projectId id of project
+     * @param {string} shareUserId id of user that retrieves permissions
+     * @param {number} permissions see {@link PermissionsEnum} (NONE removes access)
+     * @returns {Promise<void>} Promise has no return/resolve value
+     * @throws {Error} msg: 'userId and shareUserId must not be the same' with status: 400
+     * @throws {Error} msg: 'not allowed to edit access rights for project' with status: 403 if user trying to update other users permissions has no owner permissions on projectId
+     * @throws {Error} from {@link FileController.getUserProjectAccess}
+     */
+    static async setUserPermissionsForProject(userId, projectId, shareUserId, permissions) {
+        ErrorUtil.conditionalThrowWithStatus(userId === shareUserId, 'userId and shareUserId must not be the same', 400);
+
+        // ensure permissions (OWNER)
+        const access = await this.getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permission < PermissionsEnum.OWNER,
+            'not allowed to edit access rights for project', 403);
+
+        try {
+            if (permissions === PermissionsEnum.NONE) {
+                // remove access entry if permissions is set to NONE
+                await ProjectModel.update(
+                    {_id: projectId, 'access.userId': shareUserId},
+                    {$pull: {access: {userId: shareUserId}}});
+            }
+            else {
+                // try to update existing entry
+                const raw = await ProjectModel.update(
+                    {_id: projectId, 'access.userId': shareUserId},
+                    {$set: {'access.$.grantedById': userId, 'access.$.permissions': permissions}});
+
+                // if no existing was found, push new access entry
+                if (raw.n === 0)
+                    await ProjectModel.update(
+                        {_id: projectId, 'access.userId': {$ne: shareUserId}},
+                        {$push: {access: {userId: shareUserId, grantedById: userId, permissions: permissions}}});
+            }
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
     }
 }
 

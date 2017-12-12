@@ -70,6 +70,25 @@ fileRoutes.post('/create-document', RoutesUtil.asyncMiddleware(async (req, res, 
 }));
 
 
+fileRoutes.put('/set-access', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.body['sessionToken'];
+    const projectId = req.body['projectId'];
+    const shareEmail = req.body['shareEmail'];
+    const permissions = req.body['permissions'];
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+    ErrorUtil.requireVarWithType('projectId', 'string', projectId);
+    ErrorUtil.requireVarWithType('shareEmail', 'string', shareEmail);
+    ErrorUtil.requireVarWithType('permissions', 'number', permissions);
+    ErrorUtil.checkPermissionsInRange(permissions);
+
+    const userId = await UserController.validateSession(sessionToken);
+    const shareUserId = await UserController.getUserIdForEmail(shareEmail);
+    await FileController.setUserPermissionsForProject(userId, projectId, shareUserId, permissions);
+    res.status(204);
+    res.json({});
+}));
+
+
 fileRoutes.get('/list-tree/:projectId', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const sessionToken = req.query['sessionToken'];
     const projectId = req.params.projectId;
