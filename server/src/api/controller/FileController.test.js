@@ -151,12 +151,26 @@ describe('basic project operations', async () => {
 
     test('list project access', async () => {
         const usid = '5a2ff6694584c97c375288d3';
-        const projectId = await FileController.createProject(testuser._id.toString(), 'test6');
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test7');
         await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.READ);
         const access = await FileController.listProjectAccess(usid, projectId);
         expect(access[0].user.name).toBe('Schwanzus Longus');
         expect(access[0].grantedBy.email).toBe('sw4@example.com');
         expect(access[1].permissions).toBe(PermissionsEnum.READ);
+    });
+
+    test('delete project and all of its documents', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test8');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        expect(await DocumentModel.findById(documentId) !== null).toBe(true);
+        await FileController.deleteProject(testuser._id.toString(), projectId);
+        expect(await DocumentModel.findById(documentId) === null).toBe(true);
+        expect(await ProjectModel.findById(projectId) === null).toBe(true);
+        try {
+            await FileController.deleteProject(testuser._id.toString(), projectId);
+        } catch (err) {
+            expect(err.message).toBe('projectId not found');
+        }
     });
 });
 

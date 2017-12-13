@@ -118,7 +118,7 @@ class FileController {
      * Retrieves access object of specified project
      * @param {string} projectId id of project
      * @returns {Promise<[accessSchema]>} Array of accessSchema {@link ProjectModel}
-     * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified if could be found
+     * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified id could be found
      */
     static async _getAllProjectAccess(projectId) {
         let projectEntry;
@@ -358,6 +358,48 @@ class FileController {
                         {_id: projectId, 'access.userId': {$ne: shareUserId}},
                         {$push: {access: {userId: shareUserId, grantedById: userId, permissions: permissions}}});
             }
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+    }
+
+
+    /**
+     * Deletes a project and all of its documents.
+     * @param {string} userId id of user requesting delete
+     * @param {string} projectId id of project to delete
+     * @returns {Promise<void>} Promise has no return/resolve value
+     * @throws {Error} msg: 'not allowed to delete project' with status: 403 if user has no owner permissions for project
+     * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified id could be found
+     * @throws {Error} from {@link FileController._getUserProjectAccess}
+     */
+    static async deleteProject(userId, projectId) {
+        // ensure permissions (OWNER)
+        const access = await this._getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permissions < PermissionsEnum.OWNER,
+            'not allowed to delete project', 403);
+
+        // retrieve and delete project entry
+        let project;
+        try {
+            project = await ProjectModel.findByIdAndRemove(projectId);
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo err');
+        }
+        ErrorUtil.conditionalThrowWithStatus(project === null, 'projectId not found', 404);
+
+        // TODO could (in future) hold some documentIds twice? maybe?
+        const docsToRemove = [];
+        project.tree.forEach((tree) => {
+            tree.children.forEach((child) => {
+                docsToRemove.push(child.documentId.toString());
+            });
+        });
+
+        // delete all documents of project
+        try {
+            await DocumentModel.remove({_id: {$in: docsToRemove}});
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
