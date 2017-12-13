@@ -172,6 +172,17 @@ describe('basic project operations', async () => {
             expect(err.message).toBe('projectId not found');
         }
     });
+
+    test('delete a document from a project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test9');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        expect(await DocumentModel.findById(documentId) !== null).toBe(true);
+        await FileController.deleteDocument(testuser._id.toString(), projectId, '/my folder/', documentId);
+        expect(await DocumentModel.findById(documentId) === null).toBe(true);
+        const project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].path).toBe('/my folder/');
+        expect(project.tree[1].children.length).toBe(0);
+    });
 });
 
 afterAll(() => {

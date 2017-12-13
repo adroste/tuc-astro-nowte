@@ -389,7 +389,6 @@ class FileController {
         }
         ErrorUtil.conditionalThrowWithStatus(project === null, 'projectId not found', 404);
 
-        // TODO could (in future) hold some documentIds twice? maybe?
         const docsToRemove = [];
         project.tree.forEach((tree) => {
             tree.children.forEach((child) => {
@@ -400,6 +399,46 @@ class FileController {
         // delete all documents of project
         try {
             await DocumentModel.remove({_id: {$in: docsToRemove}});
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+    }
+
+
+    /**
+     * Deletes a document at a specific path from a project.
+     * @param {string} userId id of user trying to delete the document
+     * @param {string} projectId id of project
+     * @param {string} path (folder-)path the document is in
+     * @param {string} documentId id of document to delete
+     * @returns {Promise<void>} Promise has no return/resolve value
+     * @throws {Error} msg: 'not allowed to delete documents in project' with status: 403 if user has no manage permissions for projectId
+     * @throws {Error} msg: 'could not find projectId with path' with status: 404 if either projectId or path in projectId does not exist
+     * @throws {Error} msg: 'documentId not found' with status: 404 if no document with documentId could be found at specified path
+     * @throws {Error} from {@link FileController._getUserProjectAccess}
+     */
+    static async deleteDocument(userId, projectId, path, documentId) {
+        // ensure permissions (MANAGE)
+        const access = await this._getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permissions < PermissionsEnum.MANAGE,
+            'not allowed to delete documents in project', 403);
+
+        // find and remove document from project tree
+        let raw;
+        try {
+            raw = await ProjectModel.update(
+                {_id: projectId, 'tree.path': path},
+                {$pull: {'tree.$.children': {documentId: documentId}}});
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(raw.n === 0, 'could not find projectId with path', 404);
+        ErrorUtil.conditionalThrowWithStatus(raw.nModified === 0, 'documentId not found', 404);
+
+        // remove document-data from db
+        try {
+            await DocumentModel.remove({_id: documentId});
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
