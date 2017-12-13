@@ -418,6 +418,8 @@ class FileController {
      * @throws {Error} from {@link FileController._getUserProjectAccess}
      */
     static async deleteDocument(userId, projectId, path, documentId) {
+        path = path.trim();
+
         // ensure permissions (MANAGE)
         const access = await this._getUserProjectAccess(userId, projectId);
         ErrorUtil.conditionalThrowWithStatus(
@@ -439,6 +441,59 @@ class FileController {
         // remove document-data from db
         try {
             await DocumentModel.remove({_id: documentId});
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+    }
+
+
+    /**
+     * Deletes a path and all of its subpaths/subfolders including their documents.
+     * @param {string} userId id of user trying to delete path
+     * @param {string} projectId id of project
+     * @param {string} path path to remove
+     * @returns {Promise<void>} Promise has no return/resolve value
+     * @throws {Error} msg: 'path must not be root (/)' with status: 403 it is not allowed to remove the root path '/'
+     * @throws {Error} msg: 'not allowed to delete paths in project' with status: 403 if user has no manage permissions for projectId
+     * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified projectId could be found in db
+     * @throws {Error} from {@link FileController._getUserProjectAccess}
+     */
+    static async deletePath(userId, projectId, path) {
+        path = path.trim();
+        // removing '/' root path is not allowed
+        ErrorUtil.conditionalThrowWithStatus(path === '/', 'path must not be root (/)', 403);
+
+        // ensure permissions (MANAGE)
+        const access = await this._getUserProjectAccess(userId, projectId);
+        ErrorUtil.conditionalThrowWithStatus(
+            access.permissions < PermissionsEnum.MANAGE,
+            'not allowed to delete paths in project', 403);
+
+        // remove all entries starting with path from project
+        const startsWithPathRegEx = new RegExp('^' + path);
+        let project;
+        try {
+            project = await ProjectModel.findByIdAndUpdate(projectId,
+                {$pull: {tree: {path: startsWithPathRegEx}}});
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(project === null, 'projectId not found', 404);
+
+        // determine all documentIds to remove from db
+        const docsToRemove = [];
+        project.tree.forEach((tree) => {
+            if (!startsWithPathRegEx.test(tree.path))
+                return;
+
+            tree.children.forEach((child) => {
+                docsToRemove.push(child.documentId.toString());
+            });
+        });
+
+        // delete all removed documents from db
+        try {
+            await DocumentModel.remove({_id: {$in: docsToRemove}});
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }

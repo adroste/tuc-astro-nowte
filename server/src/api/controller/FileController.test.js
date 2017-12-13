@@ -74,7 +74,7 @@ describe('basic project operations', async () => {
 
     test('create path, no permissions', async () => {
         const projectId = await FileController.createProject(testuser._id.toString(), 'ctest');
-        await ProjectModel.update({_id: projectId}, { $set: { 'access.0.permissions': PermissionsEnum.EDIT }});
+        await ProjectModel.update({_id: projectId}, {$set: {'access.0.permissions': PermissionsEnum.EDIT}});
         try {
             await FileController.createPath(testuser._id.toString(), projectId, '/1/2/3/');
         } catch (e) {
@@ -102,7 +102,10 @@ describe('basic project operations', async () => {
         const docEntry = await DocumentModel.findById(documentId);
         expect(docEntry !== null).toBe(true);
     });
+});
 
+
+describe('combined project operations', async () => {
     test('list tree', async () => {
         const projectId = await FileController.createProject(testuser._id.toString(), 'test4');
         const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/folder/', 'letter ', true);
@@ -182,6 +185,24 @@ describe('basic project operations', async () => {
         const project = await ProjectModel.findById(projectId);
         expect(project.tree[1].path).toBe('/my folder/');
         expect(project.tree[1].children.length).toBe(0);
+    });
+
+    test('delete a path from a project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test0');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        expect(await DocumentModel.findById(documentId) !== null).toBe(true);
+        const documentId2 = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/sub/', 'doc2', true);
+        expect(await DocumentModel.findById(documentId2) !== null).toBe(true);
+        const documentId3 = await FileController.createDocument(testuser._id.toString(), projectId, '/magmag/my folder/', 'doc3', true);
+        expect(await DocumentModel.findById(documentId3) !== null).toBe(true);
+
+        await FileController.deletePath(testuser._id.toString(), projectId, '/my folder/');
+        expect(await DocumentModel.findById(documentId) === null).toBe(true);
+        expect(await DocumentModel.findById(documentId2) === null).toBe(true);
+        expect(await DocumentModel.findById(documentId3) !== null).toBe(true);
+        const project = await ProjectModel.findById(projectId);
+        // length = 3: '/', '/magmag/', '/magmag/my folder/'
+        expect(project.tree.length).toBe(3);
     });
 });
 

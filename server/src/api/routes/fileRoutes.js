@@ -100,6 +100,21 @@ fileRoutes.delete('/delete-document', RoutesUtil.asyncMiddleware(async (req, res
 }));
 
 
+fileRoutes.delete('/delete-path', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.body['sessionToken'];
+    const projectId = req.body['projectId'];
+    const path = req.body['path'];
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+    ErrorUtil.requireVarWithType('projectId', 'string', projectId);
+    ErrorUtil.requireVarWithType('path', 'string', path);
+
+    const userId = await UserController.validateSession(sessionToken);
+    await FileController.deletePath(userId, projectId, path);
+    res.status(204);
+    res.json({});
+}));
+
+
 fileRoutes.put('/set-access', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const sessionToken = req.body['sessionToken'];
     const projectId = req.body['projectId'];
