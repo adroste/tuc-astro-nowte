@@ -63,7 +63,7 @@ class FileController {
      * @returns {Promise<void>} Promise has no return/resolve value
      * @throws {Error} msg: 'invalid path format' with status: 400 if provided path does not start and end with a '/'
      * @throws {Error} msg: 'not allowed to create path in projectId' with status: 403 if user with userId has no manage permissions for projectId
-     * @throws {Error} from {@link FileController.getUserProjectAccess}
+     * @throws {Error} from {@link FileController._getUserProjectAccess}
      */
     static async createPath(userId, projectId, path) {
         path = path.trim();
@@ -72,9 +72,9 @@ class FileController {
         ErrorUtil.checkPathFormat(path);
 
         // ensure permissions
-        const access = await this.getUserProjectAccess(userId, projectId);
+        const access = await this._getUserProjectAccess(userId, projectId);
         ErrorUtil.conditionalThrowWithStatus(
-            access.permission < PermissionsEnum.MANAGE,
+            access.permissions < PermissionsEnum.MANAGE,
             'not allowed to create path in projectId', 403);
 
         const subpaths = FileUtil.getAllSubpaths(path);
@@ -100,10 +100,10 @@ class FileController {
      * @param {string} userId id of user to lookup
      * @param {string} projectId id of project to retrieve access information from
      * @returns {Promise<{grantedById: string|null, permissions: number}>}
-     * @throws {Error} from {@link FileController.getAllProjectAccess}
+     * @throws {Error} from {@link FileController._getAllProjectAccess}
      */
-    static async getUserProjectAccess(userId, projectId) {
-        const access = await this.getAllProjectAccess(projectId);
+    static async _getUserProjectAccess(userId, projectId) {
+        const access = await this._getAllProjectAccess(projectId);
         const userAccess = access.find((elem) => {
             return elem.userId.toString() === userId;
         });
@@ -120,10 +120,10 @@ class FileController {
      * @returns {Promise<[accessSchema]>} Array of accessSchema {@link ProjectModel}
      * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified if could be found
      */
-    static async getAllProjectAccess(projectId) {
+    static async _getAllProjectAccess(projectId) {
         let projectEntry;
         try {
-            projectEntry = await ProjectModel.findById(projectId, { access: 1 });
+            projectEntry = await ProjectModel.findById(projectId, { access: 1 }).lean();
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
@@ -133,9 +133,35 @@ class FileController {
     }
 
 
-    static async getProjectAccessInfo(projectId) {
-        // TODO populate userID from getAllProjectAccess
-        // TODO case: userId refers to a non existing user
+    /**
+     * Lists all users (with permission) that have access to a project
+     * @param {string} userId id of user trying to retrieve listing
+     * @param {string} projectId id of project
+     * @returns {Promise<Array<{user: Object, grantedBy: Object, permissions: number}>>}
+     * user/grantedBy Object: { name: string, email: string }, <br>
+     * permissions number refers to {@link PermissionsEnum}, <br>
+     * user/grantedBy could be null if for some reason the id of user (user/grantedBy) is not present in db (users collection)
+     * @throws {Error} msg: 'not allowed to list project access' with status: 403 if user does not have read permissions for projectId
+     * @throws {Error} from {@link FileController._getAllProjectAccess}
+     */
+    static async listProjectAccess(userId, projectId) {
+        const access = await this._getAllProjectAccess(projectId);
+
+        // ensure permissions (READ)
+        const userAccess = access.find((elem) => {
+            return elem.userId.toString() === userId;
+        });
+        ErrorUtil.conditionalThrowWithStatus(
+            userAccess === undefined || userAccess.permissions < PermissionsEnum.READ,
+            'not allowed to list project access', 403);
+
+        for (let i = access.length - 1; i >= 0; i--) {
+            access[i].user = await UserModel.findById(access[i].userId, {_id: 0, name: 1, email: 1}).lean();
+            delete access[i].userId;
+            access[i].grantedBy = await UserModel.findById(access[i].grantedById, {_id: 0, name: 1, email: 1}).lean();
+            delete access[i].grantedById;
+        }
+        return access;
     }
 
 
@@ -158,7 +184,7 @@ class FileController {
 
         // ensure title is no duplicate
         ErrorUtil.conditionalThrowWithStatus(
-            !this.checkTitleIsNoDuplicate(projectId, path, title),
+            !this._checkTitleIsNoDuplicate(projectId, path, title),
             'title already exists', 409);
 
         // upsert
@@ -166,9 +192,9 @@ class FileController {
             await this.createPath(userId, projectId, path);
 
         // ensure permissions
-        const access = await this.getUserProjectAccess(userId, projectId);
+        const access = await this._getUserProjectAccess(userId, projectId);
         ErrorUtil.conditionalThrowWithStatus(
-            access.permission < PermissionsEnum.MANAGE,
+            access.permissions < PermissionsEnum.MANAGE,
             'not allowed to create document in projectId', 403);
 
         const documentEntry = new DocumentModel({
@@ -203,7 +229,7 @@ class FileController {
      * @param {string} title title to check for
      * @returns {Promise<boolean>} true if title is no duplicate
      */
-    static async checkTitleIsNoDuplicate(projectId, path, title) {
+    static async _checkTitleIsNoDuplicate(projectId, path, title) {
         path = path.trim();
         title = title.trim();
 
@@ -231,13 +257,13 @@ class FileController {
      * @returns {Promise<[treeSchema]>} Array of treeSchema {@link ProjectModel}
      * @throws {Error} msg: 'not allowed to list project tree' with status: 403 if the user has no read permissions for the project
      * @throws {Error} msg: 'projectId not found' with status: 404 if no project with specified if could be found
-     * @throws {Error} from {@link FileController.getUserProjectAccess}
+     * @throws {Error} from {@link FileController._getUserProjectAccess}
      */
     static async listProjectTree(userId, projectId) {
         // ensure permissions (READ)
-        const access = await this.getUserProjectAccess(userId, projectId);
+        const access = await this._getUserProjectAccess(userId, projectId);
         ErrorUtil.conditionalThrowWithStatus(
-            access.permission < PermissionsEnum.READ,
+            access.permissions < PermissionsEnum.READ,
             'not allowed to list project tree', 403);
 
         let projectEntry;
@@ -278,11 +304,14 @@ class FileController {
             delete p[i].access.userId;
             if (populateGrantedBy) {
                 try {
-                    p[i].access.grantedBy = await UserModel.findById(p[i].access.grantedById.toString(), {_id: 0, name: 1, email: 1}).lean();
+                    p[i].access.grantedBy = await UserModel.findById(p[i].access.grantedById, {_id: 0, name: 1, email: 1}).lean();
                 } catch (e) {
                     ErrorUtil.throwAndLog(e, 'unknown mongo error');
                 }
                 delete p[i].access.grantedById;
+            }
+            else {
+                p[i].access.grantedById = p[i].access.grantedById.toString();
             }
         }
 
@@ -299,15 +328,15 @@ class FileController {
      * @returns {Promise<void>} Promise has no return/resolve value
      * @throws {Error} msg: 'userId and shareUserId must not be the same' with status: 400
      * @throws {Error} msg: 'not allowed to edit access rights for project' with status: 403 if user trying to update other users permissions has no owner permissions on projectId
-     * @throws {Error} from {@link FileController.getUserProjectAccess}
+     * @throws {Error} from {@link FileController._getUserProjectAccess}
      */
     static async setUserPermissionsForProject(userId, projectId, shareUserId, permissions) {
         ErrorUtil.conditionalThrowWithStatus(userId === shareUserId, 'userId and shareUserId must not be the same', 400);
 
         // ensure permissions (OWNER)
-        const access = await this.getUserProjectAccess(userId, projectId);
+        const access = await this._getUserProjectAccess(userId, projectId);
         ErrorUtil.conditionalThrowWithStatus(
-            access.permission < PermissionsEnum.OWNER,
+            access.permissions < PermissionsEnum.OWNER,
             'not allowed to edit access rights for project', 403);
 
         try {

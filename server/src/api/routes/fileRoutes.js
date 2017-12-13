@@ -102,6 +102,19 @@ fileRoutes.get('/list-tree/:projectId', RoutesUtil.asyncMiddleware(async (req, r
 }));
 
 
+fileRoutes.get('/list-access/:projectId', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.query['sessionToken'];
+    const projectId = req.params.projectId;
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+    ErrorUtil.requireVarWithType('projectId', 'string', projectId);
+
+    const userId = await UserController.validateSession(sessionToken);
+    const access = await FileController.listProjectAccess(userId, projectId);
+    res.status(200);
+    res.json(access);
+}));
+
+
 fileRoutes.get('/list-projects', RoutesUtil.asyncMiddleware(async (req, res, next) => {
     const sessionToken = req.query['sessionToken'];
     ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);

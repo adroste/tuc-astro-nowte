@@ -85,7 +85,7 @@ describe('basic project operations', async () => {
     test('title is no duplicate', async () => {
         const projectId = await FileController.createProject(testuser._id.toString(), 'ctst');
         await FileController.createPath(testuser._id.toString(), projectId, '/1/2/3/');
-        const res = await FileController.checkTitleIsNoDuplicate(projectId, '/1/2/', 'magmag');
+        const res = await FileController._checkTitleIsNoDuplicate(projectId, '/1/2/', 'magmag');
         expect(res).toBe(true);
     });
 
@@ -136,17 +136,27 @@ describe('basic project operations', async () => {
         const projectId = await FileController.createProject(testuser._id.toString(), 'test6');
 
         await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.OWNER);
-        let access = await FileController.getUserProjectAccess(usid, projectId);
+        let access = await FileController._getUserProjectAccess(usid, projectId);
         expect(access.permissions).toBe(PermissionsEnum.OWNER);
 
         await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.READ);
-        access = await FileController.getUserProjectAccess(usid, projectId);
+        access = await FileController._getUserProjectAccess(usid, projectId);
         expect(access.permissions).toBe(PermissionsEnum.READ);
 
         await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.NONE);
-        access = await FileController.getUserProjectAccess(usid, projectId);
+        access = await FileController._getUserProjectAccess(usid, projectId);
         expect(access.permissions).toBe(PermissionsEnum.NONE);
         expect(access.grantedById).toBe(null);
+    });
+
+    test('list project access', async () => {
+        const usid = '5a2ff6694584c97c375288d3';
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test6');
+        await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.READ);
+        const access = await FileController.listProjectAccess(usid, projectId);
+        expect(access[0].user.name).toBe('Schwanzus Longus');
+        expect(access[0].grantedBy.email).toBe('sw4@example.com');
+        expect(access[1].permissions).toBe(PermissionsEnum.READ);
     });
 });
 
