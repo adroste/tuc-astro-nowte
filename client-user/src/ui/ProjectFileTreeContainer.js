@@ -45,7 +45,8 @@ export default class ProjectFileTreeContainer extends React.Component {
                 name: 'root',
                 children: [],
                 toggled: true,
-            }
+            },
+
         };
     }
 
@@ -53,6 +54,12 @@ export default class ProjectFileTreeContainer extends React.Component {
         name: 'root',
         folder: [],
         docs: [],
+    };
+
+    // name = null => it is a folder
+    activeNode = {
+        path: null,
+        name: null,
     };
 
     componentDidMount() {
@@ -104,10 +111,42 @@ export default class ProjectFileTreeContainer extends React.Component {
     };
 
     handleFileCreateClick = (node) => {
+        let path = "/";
         if(node === null){
             // button click
+            return;
         }
-        alert(JSON.stringify(node));
+        else {
+            path = this.getNodePath(node) + node.name + "/";
+        }
+
+        this.props.showDialog(<InputDialog
+            title="Create File"
+            onCreate={(title) => {
+                this.props.showDialog(null);
+                this.handleFileCreate(path, title);
+            }}
+            onCancel={() => this.props.showDialog(null)}
+        />);
+    };
+
+    handleFileCreate = (path, filename) => {
+        API.createDocument(this.props.projectId, path, filename, false, (body) => this.handleFileCreated(path, filename, body.id), this.handleError);
+    };
+
+    handleFileCreated = (path, filename, id) => {
+        // insert file
+        let folder = this.getFolder(path, false);
+        // insert file
+        folder.docs.push({
+            name: filename,
+            id: id,
+        });
+
+        this.activeNode.name = filename;
+        this.activeNode.path = path;
+
+        this.recalcTreeView();
     };
 
     handleFolderCreateClick = (node) => {
@@ -151,7 +190,7 @@ export default class ProjectFileTreeContainer extends React.Component {
 
         while (node.parent){
             node = node.parent;
-            path += node.name + "/";
+            path = "/" + node.name + path;
         }
         return path;
     };
@@ -162,6 +201,9 @@ export default class ProjectFileTreeContainer extends React.Component {
         let folder = this.getFolder(path + node.name, false);
         folder.toggled = true;
 
+        this.activeNode.path = path + node.name + "/";
+        this.activeNode.name = null;
+
         this.recalcTreeView();
     };
 
@@ -171,40 +213,45 @@ export default class ProjectFileTreeContainer extends React.Component {
         let folder = this.getFolder(path + node.name, false);
         folder.toggled = false;
 
+        this.activeNode.path = path + node.name + "/";
+        this.activeNode.name = null;
+
         this.recalcTreeView();
     };
 
 
 
-    createFolderView = (folder, parent, isRoot) => {
+    createFolderView = (folder, parent, isRoot, path) => {
         let res = {
             name: folder.name,
             children: [],
             toggled: folder.toggled,
             parent: parent,
+            active: (this.activeNode.name === null) && (this.activeNode.path === path + folder.name + "/"),
         };
 
         for(let f of folder.folder){
-            res.children.push(this.createFolderView(f, isRoot?null:res, false));
+            res.children.push(this.createFolderView(f, isRoot?null:res, false, isRoot?"/":(path + folder.name + "/")));
         }
 
         for(let d of folder.docs){
-            res.children.push(this.createDocView(d, res, isRoot?null:res));
+            res.children.push(this.createDocView(d, isRoot?null:res, isRoot?"/":(path + folder.name + "/")));
         }
 
         return res;
     };
 
-    createDocView = (doc, parent) => {
+    createDocView = (doc, parent, path) => {
         return {
             name: doc.name,
             parent: parent,
+            active: (this.activeNode.path === path) && (this.activeNode.name === doc.name),
         };
     };
 
     recalcTreeView = () => {
 
-        let root = this.createFolderView(this.root, null, true);
+        let root = this.createFolderView(this.root, null, true, "/");
         this.setState({
             root: root,
         });
