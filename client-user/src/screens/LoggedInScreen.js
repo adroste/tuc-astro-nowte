@@ -66,6 +66,7 @@ export default class LoggedInScreen extends React.Component {
                         projectId={this.state.project.id}
                         projectTitle={this.state.project.title}
                         permissions={this.state.project.permissions}
+                        showDialog={this.handleShowDialog}
                     />:
 
                     // select project

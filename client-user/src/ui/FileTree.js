@@ -50,7 +50,7 @@ export default class FileTree extends React.Component {
     static get defaultProps() {
         return {
             displayButtons: true,
-            displayShared: true,
+            displayShared: false,
         };
     }
 
