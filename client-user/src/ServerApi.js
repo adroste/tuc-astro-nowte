@@ -114,7 +114,60 @@ export const createDocument = (projectId, path, title, createPath, onSuccess, on
     );
 };
 
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-path
+export const deleteFolder = (projectId, path, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/delete-path';
 
+    fetch(url, {
+        method: "DELETE",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+            path: path,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
+};
+
+export const deleteDocument = (projectId, path, documentId, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/delete-document';
+
+    fetch(url, {
+        method: "DELETE",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+            path: path,
+            documentId: documentId,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
+};
+
+export const deleteProject = (projectId, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/delete-project';
+
+    fetch(url, {
+        method: "DELETE",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
+};
 
 // helper to retrieve the json from a response
 const getJsonBody = (response, successStatusCode, onSuccess, onError) => {

@@ -56,10 +56,10 @@ export default class ProjectFileTreeContainer extends React.Component {
         docs: [],
     };
 
-    // name = null => it is a folder
+    // id = null => it is a folder
     activeNode = {
         path: null,
-        name: null,
+        id: null,
     };
 
     componentDidMount() {
@@ -94,6 +94,13 @@ export default class ProjectFileTreeContainer extends React.Component {
         let folder = this.getFolder(path, true);
 
         // add children
+        if(children){
+            for(let doc of children)
+            folder.docs.push({
+                name: doc.title,
+                id: doc.documentId,
+            });
+        }
     };
 
     handleFileTreeReceive = (body) => {
@@ -143,7 +150,7 @@ export default class ProjectFileTreeContainer extends React.Component {
             id: id,
         });
 
-        this.activeNode.name = filename;
+        this.activeNode.id = id;
         this.activeNode.path = path;
 
         this.recalcTreeView();
@@ -202,7 +209,7 @@ export default class ProjectFileTreeContainer extends React.Component {
         folder.toggled = true;
 
         this.activeNode.path = path + node.name + "/";
-        this.activeNode.name = null;
+        this.activeNode.id = null;
 
         this.recalcTreeView();
     };
@@ -214,12 +221,19 @@ export default class ProjectFileTreeContainer extends React.Component {
         folder.toggled = false;
 
         this.activeNode.path = path + node.name + "/";
-        this.activeNode.name = null;
+        this.activeNode.id = null;
 
         this.recalcTreeView();
     };
 
+    handleFileLoad = (node) => {
+          let path = this.getNodePath(node);
 
+          this.activeNode.path = path;
+          this.activeNode.id = node.id;
+
+          this.recalcTreeView();
+    };
 
     createFolderView = (folder, parent, isRoot, path) => {
         let res = {
@@ -227,7 +241,7 @@ export default class ProjectFileTreeContainer extends React.Component {
             children: [],
             toggled: folder.toggled,
             parent: parent,
-            active: (this.activeNode.name === null) && (this.activeNode.path === path + folder.name + "/"),
+            active: (this.activeNode.id === null) && (this.activeNode.path === path + folder.name + "/"),
         };
 
         for(let f of folder.folder){
@@ -241,11 +255,24 @@ export default class ProjectFileTreeContainer extends React.Component {
         return res;
     };
 
+    handleDeleteClick = (node) => {
+        alert(node.name);
+
+        if(node.children){
+            // folder
+        }
+        else {
+            // file
+
+        }
+    };
+
     createDocView = (doc, parent, path) => {
         return {
             name: doc.name,
+            id: doc.id,
             parent: parent,
-            active: (this.activeNode.path === path) && (this.activeNode.name === doc.name),
+            active: (this.activeNode.path === path) && (this.activeNode.id === doc.id),
         };
     };
 
@@ -258,16 +285,6 @@ export default class ProjectFileTreeContainer extends React.Component {
     };
 
     render() {
-        /*return (
-            <div>
-                {this.getFileTree("My Files", this.state.root, this.userId)}
-                {this.state.activeDialog?
-                    <ModalContainer onClose={() => {}}>
-                        {this.state.activeDialog}
-                    </ModalContainer>:''}
-
-            </div>
-        );*/
         return (
             <div>
                 <FileTree
@@ -277,16 +294,15 @@ export default class ProjectFileTreeContainer extends React.Component {
                     onFolderCreateClick={this.handleFolderCreateClick}
                     onFolderLoad={this.handleFolderLoad}
                     onFolderClose={this.handleFolderClose}
+                    onFileLoad={this.handleFileLoad}
+
+                    onDeleteClick={this.handleDeleteClick}
                 />
             </div>
         );
     }
 
     /*
-            onFolderLoad: PropTypes.func.isRequired,
-            onFolderClose: PropTypes.func.isRequired,
-            onFileLoad: PropTypes.func.isRequired,
-            onFolderCreateClick: PropTypes.func.isRequired,
             onDeleteClick: PropTypes.func.isRequired,
             onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
