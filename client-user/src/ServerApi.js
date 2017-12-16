@@ -115,6 +115,7 @@ export const createDocument = (projectId, path, title, createPath, onSuccess, on
 };
 
 
+
 // helper to retrieve the json from a response
 const getJsonBody = (response, successStatusCode, onSuccess, onError) => {
     if(response.status === successStatusCode){
