@@ -117,28 +117,32 @@ export default class ProjectFileTreeContainer extends React.Component {
         this.recalcTreeView();
     };
 
+    handleFileButtonClick = (node) => {
+        let path = "/";
+        if(this.activeNode.path)
+            path = this.activeNode.path;
+
+        this.handleFileCreate(path);
+    };
+
     handleFileCreateClick = (node) => {
         let path = "/";
-        if(node === null){
-            // button click
-            return;
-        }
-        else {
+        if(node){
             path = this.getNodePath(node) + node.name + "/";
         }
 
+        this.handleFileCreate(path);
+    };
+
+    handleFileCreate = (path) => {
         this.props.showDialog(<InputDialog
             title="Create File"
             onCreate={(title) => {
                 this.props.showDialog(null);
-                this.handleFileCreate(path, title);
+                API.createDocument(this.props.projectId, path, title, false, (body) => this.handleFileCreated(path, title, body.id), this.handleError);
             }}
             onCancel={() => this.props.showDialog(null)}
         />);
-    };
-
-    handleFileCreate = (path, filename) => {
-        API.createDocument(this.props.projectId, path, filename, false, (body) => this.handleFileCreated(path, filename, body.id), this.handleError);
     };
 
     handleFileCreated = (path, filename, id) => {
@@ -156,13 +160,18 @@ export default class ProjectFileTreeContainer extends React.Component {
         this.recalcTreeView();
     };
 
+    handleFolderButtonClick = () => {
+        let path = "/";
+        if(this.activeNode.path)
+            path = this.activeNode.path;
+
+        this.handleFolderCreate(path);
+    };
+
     handleFolderCreateClick = (node) => {
-        let path = "/dummy/";
-        if(node === null){
-            // button click
-            return;
-        }
-        else {
+        let path = "/";
+        if(node){
+
             path = this.getNodePath(node) + node.name + "/";
             // TODO only do this if folder creation was not cancelled?
             if(!node.toggled){
@@ -171,21 +180,19 @@ export default class ProjectFileTreeContainer extends React.Component {
             }
         }
 
+        this.handleFolderCreate(path);
+    };
+
+    handleFolderCreate = (path) => {
         // open modal dialog
         this.props.showDialog(<InputDialog
             title="Create Folder"
             onCreate={(title) => {
                 this.props.showDialog(null);
-                this.handleFolderCreate(path + title + "/");
+                API.createFolder(this.props.projectId, path + title + "/", () => this.handleFolderCreated(path + title + "/"), this.handleError);
             }}
             onCancel={() => this.props.showDialog(null)}
         />);
-
-
-    };
-
-    handleFolderCreate = (path) => {
-        API.createFolder(this.props.projectId, path, () => this.handleFolderCreated(path), this.handleError);
     };
 
     handleError = (msg) => {
@@ -335,6 +342,9 @@ export default class ProjectFileTreeContainer extends React.Component {
                     onFolderClose={this.handleFolderClose}
                     onFileLoad={this.handleFileLoad}
 
+                    onFolderButtonClick={this.handleFolderButtonClick}
+                    onFileButtonClick={this.handleFileButtonClick}
+
                     onDeleteClick={this.handleDeleteClick}
                 />
             </div>
@@ -342,7 +352,6 @@ export default class ProjectFileTreeContainer extends React.Component {
     }
 
     /*
-            onDeleteClick: PropTypes.func.isRequired,
             onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
             displayShared: PropTypes.bool,
