@@ -256,15 +256,54 @@ export default class ProjectFileTreeContainer extends React.Component {
     };
 
     handleDeleteClick = (node) => {
-        alert(node.name);
+        let path = this.getNodePath(node);
 
         if(node.children){
             // folder
+            API.deleteFolder(this.props.projectId, path + node.name + "/", () => this.handleFolderDeleted(node.name, path), this.handleError);
         }
         else {
             // file
-
+            API.deleteDocument(this.props.projectId, path, node.id, () => this.handleFileDeleted(path, node.id), this.handleError);
         }
+    };
+
+    handleFolderDeleted = (name, parentPath) => {
+        let parent = this.getFolder(parentPath, false);
+        if(!parent)
+            return;
+
+        // delete folder
+        const idx = parent.folder.findIndex((obj) => {return obj.name === name;});
+        if(idx === -1)
+            return;
+
+        parent.folder.splice(idx, 1);
+
+        // reset active element (it was deleted)
+        this.activeNode.id = null;
+        this.activeNode.path = null;
+
+        this.recalcTreeView();
+    };
+
+    handleFileDeleted = (path, documentId) => {
+        //remove document from list
+        const folder = this.getFolder(path, false);
+        if(!folder)
+            return;
+
+        const idx = folder.docs.findIndex((obj) => { return obj.id === documentId;});
+        if(idx === -1)
+            return;
+
+        folder.docs.splice(idx, 1);
+
+        // reset active element (it was deleted)
+        this.activeNode.id = null;
+        this.activeNode.path = null;
+
+        this.recalcTreeView();
     };
 
     createDocView = (doc, parent, path) => {

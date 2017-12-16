@@ -133,6 +133,7 @@ export const deleteFolder = (projectId, path, onSuccess, onError) => {
     );
 };
 
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-document
 export const deleteDocument = (projectId, path, documentId, onSuccess, onError) => {
     const sessionToken = store.getState().user.token;
     const url = SERVER_URL + '/api/file/delete-document';
@@ -152,6 +153,7 @@ export const deleteDocument = (projectId, path, documentId, onSuccess, onError) 
     );
 };
 
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-project
 export const deleteProject = (projectId, onSuccess, onError) => {
     const sessionToken = store.getState().user.token;
     const url = SERVER_URL + '/api/file/delete-project';
