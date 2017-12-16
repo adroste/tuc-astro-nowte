@@ -92,6 +92,7 @@ fileRoutes.delete('/delete-document', RoutesUtil.asyncMiddleware(async (req, res
     ErrorUtil.requireVarWithType('projectId', 'string', projectId);
     ErrorUtil.requireVarWithType('path', 'string', path);
     ErrorUtil.requireVarWithType('documentId', 'string', documentId);
+    ErrorUtil.checkPathFormat(path);
 
     const userId = await UserController.validateSession(sessionToken);
     await FileController.deleteDocument(userId, projectId, path, documentId);
@@ -107,6 +108,7 @@ fileRoutes.delete('/delete-path', RoutesUtil.asyncMiddleware(async (req, res, ne
     ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
     ErrorUtil.requireVarWithType('projectId', 'string', projectId);
     ErrorUtil.requireVarWithType('path', 'string', path);
+    ErrorUtil.checkPathFormat(path);
 
     const userId = await UserController.validateSession(sessionToken);
     await FileController.deletePath(userId, projectId, path);
@@ -129,6 +131,35 @@ fileRoutes.put('/set-access', RoutesUtil.asyncMiddleware(async (req, res, next) 
     const userId = await UserController.validateSession(sessionToken);
     const shareUserId = await UserController.getUserIdForEmail(shareEmail);
     await FileController.setUserPermissionsForProject(userId, projectId, shareUserId, permissions);
+    res.status(204);
+    res.json({});
+}));
+
+
+fileRoutes.put('/move-document', RoutesUtil.asyncMiddleware(async (req, res, next) => {
+    const sessionToken = req.body['sessionToken'];
+    const documentId = req.body['documentId'];
+    const projectIdFrom = req.body['projectIdFrom'];
+    const projectIdTo = req.body['projectIdTo'];
+    const pathFrom = req.body['pathFrom'];
+    const pathTo = req.body['pathTo'];
+    const oldTitle = req.body['oldTitle'];
+    const newTitle = req.body['newTitle'];
+    let upsertPath = req.body['upsertPath'];
+    ErrorUtil.requireVarWithType('sessionToken', 'string', sessionToken);
+    ErrorUtil.requireVarWithType('documentId', 'string', documentId);
+    ErrorUtil.requireVarWithType('projectIdFrom', 'string', projectIdFrom);
+    ErrorUtil.requireVarWithType('projectIdTo', 'string', projectIdTo);
+    ErrorUtil.requireVarWithType('pathFrom', 'string', pathFrom);
+    ErrorUtil.requireVarWithType('pathTo', 'string', pathTo);
+    ErrorUtil.requireVarWithType('oldTitle', 'string', oldTitle);
+    ErrorUtil.requireVarWithType('newTitle', 'string', newTitle);
+    upsertPath = typeof upsertPath === 'boolean' ? upsertPath : false;
+    ErrorUtil.checkPathFormat(pathFrom);
+    ErrorUtil.checkPathFormat(pathTo);
+
+    const userId = await UserController.validateSession(sessionToken);
+    await FileController.moveDocument(userId, documentId, projectIdFrom, projectIdTo, pathFrom, pathTo, oldTitle, newTitle, upsertPath);
     res.status(204);
     res.json({});
 }));

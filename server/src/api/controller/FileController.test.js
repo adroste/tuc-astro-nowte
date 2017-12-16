@@ -204,6 +204,49 @@ describe('combined project operations', async () => {
         // length = 3: '/', '/magmag/', '/magmag/my folder/'
         expect(project.tree.length).toBe(3);
     });
+
+    test('rename a document', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test11');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        let project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[1].children[0].title).toBe('my doc');
+        await FileController.moveDocument(testuser._id.toString(), documentId, projectId, projectId, '/my folder/', '/my folder/', 'my doc', 'my doc2 ', true);
+        project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[1].children[0].title).toBe('my doc2');
+    });
+
+    test('move a document inside a project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test12');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        let project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[1].children[0].title).toBe('my doc');
+        await FileController.moveDocument(testuser._id.toString(), documentId, projectId, projectId, '/my folder/', '/', 'my doc', 'my doc');
+        project = await ProjectModel.findById(projectId);
+        expect(project.tree[0].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[0].children[0].title).toBe('my doc');
+    });
+
+    test('move a document to a new project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test13');
+        const projectId2 = await FileController.createProject(testuser._id.toString(), 'test14');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        let project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[1].children[0].title).toBe('my doc');
+        let project2 = await ProjectModel.findById(projectId2);
+        expect(project2.tree[0].children.length).toBe(0);
+        await FileController.moveDocument(testuser._id.toString(), documentId, projectId, projectId2, '/my folder/', '/my folder/', 'my doc', 'my doc', true);
+        project = await ProjectModel.findById(projectId);
+        expect(project.tree[0].children.length).toBe(0);
+        expect(project.tree[1].children.length).toBe(0);
+        project2 = await ProjectModel.findById(projectId2);
+        expect(project2.tree[0].children.length).toBe(0);
+        expect(project2.tree[1].children.length).toBe(1);
+        expect(project2.tree[1].children[0].title).toBe('my doc');
+    });
 });
 
 afterAll(() => {

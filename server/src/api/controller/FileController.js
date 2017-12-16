@@ -252,6 +252,7 @@ class FileController {
     /**
      * Retrieves whole tree of a project (projectId)
      * @todo convert all objectIds to strings
+     * @todo list lost documents in root (query for all documents with projectId)
      * @param {string} userId id of user requesting tree
      * @param {string} projectId id of project
      * @returns {Promise<[treeSchema]>} Array of treeSchema {@link ProjectModel}
@@ -497,6 +498,137 @@ class FileController {
         } catch (err) {
             ErrorUtil.throwAndLog(err, 'unknown mongo error');
         }
+    }
+
+
+    /**
+     * Moves a specified document from a project-path to a new project-path with a new title.
+     * Method can be used for renaming documents.
+     * @param {string} userId id of user trying to move document
+     * @param {string} documentId id of document to move
+     * @param {string} projectIdFrom id of project the document is in
+     * @param {string} projectIdTo id of project the document shall be moved to
+     * @param {string} pathFrom path the document is in (inside projectIdFrom)
+     * @param {string} pathTo path the document shall get inserted (inside projectIdTo)
+     * @param {string} oldTitle current title of the document
+     * @param {string} newTitle new title of the document
+     * @param {boolean} [upsertPath] indicates if specified pathTo should be upserted, defaults to false
+     * @returns {Promise<void>} Promise has no return/resolve value
+     * @throws {Error} msg: 'not allowed to manage projectIdFrom' with status: 403 if user with userId has no manage permissions for projectIdFrom
+     * @throws {Error} msg: 'not allowed to manage projectIdTo' with status: 403 if user with userId has no manage permissions for projectIdTo
+     * @throws {Error} msg: 'could not find projectIdTo with pathTo' with status: 404 if either projectIdTo or pathTo in projectIdTo does not exist
+     * @throws {Error} msg: 'could not find projectIdFrom with pathFrom' with status: 404 if either projectIdFrom or pathFrom in projectIdFrom does not exist
+     * @throws {Error} msg: 'documentId not found' with status: 404 if document with documentId could not be found
+     * @throws {Error} msg: 'document not found' with status: 404 if document with documentId and title could not be found in projectIdFrom tree
+     * @throws {Error} msg: 'title already exists' with status: 409 if path already contains a document with the same title
+     * @throws {Error} from {@link FileController._getUserProjectAccess}
+     */
+    static async moveDocument(userId, documentId, projectIdFrom, projectIdTo, pathFrom, pathTo, oldTitle, newTitle, upsertPath = false) {
+        pathFrom = pathFrom.trim();
+        pathTo = pathTo.trim();
+        newTitle = newTitle.trim();
+        oldTitle = oldTitle.trim();
+
+        // if everythings the same, move was successful
+        if (projectIdFrom === projectIdTo && pathFrom === pathTo && oldTitle === newTitle)
+            return;
+
+        // ensure permissions (MANAGE)
+        const accessFrom = await this._getUserProjectAccess(userId, projectIdFrom);
+        ErrorUtil.conditionalThrowWithStatus(
+            accessFrom.permissions < PermissionsEnum.MANAGE,
+            'not allowed to manage projectIdFrom', 403);
+
+        const accessTo = await this._getUserProjectAccess(userId, projectIdTo);
+        ErrorUtil.conditionalThrowWithStatus(
+            accessTo.permissions < PermissionsEnum.MANAGE,
+            'not allowed to manage projectIdTo', 403);
+
+        // ensure title is no duplicate
+        ErrorUtil.conditionalThrowWithStatus(
+            !this._checkTitleIsNoDuplicate(projectIdTo, pathTo, newTitle),
+            'title already exists', 409);
+
+
+        // 1. update documents projectId
+        let rawResponseUpdate;
+        try {
+            rawResponseUpdate = await DocumentModel.update(
+                {_id: documentId},
+                {$set: {projectId: projectIdTo}});
+        } catch (err) {
+            ErrorUtil.throwAndLog(err, 'unknown mongo error');
+        }
+        ErrorUtil.conditionalThrowWithStatus(rawResponseUpdate.n === 0, 'documentId not found', 404);
+
+        // rollback method
+        let rollbackUpdate = async () => {
+            try {
+                await DocumentModel.update(
+                    {_id: documentId},
+                    {$set: {projectId: projectIdFrom}});
+            } catch (err) {
+                console.log(err);
+            }
+        };
+
+        // 2. pullFrom
+        try {
+            let rawResponsePull;
+            try {
+                rawResponsePull = await ProjectModel.update(
+                    {_id: projectIdFrom, 'tree.path': pathFrom},
+                    {$pull: {'tree.$.children': {documentId: documentId, title: oldTitle}}});
+            } catch (err) {
+                ErrorUtil.throwAndLog(err, 'unknown mongo error');
+            }
+            ErrorUtil.conditionalThrowWithStatus(rawResponsePull.n === 0, 'could not find projectIdFrom with pathFrom', 404);
+            ErrorUtil.conditionalThrowWithStatus(rawResponsePull.nModified === 0, 'document not found', 404);
+        } catch (err) {
+            await rollbackUpdate();
+            // rethrow
+            throw err;
+        }
+
+        // rollback method
+        let rollbackPull = async () => {
+            try {
+                await ProjectModel.update(
+                    {_id: projectIdFrom, 'tree.path': pathFrom},
+                    {$push: {'tree.$.children': {documentId: documentId, title: oldTitle}}});
+            } catch (err) {
+                console.log(err);
+            }
+        };
+
+        // 3. upsert & pushTo
+        try {
+            // upsert
+            if (upsertPath)
+                await this.createPath(userId, projectIdTo, pathTo);
+
+            // push pathTo
+            let rawResponsePush;
+            try {
+                rawResponsePush = await ProjectModel.update(
+                    {_id: projectIdTo, 'tree.path': pathTo},
+                    {$push: {'tree.$.children': {documentId: documentId, title: newTitle}}});
+            } catch (err) {
+                ErrorUtil.throwAndLog(err, 'unknown mongo error');
+            }
+            ErrorUtil.conditionalThrowWithStatus(rawResponsePush.nModified === 0, 'could not find projectIdTo with pathTo', 404);
+        } catch (err) {
+            await rollbackUpdate();
+            await rollbackPull();
+            // rethrow
+            throw err;
+        }
+
+
+    }
+
+    static async movePath(userId, projectId, pathFrom, pathTo) {
+        // renaming all paths starting with pathFrom should do the job
     }
 }
 
