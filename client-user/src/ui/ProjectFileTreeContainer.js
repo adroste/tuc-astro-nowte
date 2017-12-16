@@ -110,55 +110,23 @@ export default class ProjectFileTreeContainer extends React.Component {
         this.recalcTreeView();
     };
 
-    handleFolderCreated = (path) => {
-        // insert path
-        this.insertFolder(path, []);
-
-        this.recalcTreeView();
+    handleError = (msg) => {
+        alert(msg);
     };
 
-    handleFileButtonClick = (node) => {
+    getNodePath = (node) => {
         let path = "/";
-        if(this.activeNode.path)
-            path = this.activeNode.path;
 
-        this.handleFileCreate(path);
-    };
-
-    handleFileCreateClick = (node) => {
-        let path = "/";
-        if(node){
-            path = this.getNodePath(node) + node.name + "/";
+        while (node.parent){
+            node = node.parent;
+            path = "/" + node.name + path;
         }
-
-        this.handleFileCreate(path);
+        return path;
     };
 
-    handleFileCreate = (path) => {
-        this.props.showDialog(<InputDialog
-            title="Create File"
-            onCreate={(title) => {
-                this.props.showDialog(null);
-                API.createDocument(this.props.projectId, path, title, false, (body) => this.handleFileCreated(path, title, body.id), this.handleError);
-            }}
-            onCancel={() => this.props.showDialog(null)}
-        />);
-    };
-
-    handleFileCreated = (path, filename, id) => {
-        // insert file
-        let folder = this.getFolder(path, false);
-        // insert file
-        folder.docs.push({
-            name: filename,
-            id: id,
-        });
-
-        this.activeNode.id = id;
-        this.activeNode.path = path;
-
-        this.recalcTreeView();
-    };
+    ///////////////
+    /// FOLDER CREATE
+    ///////////////
 
     handleFolderButtonClick = () => {
         let path = "/";
@@ -195,19 +163,63 @@ export default class ProjectFileTreeContainer extends React.Component {
         />);
     };
 
-    handleError = (msg) => {
-        alert(msg);
+    handleFolderCreated = (path) => {
+        // insert path
+        this.insertFolder(path, []);
+
+        this.recalcTreeView();
     };
 
-    getNodePath = (node) => {
+    ///////////////
+    /// FILE CREATE
+    ///////////////
+
+    handleFileButtonClick = (node) => {
         let path = "/";
+        if(this.activeNode.path)
+            path = this.activeNode.path;
 
-        while (node.parent){
-            node = node.parent;
-            path = "/" + node.name + path;
-        }
-        return path;
+        this.handleFileCreate(path);
     };
+
+    handleFileCreateClick = (node) => {
+        let path = "/";
+        if(node){
+            path = this.getNodePath(node) + node.name + "/";
+        }
+
+        this.handleFileCreate(path);
+    };
+
+    handleFileCreate = (path) => {
+        this.props.showDialog(<InputDialog
+            title="Create File"
+            onCreate={(title) => {
+                this.props.showDialog(null);
+                API.createDocument(this.props.projectId, path, title, false, (body) => this.handleFileCreated(path, title, body.documentId), this.handleError);
+            }}
+            onCancel={() => this.props.showDialog(null)}
+        />);
+    };
+
+    handleFileCreated = (path, filename, id) => {
+        // insert file
+        let folder = this.getFolder(path, false);
+        // insert file
+        folder.docs.push({
+            name: filename,
+            id: id,
+        });
+
+        this.activeNode.id = id;
+        this.activeNode.path = path;
+
+        this.recalcTreeView();
+    };
+
+    ///////////////
+    /// FOLDER CLICK
+    ///////////////
 
     handleFolderLoad = (node) => {
         // open folder
@@ -233,34 +245,24 @@ export default class ProjectFileTreeContainer extends React.Component {
         this.recalcTreeView();
     };
 
+    ///////////////
+    /// FILE CLICK
+    ///////////////
+
     handleFileLoad = (node) => {
-          let path = this.getNodePath(node);
+        alert(node.name + ": " + node.id);
 
-          this.activeNode.path = path;
-          this.activeNode.id = node.id;
+        const path = this.getNodePath(node);
 
-          this.recalcTreeView();
+        this.activeNode.path = path;
+        this.activeNode.id = node.id;
+
+        this.recalcTreeView();
     };
 
-    createFolderView = (folder, parent, isRoot, path) => {
-        let res = {
-            name: folder.name,
-            children: [],
-            toggled: folder.toggled,
-            parent: parent,
-            active: (this.activeNode.id === null) && (this.activeNode.path === path + folder.name + "/"),
-        };
-
-        for(let f of folder.folder){
-            res.children.push(this.createFolderView(f, isRoot?null:res, false, isRoot?"/":(path + folder.name + "/")));
-        }
-
-        for(let d of folder.docs){
-            res.children.push(this.createDocView(d, isRoot?null:res, isRoot?"/":(path + folder.name + "/")));
-        }
-
-        return res;
-    };
+    ///////////////
+    /// DELETION
+    ///////////////
 
     handleDeleteClick = (node) => {
         let path = this.getNodePath(node);
@@ -311,6 +313,30 @@ export default class ProjectFileTreeContainer extends React.Component {
         this.activeNode.path = null;
 
         this.recalcTreeView();
+    };
+
+    ///////////////
+    /// VIEW
+    ///////////////
+
+    createFolderView = (folder, parent, isRoot, path) => {
+        let res = {
+            name: folder.name,
+            children: [],
+            toggled: folder.toggled,
+            parent: parent,
+            active: (this.activeNode.id === null) && (this.activeNode.path === path + folder.name + "/"),
+        };
+
+        for(let f of folder.folder){
+            res.children.push(this.createFolderView(f, isRoot?null:res, false, isRoot?"/":(path + folder.name + "/")));
+        }
+
+        for(let d of folder.docs){
+            res.children.push(this.createDocView(d, isRoot?null:res, isRoot?"/":(path + folder.name + "/")));
+        }
+
+        return res;
     };
 
     createDocView = (doc, parent, path) => {
