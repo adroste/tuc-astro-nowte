@@ -322,7 +322,7 @@ export default class ProjectFileTreeContainer extends React.Component {
             title="Share Project"
             projectId={this.props.projectId}
             onCancel={() => this.props.showDialog(null)}
-        />)
+        />);
     };
 
     ///////////////
