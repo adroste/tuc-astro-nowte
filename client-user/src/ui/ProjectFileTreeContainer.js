@@ -315,6 +315,14 @@ export default class ProjectFileTreeContainer extends React.Component {
         this.recalcTreeView();
     };
 
+    handleShareClick = () =>{
+        this.props.showDialog(<ShareDialog
+            title="Share Project"
+            projectId={this.props.projectId}
+            onCancel={() => this.props.showDialog(null)}
+        />)
+    };
+
     ///////////////
     /// VIEW
     ///////////////
@@ -372,13 +380,14 @@ export default class ProjectFileTreeContainer extends React.Component {
                     onFileButtonClick={this.handleFileButtonClick}
 
                     onDeleteClick={this.handleDeleteClick}
+
+                    onShareClick={this.handleShareClick}
                 />
             </div>
         );
     }
 
     /*
-            onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
             displayShared: PropTypes.bool,
      */

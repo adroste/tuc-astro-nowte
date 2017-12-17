@@ -29,6 +29,7 @@ export default class FileTree extends React.Component {
      * onFolderButtonClick {function()} called when the folder button was clicked
      * onFileButtonClick {function()} called when the file button was clicked
      * onDeleteClick {function(node: object)} called when the user wants to delete a file/folder
+     * onShareClick {function()} called when the share button was clicked
      * displayButtons {bool} true if helper buttons for folder and document creation should be displayed
      * displayShared {bool] if true displays people symbol if a file/folder is marked as shared (isShared = true)
      */
@@ -44,15 +45,14 @@ export default class FileTree extends React.Component {
             onFolderButtonClick: PropTypes.func,
             onFileButtonClick: PropTypes.func,
             onDeleteClick: PropTypes.func.isRequired,
+            onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
-            displayShared: PropTypes.bool,
         };
     }
 
     static get defaultProps() {
         return {
             displayButtons: true,
-            displayShared: false,
         };
     }
 
@@ -139,7 +139,6 @@ export default class FileTree extends React.Component {
                         <ContextMenuTrigger id={contextID}>
                             <div>
                                 <img src={iconPath} className="header-icon"/>
-                                {props.node.isShared && this.props.displayShared ? <img src="/img/people.svg" className="header-icon"/> : ""}
                                 {props.node.name}
                             </div>
 
@@ -183,6 +182,7 @@ export default class FileTree extends React.Component {
                 <div>
                     <Button label="doc" onClick={() => this.onCreateFileClick(null)}/>
                     <Button label="folder" onClick={() => this.onCreateFolderClick(null)}/>
+                    <Button label="share" onClick={this.props.onShareClick}/>
                 </div>
             );
         };
