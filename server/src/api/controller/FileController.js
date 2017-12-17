@@ -184,7 +184,7 @@ class FileController {
 
         // ensure title is no duplicate
         ErrorUtil.conditionalThrowWithStatus(
-            !this._checkTitleIsNoDuplicate(projectId, path, title),
+            !(await this._checkTitleIsNoDuplicate(projectId, path, title)),
             'title already exists', 409);
 
         // upsert
@@ -546,7 +546,7 @@ class FileController {
 
         // ensure title is no duplicate
         ErrorUtil.conditionalThrowWithStatus(
-            !this._checkTitleIsNoDuplicate(projectIdTo, pathTo, newTitle),
+            !(await this._checkTitleIsNoDuplicate(projectIdTo, pathTo, newTitle)),
             'title already exists', 409);
 
 
@@ -629,6 +629,7 @@ class FileController {
 
     static async movePath(userId, projectId, pathFrom, pathTo) {
         // renaming all paths starting with pathFrom should do the job
+
     }
 }
 

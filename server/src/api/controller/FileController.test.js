@@ -90,7 +90,19 @@ describe('basic project operations', async () => {
     });
 
     test('title is duplicate', async () => {
-        throw new Error('not implemented yet');
+        const projectId = await FileController.createProject(testuser._id.toString(), 'ctstasfd');
+        let res = await FileController._checkTitleIsNoDuplicate(projectId, '/my folder/', 'my doc');
+        expect(res).toBe(true);
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        res = await FileController._checkTitleIsNoDuplicate(projectId, '/my folder/', 'my doc');
+        expect(res).toBe(false);
+        let err;
+        try {
+            await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', 'my doc', true);
+        } catch (e) {
+            err = e;
+        }
+        expect(err.message).toBe('title already exists');
     });
 
     test('create document', async () => {
