@@ -41,6 +41,7 @@ export default class ProjectSelectContainer extends React.Component {
     }
 
     handleProjectsReceived = (body) => {
+        this.projects = [];
         // add to projects list
         for(let project of body){
             this.projects.push({
@@ -94,6 +95,23 @@ export default class ProjectSelectContainer extends React.Component {
         this.props.onProjectClick(project.id, project.title, project.permissions);
     };
 
+    handleProjectDelete = (project) => {
+        // TODO add yes no dialog
+        API.deleteProject(project.id, () => this.handleProjectDeleted(project.id), this.handleError);
+    };
+
+    handleProjectDeleted = () => {
+        API.getProjects(this.handleProjectsReceived, this.handleError);
+    };
+
+    handleProjectGetShares = (project) => {
+        this.props.showDialog(<ShareDialog
+            title="Share Project"
+            projectId={project.id}
+            onCancel={() => this.props.showDialog(null)}
+        />);
+    };
+
     handleError = (msg) => {
         alert(msg);
     };
@@ -106,6 +124,8 @@ export default class ProjectSelectContainer extends React.Component {
                 <div>
                     <LinkedText label={p.title} onClick={() => this.handleProjectClick(p)}/>
                     From: {p.ownerEmail}
+                    <Button label="Shares" onClick={() => this.handleProjectGetShares(p)} />
+                    <Button label="Delete" onClick={() => this.handleProjectDelete(p)} />
                 </div>
             );
         }

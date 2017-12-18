@@ -23,6 +23,7 @@ export default class ProjectFileTreeContainer extends React.Component {
     /**
      * propTypes
      * showDialog {function(Dialog: object) callback when a dialog should be displayed
+     * onProjectDeselect {function()} called when the project should be deselected
      */
     static get propTypes() {
         return {
@@ -30,6 +31,7 @@ export default class ProjectFileTreeContainer extends React.Component {
             projectId: PropTypes.string.isRequired,
             projectTitle: PropTypes.string.isRequired,
             permissions: PropTypes.number.isRequired,
+            onProjectDeselect: PropTypes.func.isRequired,
         };
     }
 
@@ -315,6 +317,14 @@ export default class ProjectFileTreeContainer extends React.Component {
         this.recalcTreeView();
     };
 
+    handleShareClick = () =>{
+        this.props.showDialog(<ShareDialog
+            title="Share Project"
+            projectId={this.props.projectId}
+            onCancel={() => this.props.showDialog(null)}
+        />);
+    };
+
     ///////////////
     /// VIEW
     ///////////////
@@ -359,6 +369,10 @@ export default class ProjectFileTreeContainer extends React.Component {
     render() {
         return (
             <div>
+                <Button
+                    label="Projects"
+                    onClick={this.props.onProjectDeselect}
+                />
                 <FileTree
                     label={this.props.projectTitle}
                     data={this.state.root.children}
@@ -372,13 +386,14 @@ export default class ProjectFileTreeContainer extends React.Component {
                     onFileButtonClick={this.handleFileButtonClick}
 
                     onDeleteClick={this.handleDeleteClick}
+
+                    onShareClick={this.handleShareClick}
                 />
             </div>
         );
     }
 
     /*
-            onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
             displayShared: PropTypes.bool,
      */

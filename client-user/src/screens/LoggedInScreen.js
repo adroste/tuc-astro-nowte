@@ -53,6 +53,12 @@ export default class LoggedInScreen extends React.Component {
         });
     };
 
+    handleProjectDeselect = () => {
+        this.setState({
+            project: null,
+        });
+    };
+
     handleError = (err) => {
         alert(err);
     };
@@ -67,6 +73,7 @@ export default class LoggedInScreen extends React.Component {
                         projectTitle={this.state.project.title}
                         permissions={this.state.project.permissions}
                         showDialog={this.handleShowDialog}
+                        onProjectDeselect={this.handleProjectDeselect}
                     />:
 
                     // select project
