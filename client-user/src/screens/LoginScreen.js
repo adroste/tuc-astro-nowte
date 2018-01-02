@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import UserLoginForm from "../ui/UserLoginForm";
 import './UserForms.css';
 import {store} from "../Redux";
-import * as action from "../Actions"
+import * as action from "../Actions";
 
 export default class LoginScreen extends React.Component {
     /**
@@ -28,6 +28,7 @@ export default class LoginScreen extends React.Component {
 
     onUserLoggedInHandler = (token, email, username, userId) => {
         store.dispatch(action.login(token, email, username, userId));
+        this.props.history.push("/");
     };
 
     onUserNotValidatedHandler = (email) => {

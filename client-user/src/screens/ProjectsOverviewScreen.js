@@ -9,7 +9,7 @@ import * as action from './../Actions'
 import ProjectSelectContainer from "../ui/ProjectSelectContainer";
 import {ModalContainer} from "react-modal-dialog";
 
-export default class LoggedInScreen extends React.Component {
+export default class ProjectsOverviewScreen extends React.Component {
     /**
      * propTypes
      */
@@ -33,6 +33,7 @@ export default class LoggedInScreen extends React.Component {
         API.logOut(() => {
             // reset data
             store.dispatch(action.logOut());
+            this.props.history.push("/");
         }, this.handleError);
     };
 
