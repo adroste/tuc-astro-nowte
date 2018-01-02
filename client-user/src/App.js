@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {Provider} from 'react-redux';
-import {store, history} from "./Redux";
-import * as action from "./Actions";
+import {store, history} from "./redux/Redux";
+import * as action from "./redux/userActions";
 
 import './App.css';
 
@@ -17,7 +17,8 @@ import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
 import EmailValidationDoneScreen from "./screens/EmailValidationDoneScreen";
 import ResetPasswordDoneScreen from "./screens/ResetPasswordDoneScreen";
 import AwaitingPasswordChangeScreen from "./screens/AwaitingPasswordChangeScreen";
-import ProjectsOverviewScreen from "./screens/ProjectsOverviewScreen";
+import { DashboardScreen } from "./screens/DashboardScreen";
+import { ProjectScreen } from "./screens/ProjectScreen";
 
 class App extends Component {
 
@@ -58,13 +59,14 @@ class App extends Component {
                     <div>
                         <Route exact path="/" render={() => {
                             return this.state.session ? (
-                                <Redirect to="/projects"/>
+                                <Redirect to="/dashboard"/>
                             ) : (
                                 <Redirect to="/login"/>
                             );
                         }}/>
 
-                        <Route exact path="/projects" component={ProjectsOverviewScreen}/>
+                        <Route exact path="/project" component={ProjectScreen}/>
+                        <Route exact path="/dashboard" component={DashboardScreen}/>
                         <Route exact path="/login" component={LoginScreen}/>
                         <Route exact path="/register" component={RegistrationScreen}/>
                         <Route exact path="/awaiting-validation" component={AwaitingValidationScreen}/>
