@@ -19,19 +19,19 @@ let uniqueContextId = 0;
 export default class FileTree extends React.Component {
     /**
      * propTypes
-     * label {string} title of the file tree
-     * data {object} file structure
-     * onFolderLoad {function(folder: object)} called when a folder should be retrieved (folder is the folder node)
-     * onFolderClose {function(folder: object)} called when a folder should be closed (folder is the folder node)
-     * onFileLoad {function(file: object)} called when a file should be opened (file is the file node)
-     * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created or null for root parent)
-     * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created or null for root parent)
-     * onFolderButtonClick {function()} called when the folder button was clicked
-     * onFileButtonClick {function()} called when the file button was clicked
-     * onDeleteClick {function(node: object)} called when the user wants to delete a file/folder
-     * onShareClick {function()} called when the share button was clicked
-     * displayButtons {bool} true if helper buttons for folder and document creation should be displayed
-     * displayShared {bool] if true displays people symbol if a file/folder is marked as shared (isShared = true)
+     * @property {string} tlabel itle of the file tree
+     * @property {object} data file structure
+     * @property {function(folder: object)} onFolderLoad called when a folder should be retrieved (folder is the folder node)
+     * @property {function(folder: object)} onFolderClose called when a folder should be closed (folder is the folder node)
+     * @property {function(file: object)} onFileLoad called when a file should be opened (file is the file node)
+     * @property {function(folder: object)} onFileCreateClick called when the user wants to create a new file (folder is the parent folder of the file which should be created or null for root parent)
+     * @property {function(folder: object)} onFolderCreateClick called when the user wants to create a new folder (folder is the parent folder of the folder which should be created or null for root parent)
+     * @property {function()} onFolderButtonClick called when the folder button was clicked
+     * @property {function()} onFileButtonClick called when the file button was clicked
+     * @property {function(node: object)} onDeleteClick called when the user wants to delete a file/folder
+     * @property {function()} onShareClick called when the share button was clicked
+     * @property {boolean} displayButtons true if helper buttons for folder and document creation should be displayed
+     * @property {boolean} displayShared if true displays people symbol if a file/folder is marked as shared (isShared = true)
      */
     static get propTypes() {
         return {
