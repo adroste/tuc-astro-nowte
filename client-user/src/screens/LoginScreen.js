@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import UserLoginForm from "../ui/UserLoginForm";
 import './UserForms.css';
-import {store} from "../Redux";
-import * as action from "../Actions";
+import {store} from "../redux/Redux";
+import * as action from "../redux/userActions";
 
 export default class LoginScreen extends React.Component {
     /**

@@ -5,7 +5,7 @@ import * as API from '../ServerApi'
 import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "./InputDialog";
 import ShareDialog from "./ShareDialog";
-import {store} from "../Redux";
+import {store} from "../redux/Redux";
 import Button from "./base/Button";
 import LinkedText from "./base/LinkedText";
 import {createFolder} from "../ServerApi";

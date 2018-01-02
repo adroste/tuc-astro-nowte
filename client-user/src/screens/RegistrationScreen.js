@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import UserRegistrationForm from "../ui/UserRegistrationForm";
 import './UserForms.css';
-import {store} from "../Redux";
-import * as action from "../Actions"
+import {store} from "../redux/Redux";
+import * as action from "../redux/userActions"
 
 export default class RegistrationScreen extends React.Component {
     /**

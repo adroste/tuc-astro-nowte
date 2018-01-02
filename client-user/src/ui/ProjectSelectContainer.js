@@ -5,7 +5,7 @@ import * as API from '../ServerApi'
 import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "./InputDialog";
 import ShareDialog from "./ShareDialog";
-import {store} from "../Redux";
+import {store} from "../redux/Redux";
 import Button from "./base/Button";
 import LinkedText from "./base/LinkedText";
 
@@ -13,7 +13,7 @@ export default class ProjectSelectContainer extends React.Component {
     /**
      * propTypes
      * showDialog {function(Dialog: object) callback when a dialog should be displayed
-     * onProjectClick {function(id: string, title: string, permissions: number)} callback when a project should be opened
+     * onProjectClick {function(projectId: string, title: string, permissions: number)} callback when a project should be opened
      */
     static get propTypes() {
         return {

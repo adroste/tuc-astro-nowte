@@ -6,8 +6,8 @@ import Button from "./base/Button";
 import LinkedText from "./base/LinkedText";
 import * as utility from "../utility/LoginHelper"
 import { SERVER_URL } from "../Globals";
-import {store} from "../Redux";
-import * as action from "../Actions"
+import {store} from "../redux/Redux";
+import * as action from "../redux/userActions"
 
 export default class UserLoginForm extends React.Component {
     /**
