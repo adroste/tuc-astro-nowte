@@ -3,6 +3,7 @@ import {Provider} from 'react-redux';
 import {store, history} from "./redux/Redux";
 import throttle from 'lodash/throttle';
 import * as action from "./redux/userActions";
+import { loadState, saveState } from "./utility/storageHelper";
 
 import './App.css';
 
