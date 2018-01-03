@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Provider} from 'react-redux';
 import {store, history} from "./redux/Redux";
+import throttle from 'lodash/throttle';
 import * as action from "./redux/userActions";
 
 import './App.css';
@@ -31,7 +32,7 @@ class App extends Component {
     }
 
     componentWillMount() {
-        store.subscribe(this.handleStoreChange);
+        store.subscribe(throttle(this.handleStoreChange, 1000));
 
         // load user login from local storage
         const userStore = JSON.parse(localStorage.getItem('user'));
