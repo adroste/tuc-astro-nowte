@@ -4,8 +4,8 @@ import {Treebeard, decorators} from "react-treebeard"
 import "./FileTree.css"
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import {  } from "react-contextmenu";
-import {getFolder} from "../ServerApi";
-import Button from "./base/Button";
+import {getFolder} from "../../ServerApi";
+import Button from "../base/Button";
 
 let uniqueContextId = 0;
 

@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import {Provider} from 'react-redux';
-import {store, history} from "./redux/Redux";
+import {store, history} from "../Redux";
 import throttle from 'lodash/throttle';
-import * as action from "./redux/userActions";
-import { loadState, saveState } from "./utility/storageHelper";
-
-import './App.css';
+import * as action from "../actions/user";
+import { loadState, saveState } from "../utilities/storage";
 
 import LoginScreen from "./screens/LoginScreen";
 import RegistrationScreen from "./screens/RegistrationScreen";

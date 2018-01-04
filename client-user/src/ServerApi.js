@@ -1,6 +1,6 @@
 // helper class for the communication with the server
 import { SERVER_URL } from "./Globals";
-import {store} from "./redux/Redux";
+import {store} from "./Redux";
 
 "use strict";
 

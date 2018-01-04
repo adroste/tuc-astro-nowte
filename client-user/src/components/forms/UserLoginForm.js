@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LabelledInputBox from "./base/LabelledInputBox";
+import LabelledInputBox from "../base/LabelledInputBox";
 import './UserLoginForm.css';
-import Button from "./base/Button";
-import LinkedText from "./base/LinkedText";
-import * as utility from "../utility/LoginHelper"
-import { SERVER_URL } from "../Globals";
-import {store} from "../redux/Redux";
-import * as action from "../redux/userActions"
+import Button from "../base/Button";
+import LinkedText from "../base/LinkedText";
+import * as utility from "../../utilities/login"
+import { SERVER_URL } from "../../Globals";
+import {store} from "../../Redux";
+import * as action from "../../actions/user"
 
 export default class UserLoginForm extends React.Component {
     /**

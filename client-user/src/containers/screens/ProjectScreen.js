@@ -5,11 +5,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ProjectFileTreeContainer from "../ui/ProjectFileTreeContainer";
-import Button from "../ui/base/Button";
-import { store } from "../redux/Redux";
+import ProjectFileTreeContainer from "../../components/project/ProjectFileTreeContainer";
+import Button from "../../components/base/Button";
+import { store } from "../../Redux";
 import { ModalContainer } from "react-modal-dialog";
-import * as projectActions from '../redux/projectActions';
+import * as projectActions from '../../actions/project';
 
 
 export class ProjectScreen extends React.Component {

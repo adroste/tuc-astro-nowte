@@ -2,8 +2,8 @@ import { createStore, combineReducers } from 'redux';
 import createHistory from 'history/createBrowserHistory';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 
-import { dispatcher as userDispatcher } from './userReducer';
-import { dispatcher as projectDispatcher } from './projectReducer';
+import { dispatcher as userDispatcher } from './reducers/user';
+import { dispatcher as projectDispatcher } from './reducers/project';
 
 // this will put different reducers (basically dispatch functions) into a single function
 // which calls all function provided sequentially

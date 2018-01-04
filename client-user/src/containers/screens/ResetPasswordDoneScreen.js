@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './UserForms.css';
-import Button from "../ui/base/Button";
+import Button from "../../components/base/Button";
 
 export default class ResetPasswordDoneScreen extends React.Component {
     /**

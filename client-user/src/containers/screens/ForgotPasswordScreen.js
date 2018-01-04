@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LabelledInputBox from "../ui/base/LabelledInputBox";
-import Button from "../ui/base/Button";
+import LabelledInputBox from "../../components/base/LabelledInputBox";
+import Button from "../../components/base/Button";
 import './UserForms.css';
-import LinkedText from "../ui/base/LinkedText";
-import {store} from "../redux/Redux";
-import * as action from "../redux/userActions"
-import {SERVER_URL} from "../Globals";
+import LinkedText from "../../components/base/LinkedText";
+import {store} from "../../Redux";
+import * as action from "../../actions/user"
+import {SERVER_URL} from "../../Globals";
+
+
 export default class ForgotPasswordScreen extends React.Component {
     /**
      * propTypes

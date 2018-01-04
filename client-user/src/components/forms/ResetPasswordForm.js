@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LabelledInputBox from "./base/LabelledInputBox";
-import Button from "./base/Button";
-import * as utility from "../utility/LoginHelper";
-import {SERVER_URL} from "../Globals";
+import LabelledInputBox from "../base/LabelledInputBox";
+import Button from "../base/Button";
+import * as utility from "../../utilities/login";
+import {SERVER_URL} from "../../Globals";
 
 export default class ResetPasswordForm extends React.Component {
     /**

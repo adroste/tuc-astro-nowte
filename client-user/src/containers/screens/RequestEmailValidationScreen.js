@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LinkedText from "../ui/base/LinkedText";
-import {store} from "../redux/Redux";
-import * as action from "../redux/userActions"
-import {SERVER_URL} from "../Globals";
+import LinkedText from "../../components/base/LinkedText";
+import {store} from "../../Redux";
+import * as action from "../../actions/user"
+import {SERVER_URL} from "../../Globals";
 import "./UserForms.css"
 
 export default class RequestEmailValidationScreen extends React.Component {

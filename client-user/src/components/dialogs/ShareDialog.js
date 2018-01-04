@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {ModalContainer, ModalDialog} from 'react-modal-dialog';
-import LabelledInputBox from "./base/LabelledInputBox";
-import Button from "./base/Button";
+import LabelledInputBox from "../base/LabelledInputBox";
+import Button from "../base/Button";
 import "./ShareDialog.css"
-import * as API from '../ServerApi'
+import * as API from '../../ServerApi'
 
 export default class ShareDialog extends React.Component {
     /**

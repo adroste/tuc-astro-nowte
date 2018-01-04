@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FileTree from "../ui/FileTree";
-import ProjectFileTreeContainer from "../ui/ProjectFileTreeContainer";
-import Button from "../ui/base/Button";
-import * as API from '../ServerApi';
-import {store} from "../redux/Redux";
-import * as userActions from '../redux/userActions';
-import * as projectActions from '../redux/projectActions';
-import ProjectSelectContainer from "../ui/ProjectSelectContainer";
+import FileTree from "../../components/project/FileTree";
+import ProjectFileTreeContainer from "../../components/project/ProjectFileTreeContainer";
+import Button from "../../components/base/Button";
+import * as API from '../../ServerApi';
+import {store} from "../../Redux";
+import * as userActions from '../../actions/user';
+import * as projectActions from '../../actions/project';
+import ProjectSelectContainer from "../../components/project/ProjectSelectContainer";
 import {ModalContainer} from "react-modal-dialog";
 
 export class DashboardScreen extends React.Component {

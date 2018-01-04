@@ -1,16 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './UserForms.css';
-import LinkedText from "../ui/base/LinkedText";
-import * as action from "../redux/userActions"
-
-export default class AwaitingValidationScreen extends React.Component {
+import Button from "../../components/base/Button";
+export default class AwaitingPasswordChangeScreen extends React.Component {
     /**
      * propTypes
      */
     static get propTypes() {
-        return {
-        };
+        return {};
     }
 
     static get defaultProps() {
@@ -25,8 +22,8 @@ export default class AwaitingValidationScreen extends React.Component {
         return (
             <div className="centered-form">
                 <div className="centered-form-inner">
-                    <h3>Please check your mailbox and confirm your email</h3>
-                    <LinkedText label="Log in" onClick={this.handleLoginClick}/>
+                    <h3>An email to reset your password has been sent. Please check your inbox.</h3>
+                    <Button label="Login" onClick={this.handleLoginClick}/>
                 </div>
             </div>
         );
