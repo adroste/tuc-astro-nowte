@@ -110,6 +110,7 @@ export default class ProjectSelectContainer extends React.Component {
             title="Share Project"
             projectId={project.id}
             onCancel={() => this.props.showDialog(null)}
+            user={this.props.user}
         />);
     };
 
@@ -122,7 +123,7 @@ export default class ProjectSelectContainer extends React.Component {
         // TODO make cool styling
         for (let p of this.state.projects) {
             list.push(
-                <div>
+                <div key={p.id}>
                     <LinkedText label={p.title} onClick={() => this.handleProjectClick(p)}/>
                     From: {p.ownerEmail}
                     <Button label="Shares" onClick={() => this.handleProjectGetShares(p)} />

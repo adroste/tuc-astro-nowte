@@ -9,40 +9,38 @@ import * as API from '../../ServerApi'
 export default class ShareDialog extends React.Component {
     /**
      * propTypes
-     * title {string} title of the dialog
-     * onCancel {function()} called when forcibly closed
-     * projectId {string} id of the project
+     * @property {string} title title of the dialog
+     * @property {function()} onCancel called when forcibly closed
+     * @property {string} projectId id of the project
+     * @property {object} user user state
      */
     static get propTypes() {
         return {
             title: PropTypes.string,
             onCancel: PropTypes.func.isRequired,
             projectId: PropTypes.string.isRequired,
+            user: PropTypes.object.isRequired,
         };
     }
 
     static get defaultProps() {
         return {};
     }
-
-    email = "";
-    permission = 5;
-
     constructor(props){
         super(props);
 
         this.state = {
             users: [],
-            inputChild: <br/>
+            inputChild: <br/>,
+            inputText: "",
+            inputPermission: 5, // TODO dropdown @Aaron
         };
     }
 
     componentDidMount() {
         // request share information
 
-        // TODO set user token
-        const userToken = undefined;
-        API.getShares(userToken, this.props.projectId, this.handleShareList, this.handleError);
+        API.getShares(this.props.user.token, this.props.projectId, this.handleShareList, this.handleError);
     }
 
     handleShareList = (body) => {
@@ -62,18 +60,15 @@ export default class ShareDialog extends React.Component {
     };
 
     handleShareClick = () => {
-        if(this.email === "")
+        if(this.state.inputText === "")
             return;
 
-        API.share(this.props.user.token, this.props.projectId, this.email, this.permission, this.handleShared, this.handleError);
-        this.props.onShare(this.email, this.permission);
+        API.share(this.props.user.token, this.props.projectId, this.state.inputText, this.state.inputPermission, this.handleShared, this.handleError);
     };
 
     handleShared = () => {
         // send new share info request
-        // TODO set user token
-        const userToken = undefined;
-        API.getShares(userToken, this.props.projectId, this.handleShareList, this.handleError);
+        API.getShares(this.props.user.token, this.props.projectId, this.handleShareList, this.handleError);
     };
 
     handleError = (error) => {
@@ -87,7 +82,7 @@ export default class ShareDialog extends React.Component {
 
         for(let user of this.state.users){
             shares.push(
-                <div>
+                <div key={user.email}>
                     name: {user.name} email: {user.email} permission: {user.permissions}
                 </div>);
         }
@@ -97,7 +92,7 @@ export default class ShareDialog extends React.Component {
 
     render() {
         return (
-            <ModalDialog width="600" onClose={this.props.onCancel}>
+            <ModalDialog className="dialog" onClose={this.props.onCancel}>
                 <h1>{this.props.title}</h1>
                 {this.getSharesView()}
                 <br/>
@@ -105,8 +100,9 @@ export default class ShareDialog extends React.Component {
                     label="Share with you collaborators"
                     type="email"
                     placeholder="someone@example.com"
-                    onChange={(value) => this.email = value}
+                    onChange={(value) => this.setState({inputText: value})}
                     child={this.state.inputChild}
+                    value={this.state.inputText}
                 />
                 <div className="align-right">
                     <Button

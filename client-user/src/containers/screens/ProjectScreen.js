@@ -12,7 +12,8 @@ import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
 import * as AppActionsCreators from "../../actions/app";
-
+import {Editor} from "../../components/project/Editor";
+import "./ProjectScreen.css";
 
 class ProjectScreen extends React.Component {
     /**
@@ -50,20 +51,24 @@ class ProjectScreen extends React.Component {
         // TODO go back to dashboard if unset
 
         return (
-            <div>
-                <Button
-                    label="Back to Projects"
-                    onClick={this.handleDeselectProject}
-                />
+            <div className="container">
+                <div>
+                    <Button
+                        label="Back to Projects"
+                        onClick={this.handleDeselectProject}
+                    />
 
-                <ProjectFileTreeContainer
-                    projectId={this.props.project.projectId}
-                    projectTitle={this.props.project.title}
-                    permissions={this.props.project.permissions}
-                    showDialog={this.handleShowDialog}
-                    onProjectDeselect={this.handleDeselectProject}
-                    user={this.props.user}
-                />
+                    <ProjectFileTreeContainer
+                        projectId={this.props.project.projectId}
+                        projectTitle={this.props.project.title}
+                        permissions={this.props.project.permissions}
+                        showDialog={this.handleShowDialog}
+                        onProjectDeselect={this.handleDeselectProject}
+                        user={this.props.user}
+                    />
+                </div>
+
+                <Editor/>
             </div>
         );
     }

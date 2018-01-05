@@ -20,7 +20,7 @@ export default class FileTree extends React.Component {
     /**
      * propTypes
      * @property {string} tlabel title of the file tree
-     * @property {object} data file structure
+     * @property {array} data file structure
      * @property {function(folder: object)} onFolderLoad called when a folder should be retrieved (folder is the folder node)
      * @property {function(folder: object)} onFolderClose called when a folder should be closed (folder is the folder node)
      * @property {function(file: object)} onFileLoad called when a file should be opened (file is the file node)
@@ -36,7 +36,7 @@ export default class FileTree extends React.Component {
     static get propTypes() {
         return {
             label: PropTypes.string.isRequired,
-            data: PropTypes.object.isRequired,
+            data: PropTypes.array.isRequired,
             onFolderLoad: PropTypes.func.isRequired,
             onFolderClose: PropTypes.func.isRequired,
             onFileLoad: PropTypes.func.isRequired,
@@ -132,7 +132,7 @@ export default class FileTree extends React.Component {
                 props.node.toggled? '/img/folder_open.svg' : '/img/folder_close.svg') : '/img/file.svg';
 
             // TODO put context menu in a container and implement drag and drop as well
-            const contextID = uniqueContextId++;
+            const contextID = (uniqueContextId++).toString();
             return (
                 <div style={props.style.base} className="no-select">
                     <div style={props.style.title}>

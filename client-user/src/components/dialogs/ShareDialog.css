@@ -5,3 +5,7 @@
 .error-text {
     color: red;
 }
+
+.dialog {
+    width: 600px;
+}

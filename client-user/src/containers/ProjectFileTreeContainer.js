@@ -21,7 +21,7 @@ export default class ProjectFileTreeContainer extends React.Component {
      * propTypes
      * @property {function(Dialog: object) showDialog callback when a dialog should be displayed
      * @property {function()} onProjectDeselect called when the project should be deselected
-     * @property {object} user
+     * @property {object} user user state
      */
     static get propTypes() {
         return {
@@ -30,7 +30,7 @@ export default class ProjectFileTreeContainer extends React.Component {
             projectTitle: PropTypes.string.isRequired,
             permissions: PropTypes.number.isRequired,
             onProjectDeselect: PropTypes.func.isRequired,
-            user: PropTypes.func.isRequired,
+            user: PropTypes.object.isRequired,
         };
     }
 

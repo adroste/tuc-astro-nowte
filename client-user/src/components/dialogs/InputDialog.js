@@ -24,15 +24,20 @@ export default class InputDialog extends React.Component {
         return {};
     }
 
-    // variables
-    text = "";
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            text: "",
+        };
+    }
 
     handleCreate = () => {
-        if(this.text === "")
+        if(this.state.text === "")
             return;
 
         // forward
-        this.props.onCreate(this.text);
+        this.props.onCreate(this.state.text);
     };
 
     render() {
@@ -41,8 +46,8 @@ export default class InputDialog extends React.Component {
                 <h1>{this.props.title}</h1>
                 <LabelledInputBox
                     placeholder="filename"
-                    value={this.text}
-                    onChange={(value) => this.text = value}
+                    value={this.state.text}
+                    onChange={(value) => this.setState({text: value})}
                     maxLength={255}
                 />
 

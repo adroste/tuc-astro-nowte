@@ -34,7 +34,7 @@ export default class LabelledInputBox extends React.Component {
             maxLength: 100,
             type: "text",
             // null will keep the last value from the input box
-            value: null,
+            value: "",
             object: null,
         }
     }
@@ -46,10 +46,6 @@ export default class LabelledInputBox extends React.Component {
     };
 
 
-    /**
-     * hi
-     * @returns {XML}
-     */
     render() {
         return (
             <div className="LabelledInputBox">
@@ -60,8 +56,7 @@ export default class LabelledInputBox extends React.Component {
                     name={this.props.name}
                     onChange={this.onChangeHandler}
                     maxLength={this.props.maxLength}
-
-                    value={this.props.value? this.props.value: this.value}
+                    value={this.props.value}
                     placeholder={this.props.placeholder}
                 />
                 {this.props.child}
