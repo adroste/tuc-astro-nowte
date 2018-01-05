@@ -18,8 +18,9 @@ export default class ProjectFileTreeContainer extends React.Component {
 
     /**
      * propTypes
-     * showDialog {function(Dialog: object) callback when a dialog should be displayed
-     * onProjectDeselect {function()} called when the project should be deselected
+     * @property {function(Dialog: object) showDialog callback when a dialog should be displayed
+     * @property {function()} onProjectDeselect called when the project should be deselected
+     * @property {object} user
      */
     static get propTypes() {
         return {
@@ -28,6 +29,7 @@ export default class ProjectFileTreeContainer extends React.Component {
             projectTitle: PropTypes.string.isRequired,
             permissions: PropTypes.number.isRequired,
             onProjectDeselect: PropTypes.func.isRequired,
+            user: PropTypes.func.isRequired,
         };
     }
 
@@ -61,7 +63,7 @@ export default class ProjectFileTreeContainer extends React.Component {
     };
 
     componentDidMount() {
-        API.getFileTree(this.props.projectId, this.handleFileTreeReceive, this.handleError);
+        API.getFileTree(this.props.user.token, this.props.projectId, this.handleFileTreeReceive, this.handleError);
     }
 
     getFolder = (path, create) => {
@@ -155,7 +157,7 @@ export default class ProjectFileTreeContainer extends React.Component {
             title="Create Folder"
             onCreate={(title) => {
                 this.props.showDialog(null);
-                API.createFolder(this.props.projectId, path + title + "/", () => this.handleFolderCreated(path + title + "/"), this.handleError);
+                API.createFolder(this.props.user.token, this.props.projectId, path + title + "/", () => this.handleFolderCreated(path + title + "/"), this.handleError);
             }}
             onCancel={() => this.props.showDialog(null)}
         />);
@@ -194,7 +196,7 @@ export default class ProjectFileTreeContainer extends React.Component {
             title="Create File"
             onCreate={(title) => {
                 this.props.showDialog(null);
-                API.createDocument(this.props.projectId, path, title, false, (body) => this.handleFileCreated(path, title, body.documentId), this.handleError);
+                API.createDocument(this.props.user.token, this.props.projectId, path, title, false, (body) => this.handleFileCreated(path, title, body.documentId), this.handleError);
             }}
             onCancel={() => this.props.showDialog(null)}
         />);
@@ -267,11 +269,11 @@ export default class ProjectFileTreeContainer extends React.Component {
 
         if(node.children){
             // folder
-            API.deleteFolder(this.props.projectId, path + node.name + "/", () => this.handleFolderDeleted(node.name, path), this.handleError);
+            API.deleteFolder(this.props.user.token, this.props.projectId, path + node.name + "/", () => this.handleFolderDeleted(node.name, path), this.handleError);
         }
         else {
             // file
-            API.deleteDocument(this.props.projectId, path, node.id, () => this.handleFileDeleted(path, node.id), this.handleError);
+            API.deleteDocument(this.props.user.token, this.props.projectId, path, node.id, () => this.handleFileDeleted(path, node.id), this.handleError);
         }
     };
 
