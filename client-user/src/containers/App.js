@@ -17,7 +17,7 @@ import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
 import EmailValidationDoneScreen from "./screens/EmailValidationDoneScreen";
 import ResetPasswordDoneScreen from "./screens/ResetPasswordDoneScreen";
 import AwaitingPasswordChangeScreen from "./screens/AwaitingPasswordChangeScreen";
-import { DashboardScreen } from "./screens/DashboardScreen";
+import DashboardScreen from "./screens/DashboardScreen";
 import { ProjectScreen } from "./screens/ProjectScreen";
 
 class App extends Component {

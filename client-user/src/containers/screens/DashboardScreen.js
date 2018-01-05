@@ -2,11 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import FileTree from "../../components/project/FileTree";
-import ProjectFileTreeContainer from "../../components/project/ProjectFileTreeContainer";
 import Button from "../../components/base/Button";
 import * as API from '../../ServerApi';
-import {store} from "../../Redux";
 import * as UserActionCreators from '../../actions/user';
 import * as ProjectActionsCreators from '../../actions/project';
 import ProjectSelectContainer from "../../components/project/ProjectSelectContainer";
@@ -15,6 +12,9 @@ import {ModalContainer} from "react-modal-dialog";
 class DashboardScreen extends React.Component {
     /**
      * propTypes
+     * @property {Object} user user-state
+     * @property {Object} userActions bound action creators (user)
+     * @property {Object} projectActions bound action creators (project)
      */
     static get propTypes() {
         return {
@@ -39,10 +39,9 @@ class DashboardScreen extends React.Component {
 
 
     handleLogOutClick = () => {
-        // TODO does this work?
         API.logout(this.props.user.token ,() => {
             // reset data
-            store.dispatch(userActions.logout());
+            this.props.userActions.logout();
             this.props.history.push("/");
         }, this.handleError);
     };
@@ -57,7 +56,7 @@ class DashboardScreen extends React.Component {
 
     handleProjectClick = (projectId, title, permissions) => {
         // open the project
-        store.dispatch(projectActions.select(projectId, title, permissions));
+        this.props.projectActions.select(projectId, title, permissions);
         this.props.history.push("/project");
     };
 
