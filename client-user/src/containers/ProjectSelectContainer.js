@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FileTree from "./FileTree";
-import * as API from '../../ServerApi'
+import FileTree from "../components/project/FileTree";
+import * as API from '../ServerApi'
 import {ModalContainer, ModalDialog} from 'react-modal-dialog';
-import InputDialog from "../dialogs/InputDialog";
-import ShareDialog from "../dialogs/ShareDialog";
-import {store} from "../../Redux";
-import Button from "../base/Button";
-import LinkedText from "../base/LinkedText";
+import InputDialog from "../components/dialogs/InputDialog";
+import ShareDialog from "../components/dialogs/ShareDialog";
+import Button from "../components/base/Button";
+import LinkedText from "../components/base/LinkedText";
 
 export default class ProjectSelectContainer extends React.Component {
     /**
@@ -77,8 +76,8 @@ export default class ProjectSelectContainer extends React.Component {
 
     handleProjectCreated = (title, id) => {
         // add project to projects list
-        const ownerName = store.getState().user.username;
-        const ownerEmail = store.getState().user.email;
+        const ownerName = this.props.user.username;
+        const ownerEmail = this.props.user.email;
 
         this.projects.push({
             id: id,
