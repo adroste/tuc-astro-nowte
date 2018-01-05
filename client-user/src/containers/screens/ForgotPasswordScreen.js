@@ -4,8 +4,6 @@ import LabelledInputBox from "../../components/base/LabelledInputBox";
 import Button from "../../components/base/Button";
 import './UserForms.css';
 import LinkedText from "../../components/base/LinkedText";
-import {store} from "../../Redux";
-import * as action from "../../actions/user"
 import {SERVER_URL} from "../../Globals";
 
 

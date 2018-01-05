@@ -19,7 +19,7 @@ let uniqueContextId = 0;
 export default class FileTree extends React.Component {
     /**
      * propTypes
-     * @property {string} tlabel itle of the file tree
+     * @property {string} tlabel title of the file tree
      * @property {object} data file structure
      * @property {function(folder: object)} onFolderLoad called when a folder should be retrieved (folder is the folder node)
      * @property {function(folder: object)} onFolderClose called when a folder should be closed (folder is the folder node)

@@ -2,13 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FileTree from "./FileTree";
 import * as API from '../../ServerApi'
-import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "../dialogs/InputDialog";
 import ShareDialog from "../dialogs/ShareDialog";
-import {store} from "../../Redux";
 import Button from "../base/Button";
-import LinkedText from "../base/LinkedText";
-import {createFolder} from "../../ServerApi";
 
 // helper
 const copy = (object) => {
