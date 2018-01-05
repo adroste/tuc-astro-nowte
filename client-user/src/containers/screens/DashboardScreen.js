@@ -1,21 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import FileTree from "../../components/project/FileTree";
 import ProjectFileTreeContainer from "../../components/project/ProjectFileTreeContainer";
 import Button from "../../components/base/Button";
 import * as API from '../../ServerApi';
 import {store} from "../../Redux";
-import * as userActions from '../../actions/user';
-import * as projectActions from '../../actions/project';
+import * as UserActionCreators from '../../actions/user';
+import * as ProjectActionsCreators from '../../actions/project';
 import ProjectSelectContainer from "../../components/project/ProjectSelectContainer";
 import {ModalContainer} from "react-modal-dialog";
 
-export class DashboardScreen extends React.Component {
+class DashboardScreen extends React.Component {
     /**
      * propTypes
      */
     static get propTypes() {
-        return {};
+        return {
+            user: PropTypes.object.isRequired,
+            userActions: PropTypes.object.isRequired,
+            projectActions: PropTypes.object.isRequired
+        };
     }
 
     static get defaultProps() {
@@ -82,3 +88,19 @@ export class DashboardScreen extends React.Component {
         );
     }
 }
+
+
+const mapStateToProps = (state) => {
+    return {
+        user: state.user
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        userActions: bindActionCreators(UserActionCreators, dispatch),
+        projectActions: bindActionCreators(ProjectActionsCreators, dispatch)
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardScreen);
