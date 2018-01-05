@@ -4,6 +4,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 
 import { user as userReducer } from './reducers/user';
 import { project as projectReducer } from './reducers/project';
+import { app as appReducer } from './reducers/app';
 
 // this will put different reducers (basically dispatch functions) into a single function
 // which calls all function provided sequentially
@@ -12,7 +13,8 @@ import { project as projectReducer } from './reducers/project';
 const reducers = combineReducers({
     routing: routerReducer,
     user: userReducer,
-    project: projectReducer
+    project: projectReducer,
+    app: appReducer,
 });
 
 export const store = createStore(reducers);

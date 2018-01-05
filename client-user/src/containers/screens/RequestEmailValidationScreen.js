@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 import LinkedText from "../../components/base/LinkedText";
 import {SERVER_URL} from "../../Globals";
 import "./UserForms.css"
-import * as UserActionCreators from "../../actions/user";
-import {bindActionCreators} from "redux/index";
 import {connect} from "react-redux";
-import * as ProjectActionsCreators from "../../actions/project";
 
 class RequestEmailValidationScreen extends React.Component {
     /**

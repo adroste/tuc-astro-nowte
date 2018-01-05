@@ -8,8 +8,7 @@ import PropTypes from 'prop-types';
 import ProjectFileTreeContainer from "../ProjectFileTreeContainer";
 import Button from "../../components/base/Button";
 import { ModalContainer } from "react-modal-dialog";
-import * as UserActionCreators from "../../actions/user";
-import {bindActionCreators} from "redux/index";
+import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
 

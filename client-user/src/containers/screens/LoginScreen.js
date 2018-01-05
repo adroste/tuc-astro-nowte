@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import UserLoginForm from "../../components/forms/UserLoginForm";
 import './UserForms.css';
-import {bindActionCreators} from "redux/index";
+import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as UserActionCreators from '../../actions/user';
 

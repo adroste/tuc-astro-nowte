@@ -6,7 +6,7 @@ import Button from "../../components/base/Button";
 import * as API from '../../ServerApi';
 import * as UserActionCreators from '../../actions/user';
 import * as ProjectActionsCreators from '../../actions/project';
-import ProjectSelectContainer from "../../components/project/ProjectSelectContainer";
+import ProjectSelectContainer from "../../containers/ProjectSelectContainer";
 import {ModalContainer} from "react-modal-dialog";
 
 class DashboardScreen extends React.Component {
