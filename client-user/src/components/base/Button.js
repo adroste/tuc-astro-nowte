@@ -10,8 +10,8 @@ export default class Button extends React.Component {
      */
     static get propTypes() {
         return {
-            label: PropTypes.string,
-            onClick: PropTypes.func
+            label: PropTypes.string.isRequired,
+            onClick: PropTypes.func.isRequired
         };
     }
 
@@ -21,14 +21,20 @@ export default class Button extends React.Component {
         };
     }
 
-    onClickHandler = (event) => {
-        if(this.props.onClick)
-            this.props.onClick();
+    onClickHandler = (e) => {
+        this.props.onClick();
+        e.preventDefault();
+    };
+
+    handleKeyPress = (e) => {
+        if(e.key === "Enter" || e.key === " "){
+            this.onClickHandler(e);
+        }
     };
 
     render() {
         return (
-            <div className="button" onClick={this.onClickHandler} tabIndex="0">
+            <div className="button" onClick={this.onClickHandler} onKeyPress={this.handleKeyPress} tabIndex="0">
                 {this.props.label}
             </div>
         );

@@ -13,8 +13,8 @@ export default class LinkedText extends React.Component {
      */
     static get propTypes() {
         return {
-            label: PropTypes.string,
-            onClick: PropTypes.func
+            label: PropTypes.string.isRequired,
+            onClick: PropTypes.func.isRequired,
         };
     }
 
@@ -22,14 +22,23 @@ export default class LinkedText extends React.Component {
         return {};
     }
 
-    onClickHandler = (event) => {
-        if(this.props.onClick)
-            this.props.onClick();
+    onClickHandler = (e) => {
+        this.props.onClick();
+        e.preventDefault();
     };
+
+    handleKeyPress = (e) => {
+        if(e.key === "Enter" || e.key === " "){
+            this.onClickHandler(e);
+        }
+    };
+
 
     render() {
         return (
-            <span onClick={this.onClickHandler} className="linked-text" tabIndex="0">{this.props.label}</span>
+            <span onClick={this.onClickHandler} onKeyPress={this.handleKeyPress} className="linked-text" tabIndex="0">
+                {this.props.label}
+            </span>
         );
     }
 }

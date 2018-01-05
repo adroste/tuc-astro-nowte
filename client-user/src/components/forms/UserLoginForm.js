@@ -149,6 +149,7 @@ export default class UserLoginForm extends React.Component {
     handleKeyPress = (e) => {
         if(e.key === "Enter"){
             this.handleLoginClick();
+            e.preventDefault();
         }
     };
 
