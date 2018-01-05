@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ProjectFileTreeContainer from "../../components/project/ProjectFileTreeContainer";
+import ProjectFileTreeContainer from "../ProjectFileTreeContainer";
 import Button from "../../components/base/Button";
 import { store } from "../../Redux";
 import { ModalContainer } from "react-modal-dialog";
