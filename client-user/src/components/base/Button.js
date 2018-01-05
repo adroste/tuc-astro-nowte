@@ -28,7 +28,7 @@ export default class Button extends React.Component {
 
     render() {
         return (
-            <div className="button" onClick={this.onClickHandler}>
+            <div className="button" onClick={this.onClickHandler} tabIndex="0">
                 {this.props.label}
             </div>
         );

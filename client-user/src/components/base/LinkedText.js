@@ -29,7 +29,7 @@ export default class LinkedText extends React.Component {
 
     render() {
         return (
-                <a href="#" onClick={this.onClickHandler} className="linked-text">{this.props.label}</a>
+            <span onClick={this.onClickHandler} className="linked-text" tabIndex="0">{this.props.label}</span>
         );
     }
 }

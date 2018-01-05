@@ -1,4 +1,5 @@
 .linked-text{
     text-decoration: underline;
     color: #4CAF50;
+    cursor: pointer;
 }
