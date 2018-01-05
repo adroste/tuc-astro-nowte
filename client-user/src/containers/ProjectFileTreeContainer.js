@@ -5,7 +5,6 @@ import * as API from '../ServerApi'
 import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
-import {store} from "../Redux";
 import Button from "../components/base/Button";
 
 // helper

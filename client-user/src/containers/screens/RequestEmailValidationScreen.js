@@ -1,17 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import LinkedText from "../../components/base/LinkedText";
-import {store} from "../../Redux";
-import * as action from "../../actions/user"
 import {SERVER_URL} from "../../Globals";
 import "./UserForms.css"
+import * as UserActionCreators from "../../actions/user";
+import {bindActionCreators} from "redux/index";
+import {connect} from "react-redux";
+import * as ProjectActionsCreators from "../../actions/project";
 
-export default class RequestEmailValidationScreen extends React.Component {
+class RequestEmailValidationScreen extends React.Component {
     /**
      * propTypes
+     * @property {Object} user user-state
      */
     static get propTypes() {
         return {
+            user: PropTypes.object.isRequired,
         };
     }
 
@@ -20,7 +24,7 @@ export default class RequestEmailValidationScreen extends React.Component {
     }
 
     handleResendEmailClick = () => {
-        const email = store.getState().user.email;
+        const email = this.props.user.email;
         const url = SERVER_URL + '/api/user/resend-validation-email';
         fetch(url, {
             method: "POST",
@@ -89,3 +93,12 @@ export default class RequestEmailValidationScreen extends React.Component {
         );
     }
 }
+
+
+const mapStateToProps = (state) => {
+    return {
+        user: state.user
+    };
+};
+
+export default connect(mapStateToProps)(RequestEmailValidationScreen);

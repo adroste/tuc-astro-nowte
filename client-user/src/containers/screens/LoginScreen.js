@@ -2,15 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import UserLoginForm from "../../components/forms/UserLoginForm";
 import './UserForms.css';
-import {store} from "../../Redux";
-import * as action from "../../actions/user";
+import {bindActionCreators} from "redux/index";
+import {connect} from "react-redux";
+import * as UserActionCreators from '../../actions/user';
 
-export default class LoginScreen extends React.Component {
+
+class LoginScreen extends React.Component {
     /**
      * propTypes
+     * @property {Object} userActions bound action creators (user)
      */
     static get propTypes() {
         return {
+            userActions: PropTypes.object.isRequired
         };
     }
 
@@ -27,12 +31,12 @@ export default class LoginScreen extends React.Component {
     };
 
     onUserLoggedInHandler = (token, email, username, userId) => {
-        store.dispatch(action.login(token, email, username, userId));
+        this.props.userActions.login(token, email, username, userId);
         this.props.history.push("/");
     };
 
     onUserNotValidatedHandler = (email) => {
-        store.dispatch(action.setEmail(email));
+        this.props.userActions.setEmail(email);
         this.props.history.push("/request-email-validation");
     };
 
@@ -52,3 +56,12 @@ export default class LoginScreen extends React.Component {
         );
     }
 }
+
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        userActions: bindActionCreators(UserActionCreators, dispatch)
+    };
+};
+
+export default connect(null, mapDispatchToProps)(LoginScreen);

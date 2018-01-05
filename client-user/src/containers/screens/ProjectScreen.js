@@ -7,17 +7,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ProjectFileTreeContainer from "../ProjectFileTreeContainer";
 import Button from "../../components/base/Button";
-import { store } from "../../Redux";
 import { ModalContainer } from "react-modal-dialog";
-import * as projectActions from '../../actions/project';
+import * as UserActionCreators from "../../actions/user";
+import {bindActionCreators} from "redux/index";
+import {connect} from "react-redux";
+import * as ProjectActionsCreators from "../../actions/project";
 
 
-export class ProjectScreen extends React.Component {
+class ProjectScreen extends React.Component {
     /**
      * propTypes
+     * @property {Object} project project-state
+     * @property {Object} projectActions bound action creators (project)
      */
     static get propTypes() {
         return {
+            project: PropTypes.object.isRequired,
+            projectActions: PropTypes.object.isRequired
         };
     }
 
@@ -43,14 +49,12 @@ export class ProjectScreen extends React.Component {
 
 
     handleDeselectProject = () => {
-        store.dispatch(projectActions.deselect());
+        this.props.projectActions.deselect();
         this.props.history.push("/dashboard");
     };
 
 
     render() {
-        const projectStore = store.getState().project;
-
         // TODO go back to dashboard if unset
 
         return (
@@ -61,9 +65,9 @@ export class ProjectScreen extends React.Component {
                 />
 
                 <ProjectFileTreeContainer
-                    projectId={projectStore.projectId}
-                    projectTitle={projectStore.title}
-                    permissions={projectStore.permissions}
+                    projectId={this.props.project.projectId}
+                    projectTitle={this.props.project.title}
+                    permissions={this.props.project.permissions}
                     showDialog={this.handleShowDialog}
                     onProjectDeselect={this.handleDeselectProject}
                 />
@@ -76,3 +80,18 @@ export class ProjectScreen extends React.Component {
         );
     }
 }
+
+
+const mapStateToProps = (state) => {
+    return {
+        project: state.project
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        projectActions: bindActionCreators(ProjectActionsCreators, dispatch)
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectScreen);
