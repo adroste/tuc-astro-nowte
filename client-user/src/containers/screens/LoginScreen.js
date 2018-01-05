@@ -32,7 +32,7 @@ export default class LoginScreen extends React.Component {
     };
 
     onUserNotValidatedHandler = (email) => {
-        store.dispatch(action.requestValidation(email));
+        store.dispatch(action.setEmail(email));
         this.props.history.push("/request-email-validation");
     };
 

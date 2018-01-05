@@ -1,3 +1,5 @@
+import * as ProjectActionTypes from '../actiontypes/project';
+
 /**
  * Action to select a project
  * @param {string} projectId
@@ -5,9 +7,9 @@
  * @param {number} permissions
  * @returns {Object} action
  */
-export const selectProject = (projectId, title, permissions) => {
+export const select = (projectId, title, permissions) => {
     return {
-        type: "SELECT_PROJECT",
+        type: ProjectActionTypes.SELECT,
         projectId: projectId,
         title: title,
         permissions: permissions
@@ -19,8 +21,8 @@ export const selectProject = (projectId, title, permissions) => {
  * Action to deselect a project
  * @returns {Object} action
  */
-export const deselectProject = () => {
+export const deselect = () => {
     return {
-        type: "DESELECT_PROJECT",
+        type: ProjectActionTypes.DESELECT,
     }
 };

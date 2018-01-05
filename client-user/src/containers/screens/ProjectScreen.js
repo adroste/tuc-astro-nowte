@@ -43,7 +43,7 @@ export class ProjectScreen extends React.Component {
 
 
     handleDeselectProject = () => {
-        store.dispatch(projectActions.deselectProject());
+        store.dispatch(projectActions.deselect());
         this.props.history.push("/dashboard");
     };
 

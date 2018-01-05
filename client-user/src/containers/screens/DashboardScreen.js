@@ -35,7 +35,7 @@ export class DashboardScreen extends React.Component {
     handleLogOutClick = () => {
         API.logOut(() => {
             // reset data
-            store.dispatch(userActions.logOut());
+            store.dispatch(userActions.logout());
             this.props.history.push("/");
         }, this.handleError);
     };
@@ -50,7 +50,7 @@ export class DashboardScreen extends React.Component {
 
     handleProjectClick = (projectId, title, permissions) => {
         // open the project
-        store.dispatch(projectActions.selectProject(projectId, title, permissions));
+        store.dispatch(projectActions.select(projectId, title, permissions));
         this.props.history.push("/project");
     };
 

@@ -1,8 +1,10 @@
+import * as UserActionTypes from '../actiontypes/user';
+
+
 /**
  * initial state
- * @type {{state: string}} state for the state machine
  */
-export const initialState = {
+const initialState = {
     token: undefined,
     email: undefined,
     username: undefined,
@@ -10,26 +12,30 @@ export const initialState = {
 };
 
 /**
+ * User reducer function
  * @param state last state
  * @param action action to be applied
  */
-export const dispatcher = (state = initialState, action) => {
+export const user = (state = initialState, action) => {
     switch (action.type){
-        case "LOGIN":
-            return Object.assign({}, state, {
+        case UserActionTypes.LOGIN:
+            return {
+                ...state,
                 token: action.token,
                 email: action.email,
                 username: action.username,
                 userId: action.userId,
-            });
-        case "LOGOUT":
+            };
+
+        case UserActionTypes.LOGOUT:
             // reset all data
             return initialState;
 
-        case "AWAIT_VALIDATION":
-            return Object.assign({}, state, {
+        case UserActionTypes.SET_EMAIL:
+            return {
+                ...state,
                 email: action.email
-            });
+            };
 
         // browser navigation
         // case "@@router/LOCATION_CHANGE":

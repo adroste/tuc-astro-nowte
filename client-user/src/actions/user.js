@@ -1,13 +1,16 @@
+import * as UserActionTypes from '../actiontypes/user';
+
 /**
- * @param token sets the current login session token
- * @param email email of the logged in user
- * @param username
- * @param userId
- * @returns action
+ * Creates login action
+ * @param {string} token sets the current login session token
+ * @param {string} email email of the logged in user
+ * @param {string} username
+ * @param {string} userId
+ * @returns {Object} action
  */
 export const login = (token, email, username, userId) => {
     return {
-        type: "LOGIN",
+        type: UserActionTypes.LOGIN,
         token: token,
         email: email,
         username: username,
@@ -15,15 +18,24 @@ export const login = (token, email, username, userId) => {
     };
 };
 
-export const logOut = () => {
+/**
+ * Creates logout action
+ * @returns {Object} action
+ */
+export const logout = () => {
     return {
-        type: "LOGOUT",
+        type: UserActionTypes.LOGOUT,
     }
 };
 
-export const requestValidation = (email) => {
+/**
+ * Creates action to set email
+ * @param {string} email
+ * @returns {Object} action
+ */
+export const setEmail = (email) => {
     return {
-        type: "AWAIT_VALIDATION",
+        type: UserActionTypes.SET_EMAIL,
         email: email
     };
 };
