@@ -11,18 +11,23 @@ import { ModalContainer } from "react-modal-dialog";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
+import * as AppActionsCreators from "../../actions/app";
 
 
 class ProjectScreen extends React.Component {
     /**
      * propTypes
      * @property {Object} project project-state
+     * @property {Object} user user-state
      * @property {Object} projectActions bound action creators (project)
+     * @property {Object} appActions bound action creators (app)
      */
     static get propTypes() {
         return {
             project: PropTypes.object.isRequired,
-            projectActions: PropTypes.object.isRequired
+            user: PropTypes.object.isRequired,
+            projectActions: PropTypes.object.isRequired,
+            appActions: PropTypes.object.isRequired,
         };
     }
 
@@ -30,20 +35,8 @@ class ProjectScreen extends React.Component {
         return {};
     }
 
-
-    constructor(props){
-        super(props);
-
-        this.state = {
-            activeDialog: null,
-        }
-    }
-
-
     handleShowDialog = (dialog) => {
-        this.setState({
-            activeDialog: dialog,
-        })
+        this.props.appActions.showDialog(dialog);
     };
 
 
@@ -69,12 +62,8 @@ class ProjectScreen extends React.Component {
                     permissions={this.props.project.permissions}
                     showDialog={this.handleShowDialog}
                     onProjectDeselect={this.handleDeselectProject}
+                    user={this.props.user}
                 />
-
-                {this.state.activeDialog &&
-                    <ModalContainer>
-                        {this.state.activeDialog}
-                    </ModalContainer>}
             </div>
         );
     }
@@ -83,13 +72,15 @@ class ProjectScreen extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        project: state.project
+        project: state.project,
+        user: state.user,
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        projectActions: bindActionCreators(ProjectActionsCreators, dispatch)
+        projectActions: bindActionCreators(ProjectActionsCreators, dispatch),
+        appActions: bindActionCreators(AppActionsCreators, dispatch),
     };
 };
 

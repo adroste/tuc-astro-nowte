@@ -6,6 +6,7 @@ import Button from "../../components/base/Button";
 import * as API from '../../ServerApi';
 import * as UserActionCreators from '../../actions/user';
 import * as ProjectActionsCreators from '../../actions/project';
+import * as AppActionsCreators from '../../actions/app';
 import ProjectSelectContainer from "../../containers/ProjectSelectContainer";
 import {ModalContainer} from "react-modal-dialog";
 
@@ -15,28 +16,20 @@ class DashboardScreen extends React.Component {
      * @property {Object} user user-state
      * @property {Object} userActions bound action creators (user)
      * @property {Object} projectActions bound action creators (project)
+     * @property {Object} appActions bound action creators (app)
      */
     static get propTypes() {
         return {
             user: PropTypes.object.isRequired,
             userActions: PropTypes.object.isRequired,
-            projectActions: PropTypes.object.isRequired
+            projectActions: PropTypes.object.isRequired,
+            appActions: PropTypes.object.isRequired,
         };
     }
 
     static get defaultProps() {
         return {};
     }
-
-
-    constructor(props){
-        super(props);
-
-        this.state = {
-            activeDialog: null,
-        }
-    }
-
 
     handleLogOutClick = () => {
         API.logout(this.props.user.token ,() => {
@@ -48,11 +41,8 @@ class DashboardScreen extends React.Component {
 
 
     handleShowDialog = (dialog) => {
-        this.setState({
-            activeDialog: dialog,
-        })
+        this.props.appActions.showDialog(dialog);
     };
-
 
     handleProjectClick = (projectId, title, permissions) => {
         // open the project
@@ -72,18 +62,14 @@ class DashboardScreen extends React.Component {
                 <ProjectSelectContainer
                     showDialog={this.handleShowDialog}
                     onProjectClick={this.handleProjectClick}
+                    user={this.props.user}
                 />
 
 
                 <Button
-                    label="Log out"
+                    label="Logout"
                     onClick={this.handleLogOutClick}
                 />
-
-                {this.state.activeDialog &&
-                    <ModalContainer>
-                        {this.state.activeDialog}
-                    </ModalContainer>}
             </div>
         );
     }
@@ -92,14 +78,15 @@ class DashboardScreen extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        user: state.user
+        user: state.user,
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
         userActions: bindActionCreators(UserActionCreators, dispatch),
-        projectActions: bindActionCreators(ProjectActionsCreators, dispatch)
+        projectActions: bindActionCreators(ProjectActionsCreators, dispatch),
+        appActions: bindActionCreators(AppActionsCreators, dispatch),
     };
 };
 

@@ -17,7 +17,7 @@ import EmailValidationDoneScreen from "./screens/EmailValidationDoneScreen";
 import ResetPasswordDoneScreen from "./screens/ResetPasswordDoneScreen";
 import AwaitingPasswordChangeScreen from "./screens/AwaitingPasswordChangeScreen";
 import DashboardScreen from "./screens/DashboardScreen";
-import { ProjectScreen } from "./screens/ProjectScreen";
+import ProjectScreen from "./screens/ProjectScreen";
 import {ModalContainer} from "react-modal-dialog";
 
 class App extends Component {
