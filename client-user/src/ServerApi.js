@@ -1,6 +1,5 @@
 // helper class for the communication with the server
 import { SERVER_URL } from "./Globals";
-import {store} from "./Redux";
 
 "use strict";
 
@@ -9,8 +8,7 @@ const REQUEST_HEADERS = new Headers({
     'Content-Type': 'application/json'
 });
 
-export const logOut = (onSuccess, onError) => {
-    const sessionToken = store.getState().user.token;
+export const logout = (sessionToken, onSuccess, onError) => {
     if(sessionToken === undefined){
         // already logged out
         onSuccess();
@@ -31,9 +29,10 @@ export const logOut = (onSuccess, onError) => {
 };
 
 // see: https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/list-projects
-export const getProjects = (onSuccess, onError) => {
+export const getProjects = (sessionToken, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
 
-    const sessionToken = store.getState().user.token;
     const url = SERVER_URL + '/api/file/list-projects?sessionToken=' + sessionToken;
     fetch(url, {
         method: "GET",
@@ -45,9 +44,10 @@ export const getProjects = (onSuccess, onError) => {
 };
 
 // see: https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-project
-export const createProject = (title, onSuccess, onError) => {
+export const createProject = (sessionToken, title, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
 
-    const sessionToken = store.getState().user.token;
     const url = SERVER_URL + '/api/file/create-project';
     fetch(url, {
         method: "POST",
@@ -63,9 +63,10 @@ export const createProject = (title, onSuccess, onError) => {
 };
 
 // see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/list-tree
-export const getFileTree = (projectId, onSuccess, onError) => {
+export const getFileTree = (sessionToken, projectId, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
 
-    const sessionToken = store.getState().user.token;
     const url = SERVER_URL + '/api/file/list-tree/' + projectId + '?sessionToken=' + sessionToken;
     fetch(url, {
         method: "GET",
@@ -77,8 +78,10 @@ export const getFileTree = (projectId, onSuccess, onError) => {
 };
 
 // see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-path
-export const createFolder = (projectId, path, onSuccess, onError) => {
-    const sessionToken = store.getState().user.token;
+export const createFolder = (sessionToken, projectId, path, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
+
     const url = SERVER_URL + '/api/file/create-path';
     fetch(url, {
         method: "POST",
@@ -95,8 +98,10 @@ export const createFolder = (projectId, path, onSuccess, onError) => {
 };
 
 // see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-document
-export const createDocument = (projectId, path, title, createPath, onSuccess, onError) => {
-    const sessionToken = store.getState().user.token;
+export const createDocument = (sessionToken, projectId, path, title, createPath, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
+
     const url = SERVER_URL + '/api/file/create-document';
     fetch(url, {
         method: "POST",
@@ -115,8 +120,10 @@ export const createDocument = (projectId, path, title, createPath, onSuccess, on
 };
 
 // see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-path
-export const deleteFolder = (projectId, path, onSuccess, onError) => {
-    const sessionToken = store.getState().user.token;
+export const deleteFolder = (sessionToken, projectId, path, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
+
     const url = SERVER_URL + '/api/file/delete-path';
 
     fetch(url, {
@@ -134,8 +141,10 @@ export const deleteFolder = (projectId, path, onSuccess, onError) => {
 };
 
 // see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-document
-export const deleteDocument = (projectId, path, documentId, onSuccess, onError) => {
-    const sessionToken = store.getState().user.token;
+export const deleteDocument = (sessionToken, projectId, path, documentId, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
+
     const url = SERVER_URL + '/api/file/delete-document';
 
     fetch(url, {
@@ -154,8 +163,10 @@ export const deleteDocument = (projectId, path, documentId, onSuccess, onError) 
 };
 
 // see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-project
-export const deleteProject = (projectId, onSuccess, onError) => {
-    const sessionToken = store.getState().user.token;
+export const deleteProject = (sessionToken, projectId, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
+
     const url = SERVER_URL + '/api/file/delete-project';
 
     fetch(url, {
@@ -172,8 +183,10 @@ export const deleteProject = (projectId, onSuccess, onError) => {
 };
 
 // see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/set-access
-export const share = (projectId, email, permissions, onSuccess, onError) => {
-    const sessionToken = store.getState().user.token;
+export const share = (sessionToken, projectId, email, permissions, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
+
     const url = SERVER_URL + '/api/file/set-access';
 
     fetch(url, {
@@ -192,8 +205,10 @@ export const share = (projectId, email, permissions, onSuccess, onError) => {
 };
 
 // see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/list-access
-export const getShares = (projectId, onSuccess, onError) => {
-    const sessionToken = store.getState().user.token;
+export const getShares = (sessionToken, projectId, onSuccess, onError) => {
+    if(typeof sessionToken !== "string")
+        throw new Error("session token should be a string");
+
     const url = SERVER_URL + '/api/file/list-access/' + projectId + "?sessionToken=" + sessionToken;
 
     fetch(url, {

@@ -33,7 +33,8 @@ export class DashboardScreen extends React.Component {
 
 
     handleLogOutClick = () => {
-        API.logOut(() => {
+        // TODO does this work?
+        API.logout(this.props.user.token ,() => {
             // reset data
             store.dispatch(userActions.logout());
             this.props.history.push("/");

@@ -12,13 +12,15 @@ import LinkedText from "../base/LinkedText";
 export default class ProjectSelectContainer extends React.Component {
     /**
      * propTypes
-     * showDialog {function(Dialog: object) callback when a dialog should be displayed
-     * onProjectClick {function(projectId: string, title: string, permissions: number)} callback when a project should be opened
+     * @property {function(dialog: object) showDialog callback when a dialog should be displayed
+     * @property {function(projectId: string, title: string, permissions: number)} onProjectClick callback when a project should be opened
+     * @property {object} user user information
      */
     static get propTypes() {
         return {
             showDialog: PropTypes.func.isRequired,
             onProjectClick: PropTypes.func.isRequired,
+            user: PropTypes.object.isRequired,
         };
     }
 
@@ -37,7 +39,7 @@ export default class ProjectSelectContainer extends React.Component {
     projects = [];
 
     componentDidMount() {
-        API.getProjects(this.handleProjectsReceived, this.handleError);
+        API.getProjects(this.props.user.token ,this.handleProjectsReceived, this.handleError);
     }
 
     handleProjectsReceived = (body) => {
@@ -70,7 +72,7 @@ export default class ProjectSelectContainer extends React.Component {
     };
 
     handleCreateProject = (title) => {
-        API.createProject(title, (body) => this.handleProjectCreated(title, body.projectId), this.handleError);
+        API.createProject(this.props.user.token, title, (body) => this.handleProjectCreated(title, body.projectId), this.handleError);
     };
 
     handleProjectCreated = (title, id) => {
@@ -97,11 +99,11 @@ export default class ProjectSelectContainer extends React.Component {
 
     handleProjectDelete = (project) => {
         // TODO add yes no dialog
-        API.deleteProject(project.id, () => this.handleProjectDeleted(project.id), this.handleError);
+        API.deleteProject(this.props.user.token, project.id, () => this.handleProjectDeleted(project.id), this.handleError);
     };
 
     handleProjectDeleted = () => {
-        API.getProjects(this.handleProjectsReceived, this.handleError);
+        API.getProjects(this.props.user.token, this.handleProjectsReceived, this.handleError);
     };
 
     handleProjectGetShares = (project) => {

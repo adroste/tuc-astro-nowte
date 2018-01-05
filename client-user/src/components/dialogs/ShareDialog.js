@@ -39,7 +39,10 @@ export default class ShareDialog extends React.Component {
 
     componentDidMount() {
         // request share information
-        API.getShares(this.props.projectId, this.handleShareList, this.handleError);
+
+        // TODO set user token
+        const userToken = undefined;
+        API.getShares(userToken, this.props.projectId, this.handleShareList, this.handleError);
     }
 
     handleShareList = (body) => {
@@ -62,13 +65,15 @@ export default class ShareDialog extends React.Component {
         if(this.email === "")
             return;
 
-        API.share(this.props.projectId, this.email, this.permission, this.handleShared, this.handleError);
+        API.share(this.props.user.token, this.props.projectId, this.email, this.permission, this.handleShared, this.handleError);
         this.props.onShare(this.email, this.permission);
     };
 
     handleShared = () => {
         // send new share info request
-        API.getShares(this.props.projectId, this.handleShareList, this.handleError);
+        // TODO set user token
+        const userToken = undefined;
+        API.getShares(userToken, this.props.projectId, this.handleShareList, this.handleError);
     };
 
     handleError = (error) => {
