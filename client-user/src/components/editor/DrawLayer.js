@@ -68,7 +68,9 @@ export class DrawLayer extends React.Component {
 
         // draw a pixel
         this.applyStroke(this.props.stroke);
-        this.context.rect(mouse.x, mouse.y, 1, 1);
+        //this.context.rect(mouse.x, mouse.y, 1, 1);
+        this.context.moveTo(mouse.x, mouse.y);
+        this.context.lineTo(mouse.x + 1, mouse.y);
         this.context.stroke();
 
         this.lastPoint = mouse;

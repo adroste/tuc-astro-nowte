@@ -72,6 +72,7 @@ export class FinalDrawLayer extends React.Component {
     initContext = (canvas) => {
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
+        this.drawPaths(this.props.paths);
     };
 
     render() {
@@ -86,8 +87,6 @@ export class FinalDrawLayer extends React.Component {
                     width={180}
                     height={180}
                 />
-                {}
-                {this.drawPaths(this.props.paths)}
             </div>
         );
     }

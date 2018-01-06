@@ -74,6 +74,7 @@ export class Editor extends React.Component {
                             width={200}
                             height={200}
                             paths={this.state.paths}
+                            ref={(layer) => this.finalDrawLayer = layer}
                         />
                     </div>
                 </div>
