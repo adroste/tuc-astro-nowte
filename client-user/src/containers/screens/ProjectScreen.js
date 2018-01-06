@@ -68,7 +68,9 @@ class ProjectScreen extends React.Component {
                     />
                 </div>
 
-                <Editor/>
+                <Editor
+                    user={this.props.user}
+                />
             </div>
         );
     }
