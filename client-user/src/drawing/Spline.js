@@ -19,13 +19,13 @@ export class SplinePoint {
 }
 
 export class Spline {
-    constructor(stroke, splinePoints){
-        this.stroke = stroke;
+    constructor(strokeStyle, splinePoints){
+        this.strokeStyle = strokeStyle;
         this.spoints = splinePoints;
     }
 
     draw(context) {
-        this.stroke.apply(context);
+        this.strokeStyle.apply(context);
         context.beginPath();
 
         let prevPoint = null;
