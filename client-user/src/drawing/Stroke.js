@@ -4,4 +4,9 @@ export class Stroke {
         this.color = color;
         this.thickness = thickness;
     }
+
+    apply(context) {
+        context.strokeStyle = this.color;
+        context.lineWidth = this.thickness;
+    }
 }
