@@ -116,24 +116,28 @@ export class DrawLayer extends React.Component {
     _handlePointerDown = (e) => {
         if (this.props.tool && this.props.tool.handlePointerDown)
             this.props.tool.handlePointerDown(this, e);
+        e.preventDefault();
     };
 
 
     _handlePointerUp = (e) => {
         if (this.props.tool && this.props.tool.handlePointerUp)
             this.props.tool.handlePointerUp(this, e);
+        e.preventDefault();
     };
 
 
     _handlePointerMove = (e) => {
         if (this.props.tool && this.props.tool.handlePointerMove)
             this.props.tool.handlePointerMove(this, e);
+        e.preventDefault();
     };
 
 
     _handlePointerLeave = (e) => {
         if (this.props.tool && this.props.tool.handlePointerLeave)
             this.props.tool.handlePointerLeave(this, e);
+        e.preventDefault();
     };
 
 
