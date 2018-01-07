@@ -76,6 +76,11 @@ export class Pen {
         if(this._lastPoint == null)
             return;
 
+        // check bit-flag 1 (primary button)
+        // important if somehow mouse-up event gets lost in space (e.g. loosing focus through popup)
+        if(!(e.buttons & 1))
+            this.handlePointerUp(ref, e);
+
         const mouse = ref.getCanvasCoordinate(e);
 
         // draw line between last point and current point
