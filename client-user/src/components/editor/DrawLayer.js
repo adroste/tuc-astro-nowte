@@ -80,10 +80,34 @@ export class DrawLayer extends React.Component {
         this.context.beginPath();
         path.strokeStyle.apply(this.context);
 
+        // start point
         this.context.moveTo(path.points[0].x, path.points[0].y);
 
         for(let i = 1; i < path.points.length; i++) {
             this.context.lineTo(path.points[i].x, path.points[i].y);
+        }
+        this.context.stroke();
+    };
+
+
+    /**
+     * Draw supplied spline to canvas
+     * @param {Spline} spline spline to draw
+     */
+    drawSpline = (spline) => {
+        // TODO check if spline is valid
+
+        this.context.beginPath();
+        spline.strokeStyle.apply(this.context);
+
+        // start point
+        this.context.moveTo(spline.spoints[0].point.x, spline.spoints[0].point.y);
+
+        for(let i = 1; i < spline.spoints.length; i++) {
+            // draw cubic spline
+            const c1 = spline.spoints[i - 1].getOutPoint();
+            const c2 = spline.spoints[i].getInPoint();
+            this.context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, spline.spoints[i].point.x, spline.spoints[i].point.y);
         }
         this.context.stroke();
     };

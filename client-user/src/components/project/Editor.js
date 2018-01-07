@@ -64,8 +64,11 @@ export class Editor extends React.Component {
     handleUserPathEnd = () => {
         this.paths.push(this.currentPath);
 
+        let spline = this.currentPath.toSpline();
+
         if (this.finalDrawLayer)
-            this.finalDrawLayer.drawPath(this.currentPath);
+            //this.finalDrawLayer.drawPath(this.currentPath);
+            this.finalDrawLayer.drawSpline(spline);
 
         // reset path
         this.currentPath = null;
