@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './Editor.css';
 import {DrawLayer} from "../editor/DrawLayer";
-import {Stroke} from "../../drawing/Stroke";
+import {StrokeStyle} from "../../drawing/StrokeStyle";
 import {FinalDrawLayer} from "../editor/FinalDrawLayer";
 import {Path} from "../../drawing/Path";
+import {Pen} from "../../drawing/tools/Pen";
 
 export class Editor extends React.Component {
     /**
@@ -26,10 +27,11 @@ export class Editor extends React.Component {
 
         this.state = {
             paths: [],
+            tool: new Pen()
         };
     }
 
-    currentStroke = new Stroke("#F0F000", 2);
+    currentStroke = new StrokeStyle("#F0F000", 2);
     // path that is currently drawn
     currentPath = null;
 
@@ -62,19 +64,9 @@ export class Editor extends React.Component {
                     <div className="inner-page">
                         This is a fancy editor
                         <DrawLayer
-                            width={200}
-                            height={200}
-                            stroke={this.currentStroke}
-                            onPathBegin={this.handleUserPathBegin}
-                            onPathPoint={this.handleUserPathPoint}
-                            onPathEnd={this.handleUserPathEnd}
-                        />
-
-                        <FinalDrawLayer
-                            width={200}
-                            height={200}
-                            paths={this.state.paths}
-                            ref={(layer) => this.finalDrawLayer = layer}
+                            resolutionX={1200}
+                            resolutionY={800}
+                            tool={this.state.tool}
                         />
                     </div>
                 </div>

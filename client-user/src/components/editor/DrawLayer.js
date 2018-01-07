@@ -11,21 +11,15 @@ import {Point} from "../../geometry/Point";
 export class DrawLayer extends React.Component {
     /**
      * propTypes
-     * @property {number} width
-     * @property {number} height
-     * @property {object} stroke currently used stroke
-     * @property {function()} onPathBegin indicates the start of a new line
-     * @property {function(Point)} onPathPoint a new point should be added to the current line
-     * @property {function()} onPathEnd the path is finished
+     * @property {number} resolutionX bitmap resolution in pixel (width)
+     * @property {number} resolutionY bitmap resolution in pixel (height)
+     * @property {Object} tool specific tool
      */
     static get propTypes() {
         return {
-            width: PropTypes.number.isRequired,
-            height: PropTypes.number.isRequired,
-            stroke: PropTypes.object.isRequired,
-            onPathBegin: PropTypes.func.isRequired,
-            onPathPoint: PropTypes.func.isRequired,
-            onPathEnd: PropTypes.func.isRequired,
+            resolutionX: PropTypes.number.isRequired,
+            resolutionY: PropTypes.number.isRequired,
+            tool: PropTypes.object
         };
     }
 
@@ -33,105 +27,102 @@ export class DrawLayer extends React.Component {
         return {};
     }
 
-    // variables
-    lastPoint = null;
-    context = null;
+
+    /**
+     * canvas object
+     * @type {Object}
+     */
     canvas = null;
+
+    /**
+     * canvas 2d context
+     * @type {Object}
+     */
+    context = null;
+
 
     componentDidMount() {
         this.context = this.canvas.getContext("2d");
-        //context.moveTo(0,0);
-        //context.lineTo(100,100);
-        //context.stroke();
 
-
+        // pointer-events api
+        this.canvas.addEventListener('pointerdown', this._handlePointerDown);
+        this.canvas.addEventListener('pointerup', this._handlePointerUp);
+        this.canvas.addEventListener('pointermove', this._handlePointerMove);
+        this.canvas.addEventListener('pointerleave', this._handlePointerLeave);
     }
 
+
     /**
-     * @param mouseEvent event with pageX and pageY
-     * @return {Point} coordinates relative to canvas origin
+     * Calculates coordinates inside canvas bitmap from mouseEvent
+     * @param {Object} event pointer-event
+     * @return {Point} coordinates relative to canvas origin, scaled by resolution
      */
-    getMouseCoordinate = (mouseEvent) => {
+    getCanvasCoordinate = (event) => {
+        let rect = this.canvas.getBoundingClientRect();
+        let scaleX = this.canvas.width / rect.width;
+        let scaleY = this.canvas.height / rect.height;
+
         return new Point(
-            mouseEvent.pageX - this.canvas.offsetLeft,
-            mouseEvent.pageY - this.canvas.offsetTop
+            Math.round((event.clientX - rect.left) * scaleX),
+            Math.round((event.clientY - rect.top) * scaleY)
         );
     };
 
-    applyStroke = (stroke) => {
-        this.context.strokeStyle = stroke.color;
-        this.context.lineWidth = stroke.thickness;
-    };
 
-    handleMouseDown = (e) => {
-        const mouse = this.getMouseCoordinate(e);
+    /**
+     * Draws supplied path to canvas
+     * @param {Path} path path to draw (needs to be valid)
+     */
+    drawPath = (path) => {
+        if (!path.isValid())
+            throw new Error('invalid paths can not be drawn');
 
-        // draw a pixel
-        this.applyStroke(this.props.stroke);
-        //this.context.rect(mouse.x, mouse.y, 1, 1);
-        this.context.moveTo(mouse.x, mouse.y);
-        this.context.lineTo(mouse.x + 1, mouse.y);
+        this.context.beginPath();
+        path.strokeStyle.apply(this.context);
+
+        this.context.moveTo(path.points[0].x, path.points[0].y);
+
+        for(let i = 1; i < path.points.length; i++) {
+            this.context.lineTo(path.points[i].x, path.points[i].y);
+        }
         this.context.stroke();
-
-        this.lastPoint = mouse;
-
-        this.props.onPathBegin();
-        this.props.onPathPoint(mouse);
     };
 
-    handleMouseUp = (e) => {
-        if(this.lastPoint === null)
-            return; // line already finished
-        //const mouse = this.getMouseCoordinate(e);
 
-        this.props.onPathEnd();
-        // stop drawing
-        this.lastPoint = null;
+    _handlePointerDown = (e) => {
+        if (this.props.tool && this.props.tool.handlePointerDown)
+            this.props.tool.handlePointerDown(this, e);
     };
 
-    handleMouseMove = (e) => {
-        // drawing not required
-        if(this.lastPoint == null)
-            return;
 
-        const mouse = this.getMouseCoordinate(e);
-
-        // draw line between points
-        this.applyStroke(this.props.stroke);
-        this.context.moveTo(this.lastPoint.x, this.lastPoint.y);
-        this.context.lineTo(mouse.x, mouse.y);
-        this.context.stroke();
-
-
-        this.lastPoint = mouse;
-        this.props.onPathPoint(mouse);
+    _handlePointerUp = (e) => {
+        if (this.props.tool && this.props.tool.handlePointerUp)
+            this.props.tool.handlePointerUp(this, e);
     };
 
-    handleMouseLeave = (e) => {
-        if(this.lastPoint === null)
-            return; // line already finished
 
-        this.props.onPathEnd();
-        this.lastPoint = null;
+    _handlePointerMove = (e) => {
+        if (this.props.tool && this.props.tool.handlePointerMove)
+            this.props.tool.handlePointerMove(this, e);
     };
+
+
+    _handlePointerLeave = (e) => {
+        if (this.props.tool && this.props.tool.handlePointerLeave)
+            this.props.tool.handlePointerLeave(this, e);
+    };
+
 
     render() {
         return (
             <div className="size">
-
                 <canvas
                     id="canvas"
                     ref={(canvas) => this.canvas = canvas }
                     className="canvas"
-                    onMouseDown={this.handleMouseDown}
-                    onMouseMove={this.handleMouseMove}
-                    onMouseUp={this.handleMouseUp}
-                    onMouseLeave={this.handleMouseLeave}
-
-                    width={180}
-                    height={180}
+                    width={this.props.resolutionX}
+                    height={this.props.resolutionY}
                 />
-
             </div>
         );
     }
