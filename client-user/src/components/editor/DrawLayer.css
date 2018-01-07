@@ -1,11 +1,11 @@
 .size {
     width: 650px;
-    height: 450px;
+    height: 250px;
     background: #4CAF50;
 }
 
 .canvas {
     width: 600px;
-    height: 400px;
+    height: 200px;
     background: #20a0ff;
 }

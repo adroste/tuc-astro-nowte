@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import './Editor.css';
 import {DrawLayer} from "../editor/DrawLayer";
 import {StrokeStyle} from "../../drawing/StrokeStyle";
-import {FinalDrawLayer} from "../editor/FinalDrawLayer";
 import {Path} from "../../drawing/Path";
 import {Pen} from "../../drawing/tools/Pen";
 
@@ -22,40 +21,61 @@ export class Editor extends React.Component {
         return {};
     }
 
+
+    /**
+     * All paths to render
+     * @type {Array<Path>}
+     */
+    paths = [];
+
+    /**
+     * Current path
+     * @type {Path}
+     */
+    currentPath = null;
+
+    /**
+     * Stroke styling
+     * @type {StrokeStyle}
+     */
+    strokeStyle = null;
+
+
     constructor(props) {
         super(props);
 
+        this.strokeStyle = new StrokeStyle();
+        let penTool = new Pen(this.strokeStyle);
+        penTool.onPathBegin = this.handleUserPathBegin;
+        penTool.onPathEnd = this.handleUserPathEnd;
+        penTool.onPathPoint = this.handleUserPathPoint;
+
         this.state = {
-            paths: [],
-            tool: new Pen()
+            tool: penTool
         };
     }
 
-    currentStroke = new StrokeStyle("#F0F000", 2);
-    // path that is currently drawn
-    currentPath = null;
 
     handleUserPathBegin = () => {
-        // create empty path
-        this.currentPath = new Path(this.currentStroke);
+        this.currentPath = new Path(this.strokeStyle);
     };
 
-    handleUserPathEnd = () =>{
-        // TODO fix this
-        let paths = this.state.paths;
-        paths.push(this.currentPath);
 
-        this.setState({
-            paths: paths,
-        });
+    handleUserPathEnd = () => {
+        this.paths.push(this.currentPath);
+
+        if (this.finalDrawLayer)
+            this.finalDrawLayer.drawPath(this.currentPath);
 
         // reset path
         this.currentPath = null;
     };
 
+
     handleUserPathPoint = (point) => {
         this.currentPath.addPoint(point);
     };
+
 
     render() {
         return (
@@ -65,8 +85,13 @@ export class Editor extends React.Component {
                         This is a fancy editor
                         <DrawLayer
                             resolutionX={1200}
-                            resolutionY={800}
+                            resolutionY={400}
                             tool={this.state.tool}
+                        />
+                        <DrawLayer
+                            ref={ref => this.finalDrawLayer = ref}
+                            resolutionX={1200}
+                            resolutionY={400}
                         />
                     </div>
                 </div>
