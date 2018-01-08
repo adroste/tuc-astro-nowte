@@ -5,8 +5,16 @@
 
 import React from 'react';
 import PropTypes from "prop-types";
-import "./DrawLayer.css"
+import styled from 'styled-components';
 import {Point} from "../../geometry/Point";
+
+
+const Canvas = styled.canvas`
+    display: block;
+    width: 100%;
+    height: 100%;
+`;
+
 
 export class DrawLayer extends React.Component {
     /**
@@ -143,15 +151,12 @@ export class DrawLayer extends React.Component {
 
     render() {
         return (
-            <div className="size">
-                <canvas
-                    id="canvas"
-                    ref={(canvas) => this.canvas = canvas }
-                    className="canvas"
-                    width={this.props.resolutionX}
-                    height={this.props.resolutionY}
-                />
-            </div>
+            <Canvas
+                className={this.props.className}
+                innerRef={(canvas) => this.canvas = canvas }
+                width={this.props.resolutionX}
+                height={this.props.resolutionY}
+            />
         );
     }
 }

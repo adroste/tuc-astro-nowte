@@ -1,10 +1,52 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './Editor.css';
+import styled from 'styled-components';
 import {DrawLayer} from "../editor/DrawLayer";
 import {StrokeStyle} from "../../drawing/StrokeStyle";
 import {Path} from "../../drawing/Path";
 import {Pen} from "../../drawing/tools/Pen";
+
+
+const Wrapper = styled.div`
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+    height: 100%;
+    background-color: #8e908c;
+`;
+
+
+const PageOuter = styled.div`
+    width: 210mm;
+    height: 100%;
+    background-color: white;
+    margin: auto;
+    padding-right: 20mm;
+    padding-left: 20mm;
+    padding-top: 15mm;
+`;
+
+
+const PageInner = styled.div`
+    border: #ddd 1px solid;
+`;
+
+
+const LayerStack = styled.div`
+    position: relative;
+    width: 600px;
+    height: 400px;
+`;
+
+
+const DrawLayer600x400 = styled(DrawLayer)`
+    position: absolute;
+    width: 600px;
+    height: 400px;
+    z-index: ${props => props.zIndex};
+    border: #f00 1px dashed;
+`;
+
 
 export class Editor extends React.Component {
     /**
@@ -82,23 +124,27 @@ export class Editor extends React.Component {
 
     render() {
         return (
-            <div className="wrapper">
-                <div className="outer-page">
-                    <div className="inner-page">
+            <Wrapper>
+                <PageOuter>
+                    <PageInner>
                         This is a fancy editor
-                        <DrawLayer
-                            resolutionX={1200}
-                            resolutionY={400}
-                            tool={this.state.tool}
-                        />
-                        <DrawLayer
-                            ref={ref => this.finalDrawLayer = ref}
-                            resolutionX={1200}
-                            resolutionY={400}
-                        />
-                    </div>
-                </div>
-            </div>
+                        <LayerStack>
+                            <DrawLayer600x400
+                                resolutionX={1200}
+                                resolutionY={800}
+                                tool={this.state.tool}
+                                zIndex={100}
+                            />
+                            <DrawLayer600x400
+                                innerRef={ref => this.finalDrawLayer = ref}
+                                resolutionX={1200}
+                                resolutionY={800}
+                                zIndex={1}
+                            />
+                        </LayerStack>
+                    </PageInner>
+                </PageOuter>
+            </Wrapper>
         );
     }
 }
