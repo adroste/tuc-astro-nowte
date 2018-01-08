@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import PropTypes from "prop-types";
 import {connect, Provider} from 'react-redux';
-import throttle from 'lodash/throttle';
-import { loadState, saveState } from "../utilities/storage";
+import { BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
+import {ModalContainer} from "react-modal-dialog";
 
 import LoginScreen from "./screens/LoginScreen";
 import RegistrationScreen from "./screens/RegistrationScreen";
@@ -9,16 +10,11 @@ import AwaitingValidationScreen from "./screens/AwaitingValidationScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import RequestEmailValidationScreen from "./screens/RequestEmailValidationScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
-// TODO fix BrowserRouter ignoring history property => only using Router causes blocked updates on redirects
-import { BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
-
 import EmailValidationDoneScreen from "./screens/EmailValidationDoneScreen";
 import ResetPasswordDoneScreen from "./screens/ResetPasswordDoneScreen";
 import AwaitingPasswordChangeScreen from "./screens/AwaitingPasswordChangeScreen";
 import DashboardScreen from "./screens/DashboardScreen";
 import ProjectScreen from "./screens/ProjectScreen";
-import {ModalContainer} from "react-modal-dialog";
-import PropTypes from "prop-types";
 
 class App extends Component {
     /**

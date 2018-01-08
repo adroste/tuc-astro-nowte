@@ -8,6 +8,7 @@ import {project as projectReducer} from "./reducers/project";
 import {app as appReducer} from "./reducers/app";
 import {user as userReducer} from "./reducers/user";
 import {loadState, saveState} from "./utilities/storage";
+import throttle from 'lodash/throttle';
 
 
 const reducers = combineReducers({
@@ -26,7 +27,7 @@ const store = createStore(
 );
 
 
-store.subscribe(() => {
+store.subscribe(throttle(() => {
     const user = store.getState().user;
     const project = store.getState().project;
 
@@ -37,7 +38,7 @@ store.subscribe(() => {
     saveState({
         project: project
     }, false);
-});
+}, 100));
 
 
 
