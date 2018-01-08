@@ -1,6 +1,6 @@
 import {Point} from "../../geometry/Point";
 import {StrokeStyle} from "../StrokeStyle";
-import {Path} from "../Path";
+import {Path} from "../../geometry/Path";
 
 /**
  * @author Alexander Droste

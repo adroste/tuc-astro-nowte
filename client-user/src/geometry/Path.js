@@ -1,4 +1,6 @@
-import {SplinePoint, Spline} from "./Spline";
+import {Spline} from "./Spline";
+import {SplinePoint} from "./SplinePoint";
+
 
 export class Path
 {
@@ -41,6 +43,7 @@ export class Path
 
     /**
      * converts the path into a spline
+     * @returns {Spline}
      */
     toSpline() {
         if(this.points.length === 0){

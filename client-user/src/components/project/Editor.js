@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {DrawLayer} from "../editor/DrawLayer";
 import {StrokeStyle} from "../../drawing/StrokeStyle";
-import {Path} from "../../drawing/Path";
+import {Path} from "../../geometry/Path";
 import {Pen} from "../../drawing/tools/Pen";
 
 

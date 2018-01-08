@@ -104,7 +104,8 @@ export class DrawLayer extends React.Component {
      * @param {Spline} spline spline to draw
      */
     drawSpline = (spline) => {
-        // TODO check if spline is valid
+        if (!spline.isValid())
+            throw new Error('invalid splines can not be drawn');
 
         this.context.beginPath();
         this._applyStrokeStyle(spline.strokeStyle);
