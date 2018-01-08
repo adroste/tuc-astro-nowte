@@ -28,17 +28,18 @@ export default class UserLoginForm extends React.Component {
         return {};
     }
 
+
     constructor(props){
         super(props);
 
         this.state = {
+            email: '',
+            password: '',
             emailChild: <br/>,
             passwordChild: <br/>
         }
     }
 
-    email = "";
-    password = "";
 
     handleLoginClick = () => {
         if(!this.verifyEmailField())
@@ -56,8 +57,8 @@ export default class UserLoginForm extends React.Component {
                 'Content-Type': 'application/json'
             }),
             body: JSON.stringify({
-                email: this.email,
-                password: this.password
+                email: this.state.email,
+                password: this.state.password
             })
         }).then(
             this.handleServerResponse,
@@ -76,8 +77,9 @@ export default class UserLoginForm extends React.Component {
 
     handleSuccesfullRegistration = (body) => {
         // retrieve session token
-        this.props.onUserLoggedIn(body.sessionToken, this.email, body.name, body.userId);
+        this.props.onUserLoggedIn(body.sessionToken, this.state.email, body.name, body.userId);
     };
+
 
     handleUnsuccesfullRegistration = (code, data) => {
 
@@ -86,7 +88,7 @@ export default class UserLoginForm extends React.Component {
         {
             if(data.error.message === "user account not validated")
             {
-                this.props.onUserNotValidated(this.email);
+                this.props.onUserNotValidated(this.state.email);
                 return;
             }
         }
@@ -107,7 +109,7 @@ export default class UserLoginForm extends React.Component {
      * @returns {boolean} true if correct
      */
     verifyPasswordField = () => {
-        if(this.password.length === 0){
+        if(this.state.password.length === 0){
             this.onPasswordError("this field is required");
             return false;
         }
@@ -131,7 +133,7 @@ export default class UserLoginForm extends React.Component {
      * @returns {boolean} true if the email was correct (valid syntax)
      */
     verifyEmailField = () => {
-        const res = utility.verifyEmailField(this.email);
+        const res = utility.verifyEmailField(this.state.email);
         this.onEmailError(res);
         return res === "";
     };
@@ -160,15 +162,17 @@ export default class UserLoginForm extends React.Component {
                 <LabelledInputBox
                     label="Email"
                     name="email"
-                    onChange={(value) => this.email = value}
+                    onChange={(email) => this.setState({email})}
                     child={this.state.emailChild}
+                    value={this.state.email}
                 />
                 <LabelledInputBox
                     label="Password"
                     name="password"
                     type="password"
-                    onChange={(value) => this.password = value}
+                    onChange={(password) => this.setState({password})}
                     child={this.state.passwordChild}
+                    value={this.state.password}
                 />
                 <Button
                     label="Login"

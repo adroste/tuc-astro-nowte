@@ -27,20 +27,21 @@ export default class UserRegistrationForm extends React.Component {
         };
     }
 
-    name = "";
-    email = "";
-    password = "";
-    password2 = "";
 
     constructor(props) {
         super(props);
 
         this.state = {
+            name: '',
+            email: '',
+            password: '',
+            passwordConfirm: '',
             nameChild: <br/>,
             emailChild: <br/>,
             passwordChild: <br/>
         }
     }
+
 
     /*
      * handler for the submit button
@@ -70,9 +71,9 @@ export default class UserRegistrationForm extends React.Component {
                 'Content-Type': 'application/json'
             }),
             body: JSON.stringify({
-                name: this.name,
-                email: this.email,
-                password: this.password
+                name: this.state.name,
+                email: this.state.email,
+                password: this.state.password
             })
         }).then(
             this.handleServerResponse,
@@ -127,7 +128,7 @@ export default class UserRegistrationForm extends React.Component {
      * @returns {boolean} true if the username was correct
      */
     verifyName = () => {
-        if(this.name.length === 0){
+        if(this.state.name.length === 0){
             this.onNameError("this field is required");
             return false;
         }
@@ -142,7 +143,7 @@ export default class UserRegistrationForm extends React.Component {
      * @returns {boolean} true if the email was correct
      */
     verifyEmail = () => {
-        const res = utility.verifyEmailField(this.email);
+        const res = utility.verifyEmailField(this.state.email);
         this.onEmailError(res);
         return res === "";
     };
@@ -172,7 +173,7 @@ export default class UserRegistrationForm extends React.Component {
      * @returns {boolean} true if password is correct
      */
     verifyPassword = () => {
-        const res = utility.verifyPasswordFields(this.password, this.password2);
+        const res = utility.verifyPasswordFields(this.state.password, this.state.passwordConfirm);
         this.onPasswordError(res);
         return res === "";
     };
@@ -199,27 +200,31 @@ export default class UserRegistrationForm extends React.Component {
                 <LabelledInputBox
                     label="Name"
                     name="name"
-                    onChange={(value) => this.name = value}
+                    onChange={(name) => this.setState({name})}
                     child={this.state.nameChild}
+                    value={this.state.name}
                 />
                 <LabelledInputBox
                     label="Email"
                     name="email"
-                    onChange={(value) => this.email = value}
+                    onChange={(email) => this.setState({email})}
                     child={this.state.emailChild}
+                    value={this.state.email}
                 />
                 <LabelledInputBox
                     label="Password"
                     name="password"
                     type="password"
-                    onChange={(value) => this.password = value}
+                    onChange={(password) => this.setState({password})}
                     child={this.state.passwordChild}
+                    value={this.state.password}
                 />
                 <LabelledInputBox
                     label="Confirm Password"
                     name="password2"
                     type="password"
-                    onChange={(value) => this.password2 = value}
+                    onChange={(passwordConfirm) => this.setState({passwordConfirm})}
+                    value={this.state.passwordConfirm}
                 />
                 <br/>
                 <Button

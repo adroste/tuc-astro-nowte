@@ -40,7 +40,6 @@ export default class LabelledInputBox extends React.Component {
     }
 
     onChangeHandler = (event) => {
-        // TODO do something cool
         if(this.props.onChange)
             this.props.onChange(event.target.value);
     };

@@ -22,14 +22,13 @@ export default class ResetPasswordForm extends React.Component {
         return {};
     }
 
-    // Private member
-    newPassword = "";
-    newPassword2 = "";
 
     constructor(props) {
         super(props);
 
         this.state = {
+            newPassword: '',
+            newPasswordConfirm: '',
             passwordChild: <br/>
         }
     }
@@ -50,7 +49,7 @@ export default class ResetPasswordForm extends React.Component {
             }),
             body: JSON.stringify({
                 passwordResetToken: resetToken,
-                newPassword: this.newPassword
+                newPassword: this.state.newPassword
             })
         }).then(
             this.handleServerResponse,
@@ -102,7 +101,7 @@ export default class ResetPasswordForm extends React.Component {
      * @returns {boolean} true if password is correct
      */
     verifyPassword = () => {
-        const res = utility.verifyPasswordFields(this.newPassword, this.newPassword2);
+        const res = utility.verifyPasswordFields(this.state.newPassword, this.state.newPasswordConfirm);
         this.onPasswordError(res);
         return res === "";
     };
@@ -122,15 +121,17 @@ export default class ResetPasswordForm extends React.Component {
             <div>
                 <LabelledInputBox
                     label="New password"
-                    onChange={(value) => this.newPassword = value}
+                    onChange={(newPassword) => this.setState({newPassword})}
                     child={this.state.passwordChild}
                     type="password"
+                    value={this.state.newPassword}
                 />
                 <LabelledInputBox
                     label="Confirm new password"
-                    onChange={(value) => this.newPassword2 = value}
+                    onChange={(newPasswordConfirm) => this.setState({newPasswordConfirm})}
                     child={<br/>}
                     type="password"
+                    value={this.state.newPasswordConfirm}
                 />
                 <Button
                     label="Submit"

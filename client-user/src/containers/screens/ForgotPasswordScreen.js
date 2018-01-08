@@ -20,8 +20,14 @@ export default class ForgotPasswordScreen extends React.Component {
         return {};
     }
 
-    // Private Member
-    email = "";
+
+    constructor(props) {
+        super(props);
+
+        this.state = ({
+            email: ''
+        });
+    }
 
     handleLoginClick = () => {
         this.props.history.push("/");
@@ -38,7 +44,7 @@ export default class ForgotPasswordScreen extends React.Component {
                 'Content-Type': 'application/json'
             }),
             body: JSON.stringify({
-                email: this.email
+                email: this.state.email
             })
         }).then(
             this.handleServerResponse,
@@ -88,7 +94,8 @@ export default class ForgotPasswordScreen extends React.Component {
                     <LabelledInputBox
                         label="Email"
                         name="email"
-                        onChange={(value) => this.email = value}
+                        onChange={(email) => this.setState({email})}
+                        value={this.state.email}
                     />
                     <br/>
                     <Button
