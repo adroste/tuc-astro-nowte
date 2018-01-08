@@ -3,13 +3,13 @@ import {SplinePoint, Spline} from "./Spline";
 export class Path
 {
     /**
-     * @param {Object} strokeStyle stroke style to use
+     * @param {StrokeStyle} strokeStyle stroke style to use
      * @param {Point[]} [points=[]] points to create path from (empty by default)
      */
     constructor(strokeStyle, points = []) {
         /**
          * Stroke styling
-         * @type {Object}
+         * @type {StrokeStyle}
          */
         this.strokeStyle = strokeStyle;
 

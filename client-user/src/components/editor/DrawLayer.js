@@ -86,7 +86,8 @@ export class DrawLayer extends React.Component {
             throw new Error('invalid paths can not be drawn');
 
         this.context.beginPath();
-        path.strokeStyle.apply(this.context);
+        this._applyStrokeStyle(path.strokeStyle);
+
 
         // start point
         this.context.moveTo(path.points[0].x, path.points[0].y);
@@ -106,7 +107,7 @@ export class DrawLayer extends React.Component {
         // TODO check if spline is valid
 
         this.context.beginPath();
-        spline.strokeStyle.apply(this.context);
+        this._applyStrokeStyle(spline.strokeStyle);
 
         // start point
         this.context.moveTo(spline.spoints[0].point.x, spline.spoints[0].point.y);
@@ -118,6 +119,17 @@ export class DrawLayer extends React.Component {
             this.context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, spline.spoints[i].point.x, spline.spoints[i].point.y);
         }
         this.context.stroke();
+    };
+
+
+    /**
+     * Applies style to rendering context
+     * @param {StrokeStyle} strokeStyle
+     */
+    _applyStrokeStyle = (strokeStyle) => {
+        this.context.strokeStyle = strokeStyle.color;
+        this.context.lineWidth = strokeStyle.thickness;
+        this.context.lineJoin = 'round';
     };
 
 

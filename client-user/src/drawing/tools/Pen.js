@@ -41,9 +41,9 @@ export class Pen {
 
 
     /**
-     * @param {StrokeStyle} [strokeStyle] stroke style to use, defaults to default stroke styling
+     * @param {StrokeStyle} strokeStyle stroke style to use
      */
-    constructor(strokeStyle = new StrokeStyle()) {
+    constructor(strokeStyle) {
         this.strokeStyle = strokeStyle;
     }
 

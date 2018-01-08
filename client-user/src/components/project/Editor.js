@@ -86,7 +86,10 @@ export class Editor extends React.Component {
     constructor(props) {
         super(props);
 
-        this.strokeStyle = new StrokeStyle();
+        this.strokeStyle = new StrokeStyle({
+            color: 'yellow',
+            thickness: 3
+        });
         let penTool = new Pen(this.strokeStyle);
         penTool.onPathBegin = this.handleUserPathBegin;
         penTool.onPathEnd = this.handleUserPathEnd;
@@ -107,9 +110,13 @@ export class Editor extends React.Component {
         this.paths.push(this.currentPath);
 
         let spline = this.currentPath.toSpline();
+        spline.strokeStyle = new StrokeStyle({
+            ...spline.strokeStyle.toObject(),
+            thickness: 6,
+            color: 'red'
+        });
 
         if (this.finalDrawLayer)
-            //this.finalDrawLayer.drawPath(this.currentPath);
             this.finalDrawLayer.drawSpline(spline);
 
         // reset path
