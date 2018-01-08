@@ -12,7 +12,7 @@ import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
 import * as AppActionsCreators from "../../actions/app";
-import {Editor} from "../../components/project/Editor";
+import {Editor} from "../../components/editor/Editor";
 import "./ProjectScreen.css";
 
 class ProjectScreen extends React.Component {
