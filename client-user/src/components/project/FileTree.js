@@ -4,13 +4,90 @@ import {Treebeard, decorators} from "react-treebeard"
 import "./FileTree.css"
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import {  } from "react-contextmenu";
-import {getFolder} from "../../ServerApi";
 import Button from "../base/Button";
 
+
+// styles
+const styles = {
+    tree: {
+        base: {
+            listStyle: 'none',
+            backgroundColor: '#fff',
+            margin: 0,
+            padding: 0,
+            color: '#9DA5AB',
+            fontFamily: 'lucida grande ,tahoma,verdana,arial,sans-serif',
+            fontSize: '14px'
+        },
+        node: {
+            base: {
+                position: 'relative'
+            },
+            link: {
+                cursor: 'pointer',
+                position: 'relative',
+                padding: '0px 5px',
+                display: 'block'
+            },
+            activeLink: {
+                background: '#eee'
+            },
+            toggle: {
+                base: {
+                    position: 'relative',
+                    display: 'inline-block',
+                    verticalAlign: 'top',
+                    marginLeft: '-5px',
+                    height: '24px',
+                    width: '24px'
+                },
+                wrapper: {
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    margin: '-7px 0 0 -7px',
+                    height: '14px'
+                },
+                height: 14,
+                width: 14,
+                arrow: {
+                    fill: '#9DA5AB',
+                    strokeWidth: 0
+                }
+            },
+            header: {
+                base: {
+                    display: 'inline-block',
+                    verticalAlign: 'top',
+                    color: '#000'
+                },
+                connector: {
+                    width: '2px',
+                    height: '12px',
+                    borderLeft: 'solid 2px black',
+                    borderBottom: 'solid 2px black',
+                    position: 'absolute',
+                    top: '0px',
+                    left: '-21px'
+                },
+                title: {
+                    lineHeight: '24px',
+                    verticalAlign: 'middle'
+                }
+            },
+            subtree: {
+                listStyle: 'none',
+                paddingLeft: '19px'
+            },
+            loading: {
+                color: '#111'
+            }
+        }
+    }
+};
+
+
 let uniqueContextId = 0;
-
-
-
 
 
 /**
@@ -138,7 +215,7 @@ export default class FileTree extends React.Component {
                     <div style={props.style.title}>
                         <ContextMenuTrigger id={contextID}>
                             <div>
-                                <img src={iconPath} className="header-icon"/>
+                                <img src={iconPath} alt="" className="header-icon"/>
                                 {props.node.name}
                             </div>
 
@@ -148,17 +225,17 @@ export default class FileTree extends React.Component {
                     </div>
                     <ContextMenu id={contextID}>
                         <MenuItem onClick={(e) => { this.onCreateFileClick(props.node); stopEvent(e);}}>
-                            <img src={"/img/file_add.svg"} className="header-icon"/> New Document
+                            <img src={"/img/file_add.svg"} alt="" className="header-icon"/> New Document
                         </MenuItem>
                         <MenuItem onClick={(e) => { this.onCreateFolderClick(props.node); stopEvent(e);}}>
-                            <img src={"/img/folder_add.svg"} className="header-icon"/> New Folder
+                            <img src={"/img/folder_add.svg"} alt="" className="header-icon"/> New Folder
                         </MenuItem>
                         <MenuItem className="no-select" onClick={(e) => stopEvent(e)} divider/>
                         <MenuItem onClick={(e) => { this.onDeleteClick(props.node); stopEvent(e);}}>
-                            <img src={"/img/trash.svg"} className="header-icon"/> Delete
+                            <img src={"/img/trash.svg"} alt="" className="header-icon"/> Delete
                         </MenuItem>
                         <MenuItem onClick={(e) => { this.onRenameClick(props.node); stopEvent(e);}}>
-                            <img src={"/img/label.svg"} className="header-icon"/> Rename
+                            <img src={"/img/label.svg"} alt="" className="header-icon"/> Rename
                         </MenuItem>
                     </ContextMenu>
                 </div>
@@ -194,90 +271,10 @@ export default class FileTree extends React.Component {
                 <Treebeard
                     data={this.props.data}
                     onToggle={this.handleToggle}
-                    decorators = {decorators}
-                    style = {styles}
+                    decorators={decorators}
+                    style={styles}
                 />
             </div>
         );
     }
 }
-
-
-// styles
-const styles = {
-    tree: {
-        base: {
-            listStyle: 'none',
-            backgroundColor: '#fff',
-            margin: 0,
-            padding: 0,
-            color: '#9DA5AB',
-            fontFamily: 'lucida grande ,tahoma,verdana,arial,sans-serif',
-            fontSize: '14px'
-        },
-        node: {
-            base: {
-                position: 'relative'
-            },
-            link: {
-                cursor: 'pointer',
-                position: 'relative',
-                padding: '0px 5px',
-                display: 'block'
-            },
-            activeLink: {
-                background: '#eee'
-            },
-            toggle: {
-                base: {
-                    position: 'relative',
-                    display: 'inline-block',
-                    verticalAlign: 'top',
-                    marginLeft: '-5px',
-                    height: '24px',
-                    width: '24px'
-                },
-                wrapper: {
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    margin: '-7px 0 0 -7px',
-                    height: '14px'
-                },
-                height: 14,
-                width: 14,
-                arrow: {
-                    fill: '#9DA5AB',
-                    strokeWidth: 0
-                }
-            },
-            header: {
-                base: {
-                    display: 'inline-block',
-                    verticalAlign: 'top',
-                    color: '#000'
-                },
-                connector: {
-                    width: '2px',
-                    height: '12px',
-                    borderLeft: 'solid 2px black',
-                    borderBottom: 'solid 2px black',
-                    position: 'absolute',
-                    top: '0px',
-                    left: '-21px'
-                },
-                title: {
-                    lineHeight: '24px',
-                    verticalAlign: 'middle'
-                }
-            },
-            subtree: {
-                listStyle: 'none',
-                paddingLeft: '19px'
-            },
-            loading: {
-                color: '#111'
-            }
-        }
-    }
-};

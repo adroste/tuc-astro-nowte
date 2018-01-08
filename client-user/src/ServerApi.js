@@ -1,12 +1,33 @@
 // helper class for the communication with the server
 import { SERVER_URL } from "./Globals";
 
-"use strict";
+// eslint-disable-next-line
+'use strict';
 
 const REQUEST_HEADERS = new Headers({
     'Accept': 'application/json, text/plain, */*',
     'Content-Type': 'application/json'
 });
+
+
+// helper to retrieve the json from a response
+const getJsonBody = (response, successStatusCode, onSuccess, onError) => {
+    if(response.status === successStatusCode){
+        response.json().then(onSuccess, onError);
+    } else {
+        response.json().then((data) => onError("code: " + response.status + " " + data.error.message), onError);
+    }
+};
+
+// helper to check if the response code was correct
+const verifyResponseCode = (response, successStatusCode, onSuccess, onError) => {
+    if(response.status === successStatusCode) {
+        onSuccess();
+    } else {
+        response.json().then((data) => onError("code: " + response.status + " " + data.error.message), onError);
+    }
+};
+
 
 export const logout = (sessionToken, onSuccess, onError) => {
     if(sessionToken === undefined){
@@ -218,22 +239,4 @@ export const getShares = (sessionToken, projectId, onSuccess, onError) => {
         (response) => getJsonBody(response, 200, onSuccess, onError),
         onError
     );
-};
-
-// helper to retrieve the json from a response
-const getJsonBody = (response, successStatusCode, onSuccess, onError) => {
-    if(response.status === successStatusCode){
-        response.json().then(onSuccess, onError);
-    } else {
-        response.json().then((data) => onError("code: " + response.status + " " + data.error.message), onError);
-    }
-};
-
-// helper to check if the response code was correct
-const verifyResponseCode = (response, successStatusCode, onSuccess, onError) => {
-    if(response.status === successStatusCode) {
-        onSuccess();
-    } else {
-        response.json().then((data) => onError("code: " + response.status + " " + data.error.message), onError);
-    }
 };

@@ -7,13 +7,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ProjectFileTreeContainer from "../ProjectFileTreeContainer";
 import Button from "../../components/base/Button";
-import { ModalContainer } from "react-modal-dialog";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
 import * as AppActionsCreators from "../../actions/app";
 import {Editor} from "../../components/editor/Editor";
 import "./ProjectScreen.css";
+
 
 class ProjectScreen extends React.Component {
     /**

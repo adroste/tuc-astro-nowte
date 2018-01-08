@@ -20,6 +20,7 @@ export class StrokeStyle extends Record({
     /**
      * @param {StrokeStyleOptions} options
      */
+    // eslint-disable-next-line
     constructor(options) {
         super(options);
     }

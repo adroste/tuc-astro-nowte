@@ -2,15 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FileTree from "../components/project/FileTree";
 import * as API from '../ServerApi'
-import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
 import Button from "../components/base/Button";
 
-// helper
-const copy = (object) => {
-    return JSON.parse(JSON.stringify(object));
-};
 
 /**
  * this renders the file tree of the user as well as files shared for him

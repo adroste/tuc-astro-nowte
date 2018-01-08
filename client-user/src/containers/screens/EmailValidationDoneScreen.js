@@ -1,8 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import './UserForms.css';
 import Button from "../../components/base/Button";
 import {SERVER_URL} from "../../Globals";
+
 
 export default class EmailValidationDoneScreen extends React.Component {
     /**

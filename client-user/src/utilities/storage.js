@@ -2,7 +2,7 @@
  * @author Alexander Droste
  * @date 03.01.18
  */
-'use strict';
+
 
 /**
  * Loads state in sessionStorage and localStorage and combines them.

@@ -1,7 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import './UserForms.css';
 import Button from "../../components/base/Button";
+
+
 export default class AwaitingPasswordChangeScreen extends React.Component {
     /**
      * propTypes

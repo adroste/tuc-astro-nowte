@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import LabelledInputBox from "../../components/base/LabelledInputBox";
 import Button from "../../components/base/Button";
 import './UserForms.css';

@@ -1,8 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import './UserForms.css';
 import LinkedText from "../../components/base/LinkedText";
-import * as action from "../../actions/user"
+
 
 export default class AwaitingValidationScreen extends React.Component {
     /**

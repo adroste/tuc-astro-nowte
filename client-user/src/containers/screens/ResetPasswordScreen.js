@@ -1,7 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import "./UserForms.css"
 import ResetPasswordForm from "../../components/forms/ResetPasswordForm";
+
 
 export default class ResetPasswordScreen extends React.Component {
     /**

@@ -1,5 +1,3 @@
-import {Point} from "../../geometry/Point";
-import {StrokeStyle} from "../StrokeStyle";
 import {Path} from "../../geometry/Path";
 
 /**

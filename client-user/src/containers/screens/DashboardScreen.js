@@ -8,7 +8,7 @@ import * as UserActionCreators from '../../actions/user';
 import * as ProjectActionsCreators from '../../actions/project';
 import * as AppActionsCreators from '../../actions/app';
 import ProjectSelectContainer from "../../containers/ProjectSelectContainer";
-import {ModalContainer} from "react-modal-dialog";
+
 
 class DashboardScreen extends React.Component {
     /**

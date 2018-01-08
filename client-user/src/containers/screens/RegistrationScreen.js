@@ -1,7 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import UserRegistrationForm from "../../components/forms/UserRegistrationForm";
 import './UserForms.css';
+
 
 export default class RegistrationScreen extends React.Component {
     /**
