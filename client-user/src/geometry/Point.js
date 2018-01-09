@@ -10,6 +10,22 @@ export class Point {
     }
 
     /**
+     * deep copy of object
+     * @return {Point}
+     */
+    clone() {
+        return new Point(this.x, this.y);
+    }
+
+    /**
+     * @param {point} point point to compare
+     * @return {boolean}
+     */
+    equals(point) {
+        return point && (this.x === point.x && this.y === point.y);
+    }
+
+    /**
      * subtracts this point from the right point
      * @param right point to subtract from
      * @return {Point}
