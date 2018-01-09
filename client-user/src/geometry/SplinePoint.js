@@ -7,9 +7,10 @@
 export class SplinePoint {
     /**
      * @param {Point} point point
-     * @param {Point} tangent tangent
+     * @param {Point} tangentIn incomming tangent
+     * @param {Point} tangentOut incomming tangent
      */
-    constructor(point, tangent) {
+    constructor(point, tangentIn, tangentOut) {
         /**
          * Spline-points position
          * @type {Point}
@@ -20,7 +21,8 @@ export class SplinePoint {
          * Spline-points tangent
          * @type {Point}
          */
-        this.tangent = tangent;
+        this.tangentIn = tangentIn;
+        this.tangentOut = tangentOut;
     }
 
     /**
@@ -28,7 +30,7 @@ export class SplinePoint {
      * @returns {Point}
      */
     getOutPoint() {
-        return this.point.add(this.tangent);
+        return this.point.add(this.tangentOut);
     }
 
 
@@ -37,6 +39,6 @@ export class SplinePoint {
      * @returns {Point}
      */
     getInPoint() {
-        return this.point.subtract(this.tangent.negate());
+        return this.point.add(this.tangentIn);
     }
 }

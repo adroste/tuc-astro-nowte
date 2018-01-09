@@ -18,6 +18,7 @@
 // modified to work with this project
 
 import {SplinePoint} from "./SplinePoint";
+import {Point} from "./Point";
 
 export class PathFitter{
     /**
@@ -56,7 +57,7 @@ export class PathFitter{
         if (length > 0) {
             // To support reducing paths with multiple points in the same place
             // to one segment:
-            segments = [new SplinePoint(points[0], null)];
+            segments = [new SplinePoint(points[0], new Point(0,0), new Point(0,0))];
             if (length > 1) {
                 this.fitCubic(segments, error, 0, length - 1,
                     // Left Tangent
@@ -114,8 +115,8 @@ export class PathFitter{
 
     static addCurve(segments, curve) {
         let prev = segments[segments.length - 1];
-        prev.tangent = curve[1].subtract(curve[0]);
-        segments.push(new SplinePoint(curve[3], curve[2].subtract(curve[3])));
+        prev.tangentOut = curve[1].subtract(curve[0]);
+        segments.push(new SplinePoint(curve[3], curve[2].subtract(curve[3]), new Point(0.0, 0.0)));
     }
 
     // Use least-squares method to find Bezier control points for region.
