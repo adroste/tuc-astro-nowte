@@ -1,5 +1,6 @@
 import {Spline} from "./Spline";
 import {SplinePoint} from "./SplinePoint";
+import {PathFitter} from "./PathFitter";
 
 
 export class Path
@@ -46,7 +47,7 @@ export class Path
      * @returns {Spline}
      */
     toSpline() {
-        if(this.points.length === 0){
+        /*if(this.points.length === 0){
             // TODO return something useful
             return null;
         } else if(this.points.length === 1) {
@@ -71,6 +72,11 @@ export class Path
         splinePoints.push(new SplinePoint(this.points[back],
             this.points[back].subtract(this.points[back-1]).scale(0.5)));
 
+        return new Spline(this.strokeStyle, splinePoints);
+        */
+        const splinePoints = new PathFitter(this, false).fit(2.5);
+        if(!splinePoints)
+            return null; // some error during converting?
         return new Spline(this.strokeStyle, splinePoints);
     }
 }

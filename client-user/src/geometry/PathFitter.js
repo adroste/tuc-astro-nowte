@@ -17,6 +17,8 @@
 
 // modified to work with this project
 
+import {SplinePoint} from "./SplinePoint";
+
 export class PathFitter{
     /**
      * @typedef {Object} PathFitterOptions
@@ -31,9 +33,10 @@ export class PathFitter{
     constructor(path, isClosed) {
         let points = this.points = [],
             segments = path.points;
+        this.closed = isClosed;
         // Copy over points from path and filter out adjacent duplicates.
         for (let i = 0, prev, l = segments.length; i < l; i++) {
-            let point = segments[i].point;
+            let point = segments[i];
             if (!prev || !prev.equals(point)) {
                 points.push(prev = point.clone());
             }
@@ -53,7 +56,7 @@ export class PathFitter{
         if (length > 0) {
             // To support reducing paths with multiple points in the same place
             // to one segment:
-            segments = [new Segment(points[0])];
+            segments = [new SplinePoint(points[0], null)];
             if (length > 1) {
                 this.fitCubic(segments, error, 0, length - 1,
                     // Left Tangent
@@ -77,8 +80,8 @@ export class PathFitter{
         if (last - first === 1) {
             let pt1 = points[first],
                 pt2 = points[last],
-                dist = pt1.getDistance(pt2) / 3;
-            this.addCurve(segments, [pt1, pt1.add(tan1.normalize(dist)),
+                dist = pt1.dist(pt2) / 3;
+            PathFitter.addCurve(segments, [pt1, pt1.add(tan1.normalize(dist)),
                 pt2.add(tan2.normalize(dist)), pt2]);
             return;
         }
@@ -93,7 +96,7 @@ export class PathFitter{
             //  Find max deviation of points to fitted curve
             let max = this.findMaxError(first, last, curve, uPrime);
             if (max.error < error && parametersInOrder) {
-                this.addCurve(segments, curve);
+                PathFitter.addCurve(segments, curve);
                 return;
             }
             split = max.index;
@@ -109,15 +112,15 @@ export class PathFitter{
         this.fitCubic(segments, error, split, last, tanCenter.negate(), tan2);
     }
 
-    addCurve(segments, curve) {
+    static addCurve(segments, curve) {
         let prev = segments[segments.length - 1];
-        prev.setHandleOut(curve[1].subtract(curve[0]));
-        segments.push(new Segment(curve[3], curve[2].subtract(curve[3])));
+        prev.tangent = curve[1].subtract(curve[0]);
+        segments.push(new SplinePoint(curve[3], curve[2].subtract(curve[3])));
     }
 
     // Use least-squares method to find Bezier control points for region.
     generateBezier(first, last, uPrime, tan1, tan2) {
-        let epsilon = /*#=*/Numerical.EPSILON,
+        let epsilon = 1e-12,
             abs = Math.abs,
             points = this.points,
             pt1 = points[first],
@@ -171,7 +174,7 @@ export class PathFitter{
         // If alpha negative, use the Wu/Barsky heuristic (see text)
         // (if alpha is 0, you get coincident control points that lead to
         // divide by zero in any subsequent NewtonRaphsonRootFind() call.
-        let segLength = pt2.getDistance(pt1),
+        let segLength = pt2.dist(pt1),
             eps = epsilon * segLength,
             handle1,
             handle2;
@@ -206,7 +209,7 @@ export class PathFitter{
     // a better parameterization.
     reparameterize(first, last, u, curve) {
         for (let i = first; i <= last; i++) {
-            u[i - first] = this.findRoot(curve, this.points[i], u[i - first]);
+            u[i - first] = PathFitter.findRoot(curve, this.points[i], u[i - first]);
         }
         // Detect if the new parameterization has reordered the points.
         // In that case, we would fit the points of the path in the wrong order.
@@ -218,7 +221,7 @@ export class PathFitter{
     }
 
     // Use Newton-Raphson iteration to find better root.
-    findRoot(curve, point, u) {
+    static findRoot(curve, point, u) {
         let curve1 = [],
             curve2 = [];
         // Generate control vertices for Q'
@@ -235,8 +238,12 @@ export class PathFitter{
             pt2 = PathFitter.evaluate(1, curve2, u),
             diff = pt.subtract(point),
             df = pt1.dot(pt1) + diff.dot(pt2);
+
+        const isZero = function(val) {
+            return val >= -1e-12 && val <= 1e-12;
+        };
         // u = u - f(u) / f'(u)
-        return Numerical.isZero(df) ? u : u - diff.dot(pt1) / df;
+        return isZero(df) ? u : u - diff.dot(pt1) / df;
     }
 
     // Evaluate a bezier curve at a particular parameter value
@@ -254,11 +261,16 @@ export class PathFitter{
 
     // Assign parameter values to digitized points
     // using relative distances between points.
+    /**
+     * @param {Point} first
+     * @param {Point} last
+     * @return {number[]}
+     */
     chordLengthParameterize(first, last) {
         let u = [0];
         for (let i = first + 1; i <= last; i++) {
             u[i - first] = u[i - first - 1]
-                + this.points[i].getDistance(this.points[i - 1]);
+                + this.points[i].dist(this.points[i - 1]);
         }
         for (let i = 1, m = last - first; i <= m; i++) {
             u[i] /= u[m];

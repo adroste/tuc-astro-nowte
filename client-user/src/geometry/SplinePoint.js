@@ -28,7 +28,7 @@ export class SplinePoint {
      * @returns {Point}
      */
     getOutPoint() {
-        return this.point.add(this.tangent.scale(1/3));
+        return this.point.add(this.tangent);
     }
 
 
@@ -37,6 +37,6 @@ export class SplinePoint {
      * @returns {Point}
      */
     getInPoint() {
-        return this.point.subtract(this.tangent.scale(1/3));
+        return this.point.subtract(this.tangent.negate());
     }
 }

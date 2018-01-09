@@ -27,29 +27,61 @@ export class Point {
 
     /**
      * subtracts this point from the right point
-     * @param right point to subtract from
+     * @param {Point|number} right point to subtract from
      * @return {Point}
      */
     subtract(right) {
-        return new Point(this.x - right.x, this.y - right.y);
+        if(typeof right === typeof this)
+            return new Point(this.x - right.x, this.y - right.y);
+        return new Point(this.x - right, this.y - right);
     }
 
     /**
      * adds two points
-     * @param right
+     * @param {Point|number} right
      * @return {Point}
      */
     add(right) {
-        return new Point(this.x + right.x, this.y + right.y);
+        if(typeof right === typeof this)
+            return new Point(this.x + right.x, this.y + right.y);
+        return new Point(this.x + right, this.y + right);
     }
 
     /**
-     * scales the points components
-     * @param scalar scaling factor
+     * dot product of two vectors
+     * @param {Point} right
+     * @return {number}
+     */
+    dot(right) {
+        return this.x * right.x + this.y * right.y;
+    }
+
+    /**
+     * pseudo cross product (signed area of two vectors)
+     * @param {Point} right
+     * @return {number}
+     */
+    cross(right) {
+        return this.x * right.y - this.y * right.x;
+    }
+
+    /**
+     * component wise multiplication
+     * @param {Point|number} right
      * @return {Point}
      */
-    scale(scalar){
-        return new Point(this.x * scalar, this.y * scalar);
+    multiply(right) {
+        if(typeof right === typeof this)
+            return new Point(this.x * right.x, this.y * right.y);
+        return new Point(this.x * right, this.y * right);
+    }
+
+    /**
+     * negation of all components
+     * @return {Point}
+     */
+    negate() {
+        return new Point(-this.x, -this.y);
     }
 
     /**
@@ -75,5 +107,17 @@ export class Point {
      */
     dist(point) {
         return this.subtract(point).length();
+    }
+
+    /**
+     * normalizes the point if this.length() != 0
+     * @param {number} length length to normalize to
+     * @return {Point}
+     */
+    normalize(length = 1) {
+        let len = this.length();
+        if(len === 0)
+            len = 1; // we don't want to divide by zero
+        return new Point(this.x * length / len, this.y * length / len);
     }
 }
