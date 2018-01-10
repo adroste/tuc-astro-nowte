@@ -20,22 +20,22 @@ export class Pen {
 
     /**
      * onPathPoint callback
-     * @type {function(p: Point)}
+     * @type {function(point: Point)}
      */
     onPathPoint = null;
 
     /**
      * onPathEnd callback
-     * @type {function()}
+     * @type {function(path: Path)}
      */
     onPathEnd = null;
 
     /**
-     * last received point
-     * @type {Point}
+     * current path object
+     * @type {Path}
      * @private
      */
-    _lastPoint = null;
+    _currentPath = null;
 
 
     /**
@@ -46,55 +46,66 @@ export class Pen {
     }
 
 
-    handlePointerDown(ref, e) {
+    handlePointerDown(e, ref) {
         const mouse = ref.getCanvasCoordinate(e);
 
-        this._lastPoint = mouse;
+        this._currentPath = new Path(this.strokeStyle);
+        this._currentPath.addPoint(mouse);
 
         if (this.onPathBegin)
             this.onPathBegin();
         if (this.onPathPoint)
             this.onPathPoint(mouse);
+        e.preventDefault();
     }
 
 
-    handlePointerUp(ref, e) {
-        if(this._lastPoint === null)
+    handlePointerUp(e, ref) {
+        if(this._currentPath === null)
             return; // line already finished
 
-        this._lastPoint = null;
-
+        // hit event before clearing path from working canvas
         if (this.onPathEnd)
-            this.onPathEnd();
+            this.onPathEnd(this._currentPath);
+
+        // clear rect with current path
+        const bbox = this._currentPath.boundingBox;
+        ref.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
+        this._currentPath = null;
+
+        e.preventDefault();
     }
 
 
-    handlePointerMove(ref, e) {
+    handlePointerMove(e, ref) {
         // drawing not required
-        if(this._lastPoint == null)
+        if(this._currentPath == null)
             return;
 
         // check bit-flag 1 (primary button)
         // important if somehow mouse-up event gets lost in space (e.g. loosing focus through popup)
+        // TODO touch input: this part could lead to errors with touch/pen
         if(!(e.buttons & 1))
-            this.handlePointerUp(ref, e);
+            this.handlePointerUp(e, ref);
 
         const mouse = ref.getCanvasCoordinate(e);
 
         // draw line between last point and current point
-        ref.drawPath(new Path(
+        (new Path(
             this.strokeStyle,
-            [ this._lastPoint, mouse ]
-        ));
+            [ this._currentPath.points[this._currentPath.points.length - 1], mouse ]
+        )).draw(ref.context);
 
-        this._lastPoint = mouse;
+        this._currentPath.addPoint(mouse);
 
         if (this.onPathPoint)
             this.onPathPoint(mouse);
+        e.preventDefault();
     }
 
 
-    handlePointerLeave(ref, e) {
-        this.handlePointerUp(ref, e);
+    handlePointerLeave(e, ref) {
+        this.handlePointerUp(e, ref);
+        e.preventDefault();
     }
 }
