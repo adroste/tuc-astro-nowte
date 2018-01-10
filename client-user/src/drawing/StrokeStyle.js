@@ -51,5 +51,13 @@ export class StrokeStyle extends Record({
     }
 
 
+    /**
+     * Applies style to rendering context
+     * @param {Object} context 2d rendering context of canvas
+     */
+    apply(context) {
+        context.strokeStyle = this.color;
+        context.lineWidth = this.thickness;
+        context.lineJoin = 'round';
     }
 }

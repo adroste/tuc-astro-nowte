@@ -96,5 +96,26 @@ export class Spline {
     }
 
 
+    /**
+     * Draws spline in rendering context
+     * @param {Object} context 2d rendering context of canvas
+     */
+    draw(context) {
+        if (!this.isValid())
+            throw new Error('invalid splines can not be drawn');
+
+        context.beginPath();
+        this.strokeStyle.apply(context);
+
+        // start point
+        context.moveTo(this.spoints[0].point.x, this.spoints[0].point.y);
+
+        for(let i = 1; i < this.spoints.length; i++) {
+            // draw cubic spline
+            const c1 = this.spoints[i - 1].getOutPoint();
+            const c2 = this.spoints[i].getInPoint();
+            context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, this.spoints[i].point.x, this.spoints[i].point.y);
+        }
+        context.stroke();
     }
 }

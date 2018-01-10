@@ -129,5 +129,23 @@ export class Path
     }
 
 
+    /**
+     * Draws path in rendering context
+     * @param {Object} context 2d rendering context of canvas
+     */
+    draw(context) {
+        if (!this.isValid())
+            throw new Error('invalid paths can not be drawn');
+
+        context.beginPath();
+        this.strokeStyle.apply(context);
+
+        // start point
+        context.moveTo(this.points[0].x, this.points[0].y);
+
+        for(let i = 1; i < this.points.length; i++) {
+            context.lineTo(this.points[i].x, this.points[i].y);
+        }
+        context.stroke();
     }
 }
