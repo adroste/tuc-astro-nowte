@@ -25,17 +25,31 @@ export class StrokeStyle extends Record({
         super(options);
     }
 
-    serialize() {
-        return {
-            color: this.color,
-            thickness: this.thickness,
-        }
-    }
 
-    static deserialize(obj) {
+    /**
+     * Creates StrokeStyle from object with properties
+     * @param {Object} obj
+     * @returns {StrokeStyle}
+     */
+    static fromObject(obj) {
         return new StrokeStyle({
             color: obj.color,
             thickness: obj.thickness,
-        })
+        });
+    }
+
+
+    /**
+     * Returns lean js object
+     * @returns {{color: string, thickness: number}}
+     */
+    lean() {
+        return {
+            color: this.color,
+            thickness: this.thickness,
+        };
+    }
+
+
     }
 }

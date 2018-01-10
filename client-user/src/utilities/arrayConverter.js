@@ -1,32 +1,32 @@
 /**
- * calls the serialize function on each array member
+ * calls the lean function on each array member
  * @param {Array|null} array
  * @return {Array|null}
  */
-export const serializeArray = (array) => {
+export const leanArray = (array) => {
     if(!array)
         return null;
 
     let res = [];
     for(let value of array){
-        res.push(value.serialize());
+        res.push(value.lean());
     }
     return res;
 };
 
 /**
- * calls the deserializer function for each object in the array
+ * calls the fromObject function for each object in the array
  * @param {Array|null} array
- * @param {function(object)} deserializer
+ * @param {function(object)} fromObjectFunc
  * @return {Array|null}
  */
-export const deserializeArray = (array, deserializer) => {
+export const fromObjectArray = (array, fromObjectFunc) => {
     if(!array)
         return null;
 
     let res = [];
     for(let value of array) {
-        res.push(deserializer(value));
+        res.push(fromObjectFunc(value));
     }
     return res;
 };

@@ -2,7 +2,7 @@ import {Spline} from "./Spline";
 import {PathFitter} from "./PathFitter";
 import {Point} from "./Point";
 import {StrokeStyle} from "../drawing/StrokeStyle";
-import {deserializeArray, serializeArray} from "../utilities/serialize";
+import {fromObjectArray, leanArray} from "../utilities/arrayConverter";
 
 
 export class Path
@@ -28,6 +28,29 @@ export class Path
 
 
     /**
+     * Creates Path from object with properties
+     * @param {Object} obj
+     * @returns {Path}
+     */
+    static fromObject(obj) {
+        return new Path(StrokeStyle.fromObject(obj.strokeStyle), fromObjectArray(obj.points, Point.fromObject));
+    }
+
+
+    /**
+     * Returns lean js object
+     * @returns {{strokeStyle: StrokeStyleOptions, points: Array<{x: number, y: number}>}}
+     */
+    lean() {
+        return {
+            strokeStyle: this.strokeStyle? this.strokeStyle.lean() : null,
+            // points can be used as they are
+            points: leanArray(this.points),
+        };
+    }
+
+
+    /**
      * Checks if path is valid (has at least two points)
      * @returns {boolean} true if path has at least two points
      */
@@ -42,6 +65,8 @@ export class Path
      */
     addPoint(point) {
         this.points.push(point);
+
+        // update bbox
         if(this.bbox) {
             // adjust bbox
             this.bbox.topLeft.x = Math.min(this.bbox.topLeft.x, point.x);
@@ -70,6 +95,7 @@ export class Path
         return new Spline(this.strokeStyle, splinePoints);
     }
 
+
     /**
      * @return {{topLeft: Point, bottomRight: Point}|null}
      */
@@ -77,11 +103,12 @@ export class Path
         return this.bbox;
     }
 
+
     /**
      * @return {{topLeft: Point, bottomRight: Point}|null}
+     * @private
      */
     _calcBoundingBox() {
-
         if(this.points.length < 1)
             return null;
 
@@ -98,18 +125,9 @@ export class Path
         return {
             topLeft: topLeft,
             bottomRight: bottomRight,
-        }
+        };
     }
 
-    serialize() {
-        return {
-            strokeStyle: this.strokeStyle? this.strokeStyle.serialize() : null,
-            // points can be used as they are
-            points: serializeArray(this.points),
-        }
-    }
 
-    static deserialize(obj) {
-        return new Path(StrokeStyle.deserialize(obj.strokeStyle), deserializeArray(obj.points, Point.deserialize));
     }
 }

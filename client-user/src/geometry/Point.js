@@ -9,6 +9,29 @@ export class Point {
         this.y = y;
     }
 
+
+    /**
+     * Creates Point from object with properties
+     * @param {Object} obj
+     * @returns {Point}
+     */
+    static fromObject(obj) {
+        return new Point(obj.x, obj.y);
+    }
+
+
+    /**
+     * Returns lean js object
+     * @returns {{x: number, y: number}}
+     */
+    lean() {
+        return {
+            x: this.x,
+            y: this.y,
+        };
+    }
+
+
     /**
      * deep copy of object
      * @return {Point}
@@ -119,16 +142,5 @@ export class Point {
         if(len === 0)
             len = 1; // we don't want to divide by zero
         return new Point(this.x * length / len, this.y * length / len);
-    }
-
-    serialize() {
-        return {
-            x: this.x,
-            y: this.y,
-        }
-    }
-
-    static deserialize(obj) {
-        return new Point(obj.x, obj.y);
     }
 }

@@ -26,6 +26,34 @@ export class SplinePoint {
         this.tangentOut = tangentOut;
     }
 
+
+    /**
+     * Creates SplinePoint from object with properties
+     * @param {Object} obj
+     * @returns {SplinePoint}
+     */
+    static fromObject(obj) {
+        return new SplinePoint(
+            Point.fromObject(obj.point),
+            Point.fromObject(obj.tangentIn),
+            Point.fromObject(obj.tangentOut),
+        );
+    }
+
+
+    /**
+     * Returns lean js object
+     * @returns {{point: {x: number, y: number}, tangentIn: {x: number, y: number}, tangentOut: {x: number, y: number}}}
+     */
+    lean() {
+        return {
+            point: this.point.lean(),
+            tangentIn: this.tangentIn.lean(),
+            tangentOut: this.tangentOut.lean(),
+        };
+    }
+
+
     /**
      * Calculates out-point
      * @returns {Point}
@@ -41,21 +69,5 @@ export class SplinePoint {
      */
     getInPoint() {
         return this.point.add(this.tangentIn);
-    }
-
-    serialize() {
-        return {
-            point: this.point.serialize(),
-            tangentIn: this.tangentIn.serialize(),
-            tangentOut: this.tangentOut.serialize(),
-        }
-    }
-
-    static deserialize(obj) {
-        return new SplinePoint(
-            Point.deserialize(obj.point),
-            Point.deserialize(obj.tangentIn),
-            Point.deserialize(obj.tangentOut),
-        )
     }
 }
