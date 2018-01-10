@@ -150,4 +150,39 @@ export class Rect {
     clone() {
         return new Rect(this.x1, this.y1, this.x2, this.y2);
     }
+
+
+    /**
+     * Moves rect
+     * @param {number} tx
+     * @param {number} ty
+     */
+    move(tx, ty) {
+        this.x1 += tx;
+        this.x2 += tx;
+        this.y1 += ty;
+        this.y2 += ty;
+    }
+
+
+    /**
+     * Scales rect
+     * @param {number} s
+     */
+    scale(s) {
+        this.width = this.width * s;
+        this.height = this.height * s;
+    }
+
+
+    /**
+     * Grows rect in all directions by m
+     * @param {number} m
+     */
+    grow(m) {
+        this.x1 -= m;
+        this.y1 -= m;
+        this.x2 += m;
+        this.y2 += m;
+    }
 }
