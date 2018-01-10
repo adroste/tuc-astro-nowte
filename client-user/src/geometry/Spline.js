@@ -73,7 +73,7 @@ export class Spline {
         return {
             strokeStyle: this.strokeStyle? this.strokeStyle.serialize() : null,
             // can be used as they are
-            points: serializeArray(this.spoints),
+            spoints: serializeArray(this.spoints),
         }
     }
 

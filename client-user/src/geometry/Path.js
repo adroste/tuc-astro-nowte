@@ -110,6 +110,6 @@ export class Path
     }
 
     static deserialize(obj) {
-        return new Spline(StrokeStyle.deserialize(obj.strokeStyle), deserializeArray(obj.points, Point.deserialize));
+        return new Path(StrokeStyle.deserialize(obj.strokeStyle), deserializeArray(obj.points, Point.deserialize));
     }
 }
