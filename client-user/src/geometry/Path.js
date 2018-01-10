@@ -13,7 +13,8 @@ export class Path {
     get boundingBox() {
         const b = this._bbox.clone();
         if (this.strokeStyle)
-            b.grow(this.strokeStyle.thickness / 2);
+            // + 1 is additional tolerance
+            b.grow(this.strokeStyle.thickness / 2 + 1);
         return b;
     }
 
