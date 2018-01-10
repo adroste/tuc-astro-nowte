@@ -16,17 +16,20 @@ const BrickWrapper = styled.div`
 
 
 export class DrawBrick extends React.Component {
+    /**
+     * propTypes
+     * @property {string} width width as css unit, e.g. "17cm"
+     * @property {string} height height as css unit, e.g. "17cm"
+     */
     static get propTypes() {
         return {
-            height: PropTypes.string.isRequired,
-            width: PropTypes.string
+            width: PropTypes.string.isRequired,
+            height: PropTypes.string.isRequired
         };
     }
 
     static get defaultProps() {
-        return {
-            width: "100%"
-        };
+        return {};
     }
 
 

@@ -60,7 +60,7 @@ export class Editor extends React.Component {
                 <PageOuter>
                     <PageInner>
                         This is a fancy editor
-                        <DrawBrick height="400px"/>
+                        <DrawBrick width="17cm" height="400px"/>
                     </PageInner>
                 </PageOuter>
             </Wrapper>
