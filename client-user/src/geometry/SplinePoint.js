@@ -28,7 +28,7 @@ export class SplinePoint {
 
 
     /**
-     * Creates SplinePoint from object with properties
+     * Creates SplinePoint from object with same properties
      * @param {Object} obj
      * @returns {SplinePoint}
      */

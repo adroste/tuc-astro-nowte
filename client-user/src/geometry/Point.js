@@ -11,7 +11,7 @@ export class Point {
 
 
     /**
-     * Creates Point from object with properties
+     * Creates Point from object with same properties
      * @param {Object} obj
      * @returns {Point}
      */

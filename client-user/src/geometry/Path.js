@@ -3,10 +3,18 @@ import {PathFitter} from "./PathFitter";
 import {Point} from "./Point";
 import {StrokeStyle} from "../drawing/StrokeStyle";
 import {fromObjectArray, leanArray} from "../utilities/arrayConverter";
+import {Rect} from "./Rect";
 
 
-export class Path
-{
+export class Path {
+    /**
+     * @type {Rect|null}
+     */
+    get boundingBox() {
+        return this._bbox.clone();
+    }
+
+
     /**
      * @param {StrokeStyle} strokeStyle stroke style to use
      * @param {Point[]} [points=[]] points to create path from (empty by default)
@@ -23,12 +31,18 @@ export class Path
          * @type {Point[]}
          */
         this.points = points;
-        this.bbox = this._calcBoundingBox();
+
+        /**
+         * Bounding box
+         * @type {Rect}
+         * @private
+         */
+        this._bbox = this._calcBoundingBox();
     }
 
 
     /**
-     * Creates Path from object with properties
+     * Creates Path from object with same properties
      * @param {Object} obj
      * @returns {Path}
      */
@@ -67,19 +81,16 @@ export class Path
         this.points.push(point);
 
         // update bbox
-        if(this.bbox) {
+        if(this._bbox) {
             // adjust bbox
-            this.bbox.topLeft.x = Math.min(this.bbox.topLeft.x, point.x);
-            this.bbox.topLeft.y = Math.min(this.bbox.topLeft.y, point.y);
-            this.bbox.bottomRight.x = Math.max(this.bbox.bottomRight.x, point.x);
-            this.bbox.bottomRight.y = Math.max(this.bbox.bottomRight.y, point.y);
+            this._bbox.topLeft.x = Math.min(this._bbox.topLeft.x, point.x);
+            this._bbox.topLeft.y = Math.min(this._bbox.topLeft.y, point.y);
+            this._bbox.bottomRight.x = Math.max(this._bbox.bottomRight.x, point.x);
+            this._bbox.bottomRight.y = Math.max(this._bbox.bottomRight.y, point.y);
         }
         else {
             // bbox was not calculated before due to lack of points
-            this.bbox = {
-                topLeft: point.clone(),
-                bottomRight: point.clone(),
-            }
+            this._bbox = Rect.fromPoints(point, point);
         }
     }
 
@@ -97,15 +108,8 @@ export class Path
 
 
     /**
-     * @return {{topLeft: Point, bottomRight: Point}|null}
-     */
-    getBoundingBox() {
-        return this.bbox;
-    }
-
-
-    /**
-     * @return {{topLeft: Point, bottomRight: Point}|null}
+     * Calculates bounding box
+     * @return {Rect|null}
      * @private
      */
     _calcBoundingBox() {
@@ -122,10 +126,7 @@ export class Path
             bottomRight.y = Math.max(bottomRight.y, pt.y);
         }
 
-        return {
-            topLeft: topLeft,
-            bottomRight: bottomRight,
-        };
+        return Rect.fromPoints(topLeft, bottomRight);
     }
 
 

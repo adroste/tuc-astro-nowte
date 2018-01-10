@@ -27,7 +27,7 @@ export class StrokeStyle extends Record({
 
 
     /**
-     * Creates StrokeStyle from object with properties
+     * Creates StrokeStyle from object with same properties
      * @param {Object} obj
      * @returns {StrokeStyle}
      */

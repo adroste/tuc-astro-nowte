@@ -2,9 +2,18 @@ import {StrokeStyle} from "../drawing/StrokeStyle";
 import {Point} from "./Point";
 import {SplinePoint} from "./SplinePoint";
 import {fromObjectArray, leanArray} from "../utilities/arrayConverter";
+import {Rect} from "./Rect";
 
 
 export class Spline {
+    /**
+     * @type {Rect|null}
+     */
+    get boundingBox() {
+        return this._bbox.clone();
+    }
+
+
     /**
      * @param {StrokeStyle} strokeStyle style to use
      * @param {SplinePoint[]} [splinePoints=[]] spline-points of spline (empty by default)
@@ -21,12 +30,18 @@ export class Spline {
          * @type {SplinePoint[]}
          */
         this.spoints = splinePoints;
-        this.bbox = this._calcBoundingBox();
+
+        /**
+         * Bounding box
+         * @type {Rect}
+         * @private
+         */
+        this._bbox = this._calcBoundingBox();
     }
 
 
     /**
-     * Creates Spline from object with properties
+     * Creates Spline from object with same properties
      * @param {Object} obj
      * @returns {Spline}
      */
@@ -58,16 +73,7 @@ export class Spline {
 
 
     /**
-     * returns the pre-calculated bounding box
-     * @return {{topLeft, bottomRight}|null}
-     */
-    getBoundingBox() {
-        return this.bbox;
-    }
-
-
-    /**
-     * @return {{topLeft: Point, bottomRight: Point}|null}
+     * @return {Rect|null}
      */
     _calcBoundingBox() {
         if(this.spoints.length < 1)
@@ -88,11 +94,8 @@ export class Spline {
             fitPoint(pt.getInPoint());
             fitPoint(pt.getOutPoint());
         }
-        
-        return {
-            topLeft: topLeft,
-            bottomRight: bottomRight,
-        };
+
+        return Rect.fromPoints(topLeft, bottomRight);
     }
 
 
