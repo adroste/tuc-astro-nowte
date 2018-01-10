@@ -1,6 +1,7 @@
 import {Spline} from "./Spline";
 import {SplinePoint} from "./SplinePoint";
 import {PathFitter} from "./PathFitter";
+import {Point} from "./Point";
 
 
 export class Path
@@ -21,6 +22,7 @@ export class Path
          * @type {Point[]}
          */
         this.points = points;
+        this.bbox = this._calcBoundingBox();
     }
 
 
@@ -39,6 +41,20 @@ export class Path
      */
     addPoint(point) {
         this.points.push(point);
+        if(this.bbox) {
+            // adjust bbox
+            this.bbox.topLeft.x = Math.min(this.bbox.topLeft.x, point.x);
+            this.bbox.topLeft.y = Math.min(this.bbox.topLeft.y, point.y);
+            this.bbox.bottomRight.x = Math.max(this.bbox.bottomRight.x, point.x);
+            this.bbox.bottomRight.y = Math.max(this.bbox.bottomRight.y, point.y);
+        }
+        else {
+            // bbox was not calculated before due to lack of points
+            this.bbox = {
+                topLeft: point.clone(),
+                bottomRight: point.clone(),
+            }
+        }
     }
 
 
@@ -47,36 +63,42 @@ export class Path
      * @returns {Spline}
      */
     toSpline() {
-        /*if(this.points.length === 0){
-            // TODO return something useful
-            return null;
-        } else if(this.points.length === 1) {
-            return new Path(this.strokeStyle, [this.points[0], this.points[0]]).toSpline();
-        }
-
-        let splinePoints = [];
-        // make cubic splines according to catmull rom
-        // first point
-        splinePoints.push(new SplinePoint(this.points[0],
-            // vector to first point
-            this.points[1].subtract(this.points[0]).scale(0.5)
-        ));
-
-        for(let i = 1, end = this.points.length - 1; i < end; ++i){
-            const tangent = this.points[i+1].subtract(this.points[i-1]).scale(0.5);
-            splinePoints.push(new SplinePoint(this.points[i], tangent));
-        }
-
-        // last point
-        const back = this.points.length - 1;
-        splinePoints.push(new SplinePoint(this.points[back],
-            this.points[back].subtract(this.points[back-1]).scale(0.5)));
-
-        return new Spline(this.strokeStyle, splinePoints);
-        */
         const splinePoints = new PathFitter(this, false).fit(2.5);
         if(!splinePoints)
             return null; // some error during converting?
         return new Spline(this.strokeStyle, splinePoints);
     }
+
+    /**
+     * @return {{topLeft: Point, bottomRight: Point}|null}
+     */
+    getBoundingBox() {
+        return this.bbox;
+    }
+
+    /**
+     * @return {{topLeft: Point, bottomRight: Point}|null}
+     */
+    _calcBoundingBox() {
+
+        if(this.points.length < 1)
+            return null;
+
+        let topLeft = this.points[0].clone();
+        let bottomRight = this.points[0].clone();
+
+        for(let pt of this.points){
+            topLeft.x = Math.min(topLeft.x, pt.x);
+            topLeft.y = Math.min(topLeft.y, pt.y);
+            bottomRight.x = Math.max(bottomRight.x, pt.x);
+            bottomRight.y = Math.max(bottomRight.y, pt.y);
+        }
+
+        return {
+            topLeft: topLeft,
+            bottomRight: bottomRight,
+        }
+    }
+
+    
 }

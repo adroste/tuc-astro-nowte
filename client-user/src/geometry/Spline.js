@@ -17,6 +17,7 @@ export class Spline {
          * @type {SplinePoint[]}
          */
         this.spoints = splinePoints;
+        this.bbox = this._calcBoundingBox();
     }
 
     /**
@@ -25,5 +26,42 @@ export class Spline {
      */
     isValid() {
         return this.spoints.length >= 2;
+    }
+
+    /**
+     * returns the pre-calculated bounding box
+     * @return {{topLeft, bottomRight}|null}
+     */
+    getBoundingBox() {
+        return this.bbox;
+    }
+
+    /**
+     * @return {{topLeft: Point, bottomRight: Point}}
+     */
+    _calcBoundingBox() {
+        if(this.spoints.length < 1)
+            return null;
+
+        let topLeft = this.spoints[0].point.clone();
+        let bottomRight = this.spoints[0].point.clone();
+
+        const fitPoint = (pt) => {
+            topLeft.x = Math.min(topLeft.x, pt.x);
+            topLeft.y = Math.min(topLeft.y, pt.y);
+            bottomRight.x = Math.max(bottomRight.x, pt.x);
+            bottomRight.y = Math.max(bottomRight.y, pt.y);
+        };
+
+        for(let pt of this.spoints){
+            fitPoint(pt.point);
+            fitPoint(pt.getInPoint());
+            fitPoint(pt.getOutPoint());
+        }
+
+        return {
+            topLeft: topLeft,
+            bottomRight: bottomRight,
+        }
     }
 }
