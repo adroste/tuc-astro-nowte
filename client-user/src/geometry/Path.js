@@ -83,10 +83,10 @@ export class Path {
         // update bbox
         if(this._bbox) {
             // adjust bbox
-            this._bbox.topLeft.x = Math.min(this._bbox.topLeft.x, point.x);
-            this._bbox.topLeft.y = Math.min(this._bbox.topLeft.y, point.y);
-            this._bbox.bottomRight.x = Math.max(this._bbox.bottomRight.x, point.x);
-            this._bbox.bottomRight.y = Math.max(this._bbox.bottomRight.y, point.y);
+            this._bbox.x1 = Math.min(this._bbox.x1, point.x);
+            this._bbox.y1 = Math.min(this._bbox.y1, point.y);
+            this._bbox.x2 = Math.max(this._bbox.x2, point.x);
+            this._bbox.y2 = Math.max(this._bbox.y2, point.y);
         }
         else {
             // bbox was not calculated before due to lack of points
