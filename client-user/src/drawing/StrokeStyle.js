@@ -24,4 +24,18 @@ export class StrokeStyle extends Record({
     constructor(options) {
         super(options);
     }
+
+    serialize() {
+        return {
+            color: this.color,
+            thickness: this.thickness,
+        }
+    }
+
+    static deserialize(obj) {
+        return new StrokeStyle({
+            color: obj.color,
+            thickness: obj.thickness,
+        })
+    }
 }

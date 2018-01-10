@@ -120,4 +120,15 @@ export class Point {
             len = 1; // we don't want to divide by zero
         return new Point(this.x * length / len, this.y * length / len);
     }
+
+    serialize() {
+        return {
+            x: this.x,
+            y: this.y,
+        }
+    }
+
+    static deserialize(obj) {
+        return new Point(obj.x, obj.y);
+    }
 }

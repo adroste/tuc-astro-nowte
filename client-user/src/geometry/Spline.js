@@ -1,3 +1,7 @@
+import {StrokeStyle} from "../drawing/StrokeStyle";
+import {Point} from "./Point";
+import {SplinePoint} from "./SplinePoint";
+import {deserializeArray, serializeArray} from "../utilities/serialize";
 
 
 export class Spline {
@@ -63,5 +67,17 @@ export class Spline {
             topLeft: topLeft,
             bottomRight: bottomRight,
         }
+    }
+
+    serialize() {
+        return {
+            strokeStyle: this.strokeStyle? this.strokeStyle.serialize() : null,
+            // can be used as they are
+            points: serializeArray(this.spoints),
+        }
+    }
+
+    static deserialize(obj) {
+        return new Spline(StrokeStyle.deserialize(obj.strokeStyle), deserializeArray(obj.spoints, SplinePoint.deserialize));
     }
 }

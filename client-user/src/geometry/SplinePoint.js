@@ -2,13 +2,14 @@
  * @author Alexander Droste
  * @date 08.01.18
  */
+import {Point} from "./Point";
 
 
 export class SplinePoint {
     /**
      * @param {Point} point point
      * @param {Point} tangentIn incomming tangent
-     * @param {Point} tangentOut incomming tangent
+     * @param {Point} tangentOut outgoing tangent
      */
     constructor(point, tangentIn, tangentOut) {
         /**
@@ -40,5 +41,21 @@ export class SplinePoint {
      */
     getInPoint() {
         return this.point.add(this.tangentIn);
+    }
+
+    serialize() {
+        return {
+            point: this.point.serialize(),
+            tangentIn: this.tangentIn.serialize(),
+            tangentOut: this.tangentOut.serialize(),
+        }
+    }
+
+    static deserialize(obj) {
+        return new SplinePoint(
+            Point.deserialize(obj.point),
+            Point.deserialize(obj.tangentIn),
+            Point.deserialize(obj.tangentOut),
+        )
     }
 }

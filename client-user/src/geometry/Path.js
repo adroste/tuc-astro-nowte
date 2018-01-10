@@ -1,7 +1,8 @@
 import {Spline} from "./Spline";
-import {SplinePoint} from "./SplinePoint";
 import {PathFitter} from "./PathFitter";
 import {Point} from "./Point";
+import {StrokeStyle} from "../drawing/StrokeStyle";
+import {deserializeArray, serializeArray} from "../utilities/serialize";
 
 
 export class Path
@@ -100,5 +101,15 @@ export class Path
         }
     }
 
-    
+    serialize() {
+        return {
+            strokeStyle: this.strokeStyle? this.strokeStyle.serialize() : null,
+            // points can be used as they are
+            points: serializeArray(this.points),
+        }
+    }
+
+    static deserialize(obj) {
+        return new Spline(StrokeStyle.deserialize(obj.strokeStyle), deserializeArray(obj.points, Point.deserialize));
+    }
 }
