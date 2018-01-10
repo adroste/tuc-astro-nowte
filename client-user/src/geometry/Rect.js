@@ -83,7 +83,7 @@ export class Rect {
      * @type {number}
      */
     get height() {
-        return this.x2 - this.x1;
+        return this.y2 - this.y1;
     }
 
     /**
