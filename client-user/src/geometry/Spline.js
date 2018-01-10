@@ -10,7 +10,10 @@ export class Spline {
      * @type {Rect|null}
      */
     get boundingBox() {
-        return this._bbox.clone();
+        const b = this._bbox.clone();
+        if (this.strokeStyle)
+            b.grow(this.strokeStyle.thickness / 2);
+        return b;
     }
 
 
