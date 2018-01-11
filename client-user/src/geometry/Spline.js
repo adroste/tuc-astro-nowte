@@ -108,11 +108,20 @@ export class Spline {
      * @param {Object} context 2d rendering context of canvas
      */
     draw(context) {
-        if (!this.isValid())
-            throw new Error('invalid splines can not be drawn');
+        if (this.spoints.length < 1)
+            return;
 
         context.beginPath();
         this.strokeStyle.apply(context);
+
+        // draw single point
+        if (this.spoints.length === 1) {
+            // strokeStyle = fillStyle, thickness = radius
+            context.fillStyle = this.strokeStyle.color;
+            context.arc(this.spoints[0].point.x, this.spoints[0].point.y, this.strokeStyle.thickness / 2, 0, 2 * Math.PI, true);
+            context.fill();
+            return;
+        }
 
         // start point
         context.moveTo(this.spoints[0].point.x, this.spoints[0].point.y);

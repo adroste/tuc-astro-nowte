@@ -5,7 +5,9 @@ import {StrokeStyle} from "../drawing/StrokeStyle";
 import {fromObjectArray, leanArray} from "../utilities/arrayConverter";
 import {Rect} from "./Rect";
 
-
+/**
+ * @todo save points as double, round in draw (to preserve accuracy on scaling)
+ */
 export class Path {
     /**
      * @type {Rect|null}
@@ -65,15 +67,6 @@ export class Path {
             // points can be used as they are
             points: leanArray(this.points),
         };
-    }
-
-
-    /**
-     * Checks if path is valid (has at least two points)
-     * @returns {boolean} true if path has at least two points
-     */
-    isValid() {
-        return this.points.length >= 2;
     }
 
 
@@ -139,16 +132,25 @@ export class Path {
      * @param {Object} context 2d rendering context of canvas
      */
     draw(context) {
-        if (!this.isValid())
-            throw new Error('invalid paths can not be drawn');
+        if (this.points.length < 1)
+            return;
 
         context.beginPath();
         this.strokeStyle.apply(context);
 
+        // draw single point
+        if (this.points.length === 1) {
+            // strokeStyle = fillStyle, thickness = radius
+            context.fillStyle = this.strokeStyle.color;
+            context.arc(this.points[0].x, this.points[0].y, this.strokeStyle.thickness / 2, 0, 2 * Math.PI, true);
+            context.fill();
+            return;
+        }
+
         // start point
         context.moveTo(this.points[0].x, this.points[0].y);
 
-        for(let i = 1; i < this.points.length; i++) {
+        for (let i = 1; i < this.points.length; i++) {
             context.lineTo(this.points[i].x, this.points[i].y);
         }
         context.stroke();

@@ -52,6 +52,11 @@ export class Pen {
         this._currentPath = new Path(this.strokeStyle);
         this._currentPath.addPoint(mouse);
 
+        (new Path(
+            this.strokeStyle,
+            [ mouse ]
+        )).draw(ref.context);
+
         if (this.onPathBegin)
             this.onPathBegin();
         if (this.onPathPoint)

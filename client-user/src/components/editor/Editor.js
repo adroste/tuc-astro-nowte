@@ -11,7 +11,6 @@ import {DrawBrick} from "./bricks/DrawBrick";
 const Wrapper = styled.div`
     display: block;
     width: 100%;
-    background-color: #8e908c;
 `;
 
 
@@ -24,6 +23,7 @@ const PageOuter = styled.div`
     padding-left: 20mm;
     padding-top: 15mm;
     padding-bottom: 10cm; /* scrolling dont stops at last element */
+    box-shadow: 0px 0px 15px 0px #ddd;
 `;
 
 

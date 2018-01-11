@@ -59,5 +59,6 @@ export class StrokeStyle extends Record({
         context.strokeStyle = this.color;
         context.lineWidth = this.thickness;
         context.lineJoin = 'round';
+        context.lineCap = 'round';
     }
 }
