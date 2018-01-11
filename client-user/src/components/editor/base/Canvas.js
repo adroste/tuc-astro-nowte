@@ -40,7 +40,7 @@ export class Canvas extends React.Component {
      * canvas 2d context
      * @type {Object}
      */
-    context = null;
+    _context = null;
 
     /**
      * canvas object
@@ -50,9 +50,20 @@ export class Canvas extends React.Component {
     _canvas = null;
 
 
-    componentDidMount() {
-        this.context = this._canvas.getContext("2d");
+    get context() {
+        // _context could be defined as empty object (if context gets lost)
+        // therefore you must check if api functions (like beginPath) are defined
+        if (!this._context || !this._context.beginPath)
+            this._context = this._canvas.getContext("2d");
+        return this._context;
+    }
 
+    set context(obj) {
+        this._context = obj;
+    }
+
+
+    componentDidMount() {
         // pointer-events api
         this._canvas.addEventListener('pointerdown', this._handlePointerDown);
         this._canvas.addEventListener('pointerup', this._handlePointerUp);
