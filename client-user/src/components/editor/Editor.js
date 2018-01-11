@@ -6,6 +6,7 @@ import {StrokeStyle} from "../../drawing/StrokeStyle";
 import {Path} from "../../geometry/Path";
 import {Pen} from "../../drawing/canvas-tools/Pen";
 import {DrawBrick} from "./bricks/DrawBrick";
+import {Button, lightGreyRoundedTheme} from "../base/Button";
 
 
 const Wrapper = styled.div`
@@ -32,6 +33,17 @@ const PageInner = styled.div`
 `;
 
 
+const AppendBrickButton = styled(Button).attrs({
+    center: true,
+    large: true,
+    theme: lightGreyRoundedTheme,
+    children: '+'
+})`
+    width: 50%;
+    margin: 40px 0;
+`;
+
+
 export class Editor extends React.Component {
     /**
      * propTypes
@@ -53,6 +65,11 @@ export class Editor extends React.Component {
     }
 
 
+    handleAddBrick = () => {
+        alert('pressed');
+    };
+
+
     render() {
         return (
             <Wrapper className={this.props.className}>
@@ -62,6 +79,7 @@ export class Editor extends React.Component {
                         <DrawBrick width="17cm" height="400px"/>
                         <DrawBrick width="17cm" height="400px"/>
                         <DrawBrick width="17cm" height="400px"/>
+                        <AppendBrickButton onClick={this.handleAddBrick}/>
                     </PageInner>
                 </PageOuter>
             </Wrapper>

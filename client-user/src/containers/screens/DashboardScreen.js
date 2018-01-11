@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Button from "../../components/base/Button";
+import {Button} from "../../components/base/Button";
 import * as API from '../../ServerApi';
 import * as UserActionCreators from '../../actions/user';
 import * as ProjectActionsCreators from '../../actions/project';
@@ -64,12 +64,9 @@ class DashboardScreen extends React.Component {
                     onProjectClick={this.handleProjectClick}
                     user={this.props.user}
                 />
-
-
-                <Button
-                    label="Logout"
-                    onClick={this.handleLogOutClick}
-                />
+                <Button onClick={this.handleLogOutClick}>
+                    Logout
+                </Button>
             </div>
         );
     }

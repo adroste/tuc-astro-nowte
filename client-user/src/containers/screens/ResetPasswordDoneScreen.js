@@ -1,6 +1,6 @@
 import React from 'react';
 import './UserForms.css';
-import Button from "../../components/base/Button";
+import {Button} from "../../components/base/Button";
 
 
 export default class ResetPasswordDoneScreen extends React.Component {
@@ -24,7 +24,9 @@ export default class ResetPasswordDoneScreen extends React.Component {
             <div className="centered-form">
                 <div className="centered-form-inner">
                     <h3>Password has been changed!</h3>
-                    <Button label="Login" onClick={this.handleLoginClick}/>
+                    <Button onClick={this.handleLoginClick}>
+                        Login
+                    </Button>
                 </div>
             </div>
         );

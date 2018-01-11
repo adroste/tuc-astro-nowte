@@ -1,6 +1,6 @@
 import React from 'react';
 import './UserForms.css';
-import Button from "../../components/base/Button";
+import {Button} from "../../components/base/Button";
 import {SERVER_URL} from "../../Globals";
 
 
@@ -110,7 +110,9 @@ export default class EmailValidationDoneScreen extends React.Component {
             <div className="centered-form">
                 <div className="centered-form-inner">
                     <h3>{text}</h3>
-                    <Button label="Login" onClick={this.handleLoginClick}/>
+                    <Button onClick={this.handleLoginClick}>
+                        Login
+                    </Button>
                 </div>
             </div>
         );

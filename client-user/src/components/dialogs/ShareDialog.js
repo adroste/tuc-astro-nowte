@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {ModalDialog} from 'react-modal-dialog';
 import LabelledInputBox from "../base/LabelledInputBox";
-import Button from "../base/Button";
+import {Button} from "../base/Button";
 import "./ShareDialog.css"
 import * as API from '../../ServerApi'
 
@@ -105,14 +105,12 @@ export default class ShareDialog extends React.Component {
                     value={this.state.inputText}
                 />
                 <div className="align-right">
-                    <Button
-                        label="Cancel"
-                        onClick={this.props.onCancel}
-                    />
-                    <Button
-                        label="Share"
-                        onClick={this.handleShareClick}
-                    />
+                    <Button onClick={this.props.onCancel}>
+                        Cancel
+                    </Button>
+                    <Button onClick={this.handleShareClick}>
+                        Share
+                    </Button>
                 </div>
             </ModalDialog>
         );

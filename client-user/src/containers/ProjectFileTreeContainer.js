@@ -4,7 +4,7 @@ import FileTree from "../components/project/FileTree";
 import * as API from '../ServerApi'
 import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
-import Button from "../components/base/Button";
+import {Button} from "../components/base/Button";
 
 
 /**
@@ -363,10 +363,9 @@ export default class ProjectFileTreeContainer extends React.Component {
     render() {
         return (
             <div>
-                <Button
-                    label="Projects"
-                    onClick={this.props.onProjectDeselect}
-                />
+                <Button onClick={this.props.onProjectDeselect}>
+                    Projects
+                </Button>
                 <FileTree
                     label={this.props.projectTitle}
                     data={this.state.root.children}

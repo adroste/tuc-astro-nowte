@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LabelledInputBox from "../base/LabelledInputBox";
 import './UserLoginForm.css';
-import Button from "../base/Button";
+import {Button} from "../base/Button";
 import LinkedText from "../base/LinkedText";
 import * as utility from "../../utilities/login"
 import { SERVER_URL } from "../../Globals";
@@ -174,10 +174,9 @@ export default class UserLoginForm extends React.Component {
                     child={this.state.passwordChild}
                     value={this.state.password}
                 />
-                <Button
-                    label="Login"
-                    onClick={this.handleLoginClick}
-                />
+                <Button onClick={this.handleLoginClick}>
+                    Login
+                </Button>
                 <br/>
                 <br/>
                 <LinkedText label="forgot password" onClick={this.props.onForgotPasswordClick}/>

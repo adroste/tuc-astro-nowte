@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LabelledInputBox from "../base/LabelledInputBox";
 import './UserRegistrationForm.css';
-import Button from "../base/Button";
+import {Button} from "../base/Button";
 import LinkedText from "../base/LinkedText";
 import { SERVER_URL } from "../../Globals";
 import * as utility from "../../utilities/login"
@@ -227,10 +227,9 @@ export default class UserRegistrationForm extends React.Component {
                     value={this.state.passwordConfirm}
                 />
                 <br/>
-                <Button
-                    label="Submit"
-                    onClick={this.onClickHandler}
-                />
+                <Button onClick={this.onClickHandler}>
+                    Submit
+                </Button>
                 <br/>
                 <br/>
                 Already have an account?

@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import {Treebeard, decorators} from "react-treebeard"
 import "./FileTree.css"
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
+// TODO wtf?
 import {  } from "react-contextmenu";
-import Button from "../base/Button";
+import {Button} from "../base/Button";
 
 
 // styles
@@ -257,9 +258,15 @@ export default class FileTree extends React.Component {
                     <img src="/img/folder_add.svg" className="header-icon" onClick={() => this.onCreateFolderClick(null)}/>
                 </div>*/
                 <div>
-                    <Button label="doc" onClick={() => this.onCreateFileClick(null)}/>
-                    <Button label="folder" onClick={() => this.onCreateFolderClick(null)}/>
-                    <Button label="share" onClick={this.props.onShareClick}/>
+                    <Button onClick={() => this.onCreateFileClick(null)}>
+                        doc
+                    </Button>
+                    <Button onClick={() => this.onCreateFolderClick(null)}>
+                        folder
+                    </Button>
+                    <Button onClick={this.props.onShareClick}>
+                        share
+                    </Button>
                 </div>
             );
         };

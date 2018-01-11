@@ -1,6 +1,6 @@
 import React from 'react';
 import LabelledInputBox from "../../components/base/LabelledInputBox";
-import Button from "../../components/base/Button";
+import {Button} from "../../components/base/Button";
 import './UserForms.css';
 import LinkedText from "../../components/base/LinkedText";
 import {SERVER_URL} from "../../Globals";
@@ -97,10 +97,9 @@ export default class ForgotPasswordScreen extends React.Component {
                         value={this.state.email}
                     />
                     <br/>
-                    <Button
-                        label="Reset Password"
-                        onClick={this.handleResetClick}
-                    />
+                    <Button onClick={this.handleResetClick}>
+                        Reset Password
+                    </Button>
                     <br/>
                     <br/>
                     Remembered? <LinkedText label="Log in" onClick={this.handleLoginClick}/>

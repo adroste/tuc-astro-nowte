@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as API from '../ServerApi'
 import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
-import Button from "../components/base/Button";
+import {Button} from "../components/base/Button";
 import LinkedText from "../components/base/LinkedText";
 
 
@@ -125,8 +125,12 @@ export default class ProjectSelectContainer extends React.Component {
                 <div key={p.id}>
                     <LinkedText label={p.title} onClick={() => this.handleProjectClick(p)}/>
                     From: {p.ownerEmail}
-                    <Button label="Shares" onClick={() => this.handleProjectGetShares(p)} />
-                    <Button label="Delete" onClick={() => this.handleProjectDelete(p)} />
+                    <Button onClick={() => this.handleProjectGetShares(p)} >
+                        Shares
+                    </Button>
+                    <Button onClick={() => this.handleProjectDelete(p)} >
+                        Delete
+                    </Button>
                 </div>
             );
         }
@@ -138,7 +142,9 @@ export default class ProjectSelectContainer extends React.Component {
         return (
             <div>
                 <h3>Projects</h3>
-                <Button label="Create Project" onClick={this.handleCreateProjectClick}/>
+                <Button onClick={this.handleCreateProjectClick}>
+                    Create Project
+                </Button>
                 {this.getProjectView()}
             </div>
         );

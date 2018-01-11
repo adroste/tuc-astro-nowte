@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {ModalDialog} from 'react-modal-dialog';
 import LabelledInputBox from "../base/LabelledInputBox";
-import Button from "../base/Button";
+import { Button } from "../base/Button";
 import "./InputDialog.css"
 
 
@@ -53,14 +53,12 @@ export default class InputDialog extends React.Component {
                 />
 
                 <div className="align-right">
-                    <Button
-                        label="Cancel"
-                        onClick={this.props.onCancel}
-                    />
-                    <Button
-                        label="Create"
-                        onClick={this.handleCreate}
-                    />
+                    <Button onClick={this.props.onCancel}>
+                        Cancel
+                    </Button>
+                    <Button onClick={this.handleCreate}>
+                        Create
+                    </Button>
                 </div>
             </ModalDialog>
         );

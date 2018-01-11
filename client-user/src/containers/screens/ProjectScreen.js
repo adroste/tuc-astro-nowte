@@ -7,7 +7,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ProjectFileTreeContainer from "../ProjectFileTreeContainer";
-import Button from "../../components/base/Button";
+import {Button} from "../../components/base/Button";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
@@ -66,10 +66,9 @@ class ProjectScreen extends React.Component {
         return (
             <GridContainer className="container">
                 <ScrollContainer>
-                    <Button
-                        label="Back to Projects"
-                        onClick={this.handleDeselectProject}
-                    />
+                    <Button onClick={this.handleDeselectProject}>
+                        Back to Projects
+                    </Button>
 
                     <ProjectFileTreeContainer
                         projectId={this.props.project.projectId}
