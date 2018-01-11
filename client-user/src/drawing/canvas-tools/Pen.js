@@ -84,12 +84,8 @@ export class Pen {
 
     handlePointerMove(e, ref) {
         // drawing not required
-        if(this._currentPath == null) {
-            if (!(e.buttons & 1))
-                return;
-            else
-                this.handlePointerDown(e, ref);
-        }
+        if(this._currentPath == null)
+            return; // TODO maybe e.preventDefault missing here
 
         // check bit-flag 1 (primary button)
         // important if somehow mouse-up event gets lost in space (e.g. loosing focus through popup)
@@ -114,7 +110,18 @@ export class Pen {
 
 
     handlePointerLeave(e, ref) {
+        this.handlePointerMove(e, ref);
         this.handlePointerUp(e, ref);
+        e.preventDefault();
+    }
+
+
+    handlePointerEnter(e, ref) {
+        // primary button pressed
+        if (e.buttons & 1) {
+            // TODO add incoming line & clip
+            this.handlePointerDown(e, ref);
+        }
         e.preventDefault();
     }
 }

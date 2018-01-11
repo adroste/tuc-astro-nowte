@@ -69,6 +69,7 @@ export class Canvas extends React.Component {
         this._canvas.addEventListener('pointerup', this._handlePointerUp);
         this._canvas.addEventListener('pointermove', this._handlePointerMove);
         this._canvas.addEventListener('pointerleave', this._handlePointerLeave);
+        this._canvas.addEventListener('pointerenter', this._handlePointerEnter);
     }
 
 
@@ -110,6 +111,12 @@ export class Canvas extends React.Component {
     _handlePointerLeave = (e) => {
         if (this.props.tool && this.props.tool.handlePointerLeave)
             this.props.tool.handlePointerLeave(e, this);
+    };
+
+
+    _handlePointerEnter = (e) => {
+        if (this.props.tool && this.props.tool.handlePointerEnter)
+            this.props.tool.handlePointerEnter(e, this);
     };
 
 
