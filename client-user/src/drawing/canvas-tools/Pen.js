@@ -5,6 +5,9 @@ import {Path} from "../../geometry/Path";
  * @date 07.01.18
  */
 
+let _lastEventBeforeLeave = null;
+let _lastEvent = null;
+
 export class Pen {
     /**
      * Stroke styling
@@ -90,8 +93,12 @@ export class Pen {
         // check bit-flag 1 (primary button)
         // important if somehow mouse-up event gets lost in space (e.g. loosing focus through popup)
         // TODO touch input: this part could lead to errors with touch/pen
-        if(!(e.buttons & 1))
+        if(!(e.buttons & 1)) {
             this.handlePointerUp(e, ref);
+            return;
+        }
+
+        _lastEvent = e;
 
         const mouse = ref.getCanvasCoordinate(e);
 
@@ -110,6 +117,7 @@ export class Pen {
 
 
     handlePointerLeave(e, ref) {
+        _lastEventBeforeLeave = _lastEvent;
         this.handlePointerMove(e, ref);
         this.handlePointerUp(e, ref);
         e.preventDefault();
@@ -119,8 +127,15 @@ export class Pen {
     handlePointerEnter(e, ref) {
         // primary button pressed
         if (e.buttons & 1) {
-            // TODO add incoming line & clip
-            this.handlePointerDown(e, ref);
+            // last event coords == this event coords => last event was definitive leave from other layer
+            if (_lastEvent.clientX === e.clientX && _lastEvent.clientY === e.clientY) {
+                // draw line beginning from last point in previous layer
+                this.handlePointerDown(_lastEventBeforeLeave, ref);
+                this.handlePointerMove(e, ref);
+            }
+            else {
+                this.handlePointerDown(e, ref);
+            }
         }
         e.preventDefault();
     }
