@@ -6,6 +6,7 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import {  } from "react-contextmenu";
 import {getFolder} from "../ServerApi";
 import Button from "./base/Button";
+import ButtonIcon from "./base/ButtonIcon";
 
 let uniqueContextId = 0;
 
@@ -175,14 +176,10 @@ export default class FileTree extends React.Component {
 
         const displayHelperButtons = () => {
             return (
-                /*<div>
-                    <img src="/img/file_add.svg" className="header-icon" onClick={() => this.onCreateFileClick(null)}/>
-                    <img src="/img/folder_add.svg" className="header-icon" onClick={() => this.onCreateFolderClick(null)}/>
-                </div>*/
                 <div>
-                    <Button label="doc" onClick={() => this.onCreateFileClick(null)}/>
-                    <Button label="folder" onClick={() => this.onCreateFolderClick(null)}/>
-                    <Button label="share" onClick={this.props.onShareClick}/>
+                    <ButtonIcon imgSrc={"./img/file_add.svg"} label="doc" onClick={() => this.onCreateFileClick(null)}/>
+                    <ButtonIcon imgSrc={"./img/folder_add.svg"} label="folder" onClick={() => this.onCreateFolderClick(null)}/>
+                    <ButtonIcon imgSrc={"./img/people.svg"} label="share" onClick={this.props.onShareClick}/>
                 </div>
             );
         };
@@ -194,8 +191,8 @@ export default class FileTree extends React.Component {
                 <Treebeard
                     data={this.props.data}
                     onToggle={this.handleToggle}
-                    decorators = {decorators}
-                    style = {styles}
+                    decorators={decorators}
+                    style={styles}
                 />
             </div>
         );
