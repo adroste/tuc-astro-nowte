@@ -77,7 +77,8 @@ export class DrawLayer extends React.Component {
     };
 
     penHandlePathEnd = (path) => {
-
+        const spline = path.toSpline();
+        spline.draw(this.contentLayer.context);
     };
 
 

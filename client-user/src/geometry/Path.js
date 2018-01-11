@@ -104,7 +104,7 @@ export class Path {
      * @returns {Spline}
      */
     toSpline() {
-        const splinePoints = new PathFitter(this, false).fit(2.5);
+        const splinePoints = new PathFitter(this, false).fit(5);
         if(!splinePoints)
             return null; // some error during converting?
         return new Spline(this.strokeStyle, splinePoints);
