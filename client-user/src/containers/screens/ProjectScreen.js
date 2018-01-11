@@ -5,6 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import ProjectFileTreeContainer from "../ProjectFileTreeContainer";
 import Button from "../../components/base/Button";
 import {bindActionCreators} from "redux";
@@ -12,7 +13,19 @@ import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
 import * as AppActionsCreators from "../../actions/app";
 import {Editor} from "../../components/editor/Editor";
-import "./ProjectScreen.css";
+
+
+const GridContainer = styled.div`
+    display: grid;
+    grid-template-columns: 25% 75%;
+`;
+
+
+const ScrollContainer = styled.div`
+    width: 100%;
+    height: 100vh;
+    overflow: scroll !important;
+`;
 
 
 class ProjectScreen extends React.Component {
@@ -51,8 +64,8 @@ class ProjectScreen extends React.Component {
         // TODO go back to dashboard if unset
 
         return (
-            <div className="container">
-                <div>
+            <GridContainer className="container">
+                <ScrollContainer>
                     <Button
                         label="Back to Projects"
                         onClick={this.handleDeselectProject}
@@ -66,12 +79,14 @@ class ProjectScreen extends React.Component {
                         onProjectDeselect={this.handleDeselectProject}
                         user={this.props.user}
                     />
-                </div>
+                </ScrollContainer>
 
-                <Editor
-                    user={this.props.user}
-                />
-            </div>
+                <ScrollContainer>
+                    <Editor
+                        user={this.props.user}
+                    />
+                </ScrollContainer>
+            </GridContainer>
         );
     }
 }

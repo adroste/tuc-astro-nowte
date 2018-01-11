@@ -11,8 +11,6 @@ import {DrawBrick} from "./bricks/DrawBrick";
 const Wrapper = styled.div`
     display: block;
     width: 100%;
-    min-height: 100vh;
-    height: 100%;
     background-color: #8e908c;
 `;
 
@@ -25,6 +23,7 @@ const PageOuter = styled.div`
     padding-right: 20mm;
     padding-left: 20mm;
     padding-top: 15mm;
+    padding-bottom: 10cm; /* scrolling dont stops at last element */
 `;
 
 
@@ -56,10 +55,12 @@ export class Editor extends React.Component {
 
     render() {
         return (
-            <Wrapper>
+            <Wrapper className={this.props.className}>
                 <PageOuter>
                     <PageInner>
                         This is a fancy editor
+                        <DrawBrick width="17cm" height="400px"/>
+                        <DrawBrick width="17cm" height="400px"/>
                         <DrawBrick width="17cm" height="400px"/>
                     </PageInner>
                 </PageOuter>

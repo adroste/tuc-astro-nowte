@@ -12,6 +12,7 @@ import {DrawLayer} from "../layer/DrawLayer";
 const BrickWrapper = styled.div`
     width: ${props => props.width};
     height: ${props => props.height};
+    border: 1px red dashed;
 `;
 
 
