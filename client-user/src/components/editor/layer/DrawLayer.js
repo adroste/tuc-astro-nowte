@@ -32,7 +32,6 @@ export class DrawLayer extends React.Component {
      */
     static get propTypes() {
         return {
-
         };
     }
 

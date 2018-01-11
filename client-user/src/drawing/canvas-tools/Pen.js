@@ -79,8 +79,12 @@ export class Pen {
 
     handlePointerMove(e, ref) {
         // drawing not required
-        if(this._currentPath == null)
-            return;
+        if(this._currentPath == null) {
+            if (!(e.buttons & 1))
+                return;
+            else
+                this.handlePointerDown(e, ref);
+        }
 
         // check bit-flag 1 (primary button)
         // important if somehow mouse-up event gets lost in space (e.g. loosing focus through popup)

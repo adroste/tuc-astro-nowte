@@ -28,7 +28,7 @@ const PageOuter = styled.div`
 
 
 const PageInner = styled.div`
-    border: #ddd 1px solid;
+    /*border: #ddd 1px solid;*/
 `;
 
 
