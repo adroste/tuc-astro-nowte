@@ -5,9 +5,7 @@ import {StrokeStyle} from "../drawing/StrokeStyle";
 import {fromObjectArray, leanArray} from "../utilities/arrayConverter";
 import {Rect} from "./Rect";
 
-/**
- * @todo save points as double, round in draw (to preserve accuracy on scaling)
- */
+
 export class Path {
     /**
      * @type {Rect|null}

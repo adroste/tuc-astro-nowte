@@ -72,8 +72,8 @@ export class Canvas extends React.Component {
         let scaleY = this._canvas.height / rect.height;
 
         return new Point(
-            Math.round((event.clientX - rect.left) * scaleX),
-            Math.round((event.clientY - rect.top) * scaleY)
+            (event.clientX - rect.left) * scaleX,
+            (event.clientY - rect.top) * scaleY
         );
     };
 
