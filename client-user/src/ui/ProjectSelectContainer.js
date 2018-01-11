@@ -7,6 +7,7 @@ import InputDialog from "./InputDialog";
 import ShareDialog from "./ShareDialog";
 import {store} from "../Redux";
 import Button from "./base/Button";
+import ButtonIcon from "./base/ButtonIcon";
 import LinkedText from "./base/LinkedText";
 
 export default class ProjectSelectContainer extends React.Component {
@@ -124,8 +125,8 @@ export default class ProjectSelectContainer extends React.Component {
                 <div>
                     <LinkedText label={p.title} onClick={() => this.handleProjectClick(p)}/>
                     From: {p.ownerEmail}
-                    <Button label="Shares" onClick={() => this.handleProjectGetShares(p)} />
-                    <Button label="Delete" onClick={() => this.handleProjectDelete(p)} />
+                    <ButtonIcon imgSrc={"./img/people.svg"} label="Shares" onClick={() => this.handleProjectGetShares(p)} />
+                    <ButtonIcon imgSrc={"./img/trash.svg"} label="Delete" onClick={() => this.handleProjectDelete(p)} />
                 </div>
             );
         }
