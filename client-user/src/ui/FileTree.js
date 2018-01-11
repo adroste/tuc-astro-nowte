@@ -6,6 +6,7 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import {  } from "react-contextmenu";
 import {getFolder} from "../ServerApi";
 import Button from "./base/Button";
+import ButtonIcon from "./base/ButtonIcon";
 
 let uniqueContextId = 0;
 
@@ -24,10 +25,12 @@ export default class FileTree extends React.Component {
      * onFolderLoad {function(folder: object)} called when a folder should be retrieved (folder is the folder node)
      * onFolderClose {function(folder: object)} called when a folder should be closed (folder is the folder node)
      * onFileLoad {function(file: object)} called when a file should be opened (file is the file node)
-     * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created or null if the create button was clicked)
-     * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created or null if the create button was clicked)
+     * onFileCreateClick {function(folder: object)} called when the user wants to create a new file (folder is the parent folder of the file which should be created or null for root parent)
+     * onFolderCreateClick {function(folder: object)} called when the user wants to create a new folder (folder is the parent folder of the folder which should be created or null for root parent)
+     * onFolderButtonClick {function()} called when the folder button was clicked
+     * onFileButtonClick {function()} called when the file button was clicked
      * onDeleteClick {function(node: object)} called when the user wants to delete a file/folder
-     * onShareClick {function(node: object)} called when a file/folder should be shared
+     * onShareClick {function()} called when the share button was clicked
      * displayButtons {bool} true if helper buttons for folder and document creation should be displayed
      * displayShared {bool] if true displays people symbol if a file/folder is marked as shared (isShared = true)
      */
@@ -40,17 +43,17 @@ export default class FileTree extends React.Component {
             onFileLoad: PropTypes.func.isRequired,
             onFileCreateClick: PropTypes.func.isRequired,
             onFolderCreateClick: PropTypes.func.isRequired,
+            onFolderButtonClick: PropTypes.func,
+            onFileButtonClick: PropTypes.func,
             onDeleteClick: PropTypes.func.isRequired,
             onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
-            displayShared: PropTypes.bool,
         };
     }
 
     static get defaultProps() {
         return {
             displayButtons: true,
-            displayShared: true,
         };
     }
 
@@ -87,32 +90,25 @@ export default class FileTree extends React.Component {
     onCreateFileClick = (node) => {
         if(node === null){
             // button click
-            this.props.onFileCreateClick(null);
+            if(this.props.onFileButtonClick)
+                this.props.onFileButtonClick();
             return;
         }
 
-
         const folder = this.getFolder(node);
-        if(folder !== null) {
-            this.props.onFileCreateClick(folder);
-        }else {
-            alert("cannot identify parent folder");
-        }
+        this.props.onFileCreateClick(folder);
     };
 
     onCreateFolderClick = (node) => {
         if(node === null){
             // button click
-            this.props.onFolderCreateClick(null);
+            if(this.props.onFolderButtonClick)
+                this.props.onFolderButtonClick();
             return;
         }
 
         const folder = this.getFolder(node);
-        if(folder !== null){
-            this.props.onFolderCreateClick(folder);
-        }else {
-            alert("cannot identify parent folder");
-        }
+        this.props.onFolderCreateClick(folder);
     };
 
     onDeleteClick = (node) => {
@@ -121,10 +117,6 @@ export default class FileTree extends React.Component {
 
     onRenameClick = (node) => {
         alert("rename");
-    };
-
-    onShareClick = (node) => {
-        this.props.onShareClick(node);
     };
 
     render() {
@@ -148,7 +140,6 @@ export default class FileTree extends React.Component {
                         <ContextMenuTrigger id={contextID}>
                             <div>
                                 <img src={iconPath} className="header-icon"/>
-                                {props.node.isShared && this.props.displayShared ? <img src="/img/people.svg" className="header-icon"/> : ""}
                                 {props.node.name}
                             </div>
 
@@ -162,9 +153,6 @@ export default class FileTree extends React.Component {
                         </MenuItem>
                         <MenuItem onClick={(e) => { this.onCreateFolderClick(props.node); stopEvent(e);}}>
                             <img src={"/img/folder_add.svg"} className="header-icon"/> New Folder
-                        </MenuItem>
-                        <MenuItem onClick={(e) => { this.onShareClick(props.node); stopEvent(e);}}>
-                            <img src={"/img/people.svg"} className="header-icon"/> Share
                         </MenuItem>
                         <MenuItem className="no-select" onClick={(e) => stopEvent(e)} divider/>
                         <MenuItem onClick={(e) => { this.onDeleteClick(props.node); stopEvent(e);}}>
@@ -189,8 +177,9 @@ export default class FileTree extends React.Component {
         const displayHelperButtons = () => {
             return (
                 <div>
-                    <img src="/img/file_add.svg" className="header-icon" onClick={() => this.onCreateFileClick(null)}/>
-                    <img src="/img/folder_add.svg" className="header-icon" onClick={() => this.onCreateFolderClick(null)}/>
+                    <ButtonIcon imgSrc={"./img/file_add.svg"} label="doc" onClick={() => this.onCreateFileClick(null)}/>
+                    <ButtonIcon imgSrc={"./img/folder_add.svg"} label="folder" onClick={() => this.onCreateFolderClick(null)}/>
+                    <ButtonIcon imgSrc={"./img/people.svg"} label="share" onClick={this.props.onShareClick}/>
                 </div>
             );
         };
@@ -202,8 +191,8 @@ export default class FileTree extends React.Component {
                 <Treebeard
                     data={this.props.data}
                     onToggle={this.handleToggle}
-                    decorators = {decorators}
-                    style = {styles}
+                    decorators={decorators}
+                    style={styles}
                 />
             </div>
         );

@@ -8,13 +8,15 @@
 /**
  * Enum for describing permissions.
  * Numbers are ordered ascending by increase of permissions.
+ * Dev-Hint: If updated: need to update {@link ErrorUtil.checkPermissionsInRange}
  */
 const PermissionsEnum = {
     NONE: 0,
     READ: 1,
     ANNOTATE: 2,
     EDIT: 3,
-    MANAGE: 4
+    MANAGE: 4,
+    OWNER: 5
 };
 
 

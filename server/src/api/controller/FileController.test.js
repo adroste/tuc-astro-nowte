@@ -6,9 +6,8 @@
 'use strict';
 
 const UserModel = require('../models/UserModel');
-const FolderModel = require('../models/FolderModel');
 const DocumentModel = require('../models/DocumentModel');
-const ShareModel = require('../models/ShareModel');
+const ProjectModel = require('../models/ProjectModel');
 const FileController = require('./FileController');
 const UserController = require('./UserController');
 const PermissionsEnum = require('../utilities/PermissionsEnum');
@@ -18,9 +17,8 @@ const db = require('../../init/mongo-init');
 async function clearAll() {
     try {
         await UserModel.remove({});
-        await FolderModel.remove({});
         await DocumentModel.remove({});
-        await ShareModel.remove({});
+        await ProjectModel.remove({});
     } catch (err) {
         console.error(err);
     }
@@ -36,152 +34,232 @@ beforeAll(async () => {
 });
 
 
-describe('folder, doc basic creation/update', async () => {
-    test('checkTitleIsNoDuplicate, parent not found', async () => {
+describe('basic project operations', async () => {
+    test('create project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), '  My Project   ');
+        expect(typeof projectId).toBe('string');
+        const projectEntry = await ProjectModel.findById(projectId);
+        expect(projectEntry._id.toString()).toBe(projectId);
+        expect(projectEntry.title).toBe('My Project');
+        expect(projectEntry.tree[0].path).toBe('/');
+        expect(projectEntry.access[0].userId.toString()).toBe(testuser._id.toString());
+        expect(projectEntry.access[0].grantedById.toString()).toBe(testuser._id.toString());
+        expect(projectEntry.access[0].permissions).toBe(PermissionsEnum.OWNER);
+    });
+
+    test('create project, validation fail', async () => {
         try {
-            const res = await FileController.checkTitleIsNoDuplicate('', true, '5a1b1eacd94b1e24b8310e43');
-        } catch(err) {
-            expect(err.status).toBe(404);
-            expect(err.message).toMatch('parentId not found');
+            await FileController.createProject(null, 'm');
+        } catch (err) {
+            expect(err.message).toMatch('validation failed');
         }
     });
 
-    test('checkTitleIsNoDuplicate, success', async () => {
-        const res = await FileController.checkTitleIsNoDuplicate('', true, testuser.folderId.toString());
+    test('create path', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'abctest');
+        await FileController.createPath(testuser._id.toString(), projectId, '/1/2/3/');
+        const projectEntry = await ProjectModel.findById(projectId);
+        expect(projectEntry.tree[1].path).toBe('/1/');
+        expect(projectEntry.tree[2].path).toBe('/1/2/');
+        expect(projectEntry.tree[3].path).toBe('/1/2/3/');
+    });
+
+    test('create path, wrong format', async () => {
+        try {
+            await FileController.createPath(testuser._id.toString(), testuser._id.toString(), '1/2/3/');
+        } catch (e) {
+            expect(e.message).toMatch('invalid path format');
+        }
+    });
+
+    test('create path, no permissions', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'ctest');
+        await ProjectModel.update({_id: projectId}, {$set: {'access.0.permissions': PermissionsEnum.EDIT}});
+        try {
+            await FileController.createPath(testuser._id.toString(), projectId, '/1/2/3/');
+        } catch (e) {
+            expect(e.message).toMatch('not allowed to create path in projectId');
+        }
+    });
+
+    test('title is no duplicate', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'ctst');
+        await FileController.createPath(testuser._id.toString(), projectId, '/1/2/3/');
+        const res = await FileController._checkTitleIsNoDuplicate(projectId, '/1/2/', 'magmag');
         expect(res).toBe(true);
     });
 
-    test('checkTitleIsNoDuplicate, duplicate', async () => {
-        const doc = await FileController.createFile(testuser._id.toString(), testuser.folderId.toString(), false, 'duplicate title');
-        const res = await FileController.checkTitleIsNoDuplicate('  duplicate title   ', false, testuser.folderId.toString());
+    test('title is duplicate', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'ctstasfd');
+        let res = await FileController._checkTitleIsNoDuplicate(projectId, '/my folder/', 'my doc');
+        expect(res).toBe(true);
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        res = await FileController._checkTitleIsNoDuplicate(projectId, '/my folder/', 'my doc');
         expect(res).toBe(false);
-    });
-
-    test('getFilePermissions, user root folder', async () => {
-        const res = await FileController.getFilePermissions(testuser._id.toString(), testuser.folderId.toString(), true);
-        expect(res.value).toBe(PermissionsEnum.MANAGE);
-        expect(res.ownerId).toMatch(testuser._id.toString());
-    });
-
-    test('getFilePermissions, wrong folder', async () => {
+        let err;
         try {
-            const res = await FileController.getFilePermissions(testuser._id.toString(), '5a1b7373a517712ed795e557', true);
-        } catch (err) {
-            expect(err.message).toMatch('fileId not found');
+            await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', 'my doc', true);
+        } catch (e) {
+            err = e;
         }
+        expect(err.message).toBe('title already exists');
     });
 
-    test('getFilePermissions, no permissions', async () => {
-        const res = await FileController.getFilePermissions('5a1b7373a517712ed795e557', testuser.folderId.toString(), true);
-        expect(res.value).toBe(PermissionsEnum.NONE);
-
-        try {
-            const res2 = await FileController.createFile('5a1b7373a517712ed795e557', testuser.folderId.toString(), false, 'title2345');
-        } catch(err) {
-            expect(err.message).toMatch("not allowed to manage parentId");
-        }
-    });
-
-    test('getFilePermissions, shared folder', async () => {
-        const folderId = await FileController.createFile(testuser._id.toString(), testuser.folderId.toString(), true, 'folder43');
-        const shareId = await FileController.createShare(testuser._id.toString(), folderId, true, '5a1b7373a517712ed795e557', PermissionsEnum.ANNOTATE);
-        const p = await FileController.getFilePermissions('5a1b7373a517712ed795e557', folderId, true);
-        expect(p.ownerId).toMatch(testuser._id.toString());
-        expect(p.value).toBe(PermissionsEnum.ANNOTATE);
-    });
-
-    test('create document, own tree', async () => {
-        const res = await FileController.createFile(testuser._id.toString(), testuser.folderId.toString(), false, ' my first doc  ');
-        const entry = await DocumentModel.findById(res);
-        expect(entry.title).toMatch('my first doc');
-    });
-
-    test('create folder, own tree', async () => {
-        const res = await FileController.createFile(testuser._id.toString(), testuser.folderId.toString(), true, ' my first folder  ');
-        const entry = await FolderModel.findById(res);
-        expect(entry.title).toMatch('my first folder');
-    });
-
-    test('create document, no permissions', async () => {
-        try {
-            const res2 = await FileController.createFile('5a1b7373a517712ed795e557', testuser.folderId.toString(), false, 'example');
-        } catch (err) {
-            expect(err.status).toBe(403);
-            expect(err.message).toMatch('not allowed to manage parentId')
-        }
-    });
-
-    test('create share for document', async () => {
-        const docId = await FileController.createFile(testuser._id.toString(), testuser.folderId.toString(), false, 'tiiiiiitle');
-        const shareId = await FileController.createShare(testuser._id.toString(), docId, false, '5a1b7373a517712ed795e550', PermissionsEnum.EDIT);
-        const shareEntry = await ShareModel.findById(shareId);
-        const docEntry = await DocumentModel.findById(docId);
-        expect(shareEntry.fileId.toString()).toMatch(docEntry._id.toString());
-        expect(shareEntry.isFolder).toBe(false);
-        expect(shareEntry.userId.toString()).toMatch('5a1b7373a517712ed795e550');
-        expect(shareEntry.permissions).toBe(PermissionsEnum.EDIT);
-        const foundId = docEntry.shareIds.find((elem) => {
-            return elem.toString() === shareId;
-        });
-        expect(foundId.toString()).toMatch(shareId);
-    });
-
-    test('create share, wrong fileId', async () => {
-        try {
-            await FileController.createShare('5a1b7373a517712ed795e557', '5a1b7373a517712ed795e550', true, '5a1b7373a517712ed795e550', PermissionsEnum.READ);
-        } catch (err) {
-            expect(err.message).toMatch('fileId not found');
-        }
-    });
-
-    test('create share, not allowed', async () => {
-        try {
-            await FileController.createShare('5a1b7373a517712ed795e557', testuser.folderId.toString(), true, '5a1b7373a517712ed795e557', PermissionsEnum.EDIT);
-        } catch (err) {
-            expect(err.message).toMatch('not allowed to create share for fileId');
-        }
-    });
-
-    test('create document in share', async () => {
-        const sharedFolderId = await FileController.createFile(testuser._id.toString(), testuser.folderId.toString(), true, 'sharedFolder');
-        const shareId = await FileController.createShare(testuser._id.toString(), sharedFolderId, true, '5a1b7373a517712ed795e557', PermissionsEnum.MANAGE);
-        const newDocId = await FileController.createFile('5a1b7373a517712ed795e557', sharedFolderId, false, 'sharedDoc');
-        const newDocEntry = await DocumentModel.findById(newDocId);
-        const sharedFolderEntry = await FolderModel.findById(sharedFolderId);
-        expect(newDocEntry.ownerId.toString()).toMatch(testuser._id.toString());
-        expect(newDocEntry.parentId.toString()).toMatch(sharedFolderId);
-        const foundShareInFolder = sharedFolderEntry.shareIds.find((elem) => {
-            return elem.toString() === shareId;
-        });
-        expect(foundShareInFolder.toString()).toMatch(shareId);
-        const foundDocinFolder = sharedFolderEntry.documentIds.find((elem) => {
-            return elem.toString() === newDocId;
-        });
-        expect(foundDocinFolder.toString()).toMatch(newDocId);
-    });
-
-
-    test('get listing', async () => {
-        // TODO refactor, test on mocked structure below, move test
-        throw new Error('not implemented');
-        const res = await FileController.getFolderListing(testuser._id.toString(), testuser.folderId.toString());
-        const t = 4;
-    });
-
-
-    afterAll(async () => {
-        await clearAll();
+    test('create document', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test3');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        const projectEntry = await ProjectModel.findById(projectId);
+        expect(projectEntry.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(projectEntry.tree[1].children[0].title).toBe('my doc');
+        const docEntry = await DocumentModel.findById(documentId);
+        expect(docEntry !== null).toBe(true);
     });
 });
 
 
-describe('file, folder operations on mocked structure', () => {
-    beforeAll(async () => {
-        // create 2 docs in root folder
-        //await file.create()
+describe('combined project operations', async () => {
+    test('list tree', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test4');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/folder/', 'letter ', true);
+        const tree = await FileController.listProjectTree(testuser._id.toString(), projectId);
+        expect(tree.length).toBe(2);
+        expect(tree[0].path).toBe('/');
+        expect(tree[0].children.length).toBe(0);
+        expect(tree[1].path).toBe('/folder/');
+        expect(tree[1].children.length).toBe(1);
+        expect(tree[1].children[0].title).toBe('letter');
+    });
+
+    test('list projects for user', async () => {
+        await ProjectModel.remove({});
+        let res = await FileController.listProjectsForUser(testuser._id.toString());
+        expect(res.length).toBe(0);
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test5');
+        const projectId2 = await FileController.createProject(testuser._id.toString(), ' ltest5');
+        res = await FileController.listProjectsForUser(testuser._id.toString(), false);
+        expect(res.length).toBe(2);
+        expect(res[0].title).toBe('test5');
+        expect(res[1].id.toString()).toBe(projectId2);
+        expect(res[1].access.permissions).toBe(5);
+        expect(res[1].access.grantedById.toString()).toBe(testuser._id.toString());
+        res = await FileController.listProjectsForUser(testuser._id.toString(), true);
+        expect(res[0].access.grantedBy.email).toBe(testuser.email);
+    });
+
+    test('set user permissions, user == shareUser', async () => {
+        const usid = '5a2ff6694584c97c375288d3';
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test6');
+
+        await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.OWNER);
+        let access = await FileController._getUserProjectAccess(usid, projectId);
+        expect(access.permissions).toBe(PermissionsEnum.OWNER);
+
+        await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.READ);
+        access = await FileController._getUserProjectAccess(usid, projectId);
+        expect(access.permissions).toBe(PermissionsEnum.READ);
+
+        await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.NONE);
+        access = await FileController._getUserProjectAccess(usid, projectId);
+        expect(access.permissions).toBe(PermissionsEnum.NONE);
+        expect(access.grantedById).toBe(null);
+    });
+
+    test('list project access', async () => {
+        const usid = '5a2ff6694584c97c375288d3';
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test7');
+        await FileController.setUserPermissionsForProject(testuser._id.toString(), projectId, usid, PermissionsEnum.READ);
+        const access = await FileController.listProjectAccess(usid, projectId);
+        expect(access[0].user.name).toBe('Schwanzus Longus');
+        expect(access[0].grantedBy.email).toBe('sw4@example.com');
+        expect(access[1].permissions).toBe(PermissionsEnum.READ);
+    });
+
+    test('delete project and all of its documents', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test8');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        expect(await DocumentModel.findById(documentId) !== null).toBe(true);
+        await FileController.deleteProject(testuser._id.toString(), projectId);
+        expect(await DocumentModel.findById(documentId) === null).toBe(true);
+        expect(await ProjectModel.findById(projectId) === null).toBe(true);
+        try {
+            await FileController.deleteProject(testuser._id.toString(), projectId);
+        } catch (err) {
+            expect(err.message).toBe('projectId not found');
+        }
+    });
+
+    test('delete a document from a project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test9');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        expect(await DocumentModel.findById(documentId) !== null).toBe(true);
+        await FileController.deleteDocument(testuser._id.toString(), projectId, '/my folder/', documentId);
+        expect(await DocumentModel.findById(documentId) === null).toBe(true);
+        const project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].path).toBe('/my folder/');
+        expect(project.tree[1].children.length).toBe(0);
+    });
+
+    test('delete a path from a project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test0');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        expect(await DocumentModel.findById(documentId) !== null).toBe(true);
+        const documentId2 = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/sub/', 'doc2', true);
+        expect(await DocumentModel.findById(documentId2) !== null).toBe(true);
+        const documentId3 = await FileController.createDocument(testuser._id.toString(), projectId, '/magmag/my folder/', 'doc3', true);
+        expect(await DocumentModel.findById(documentId3) !== null).toBe(true);
+
+        await FileController.deletePath(testuser._id.toString(), projectId, '/my folder/');
+        expect(await DocumentModel.findById(documentId) === null).toBe(true);
+        expect(await DocumentModel.findById(documentId2) === null).toBe(true);
+        expect(await DocumentModel.findById(documentId3) !== null).toBe(true);
+        const project = await ProjectModel.findById(projectId);
+        // length = 3: '/', '/magmag/', '/magmag/my folder/'
+        expect(project.tree.length).toBe(3);
+    });
+
+    test('rename a document', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test11');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        let project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[1].children[0].title).toBe('my doc');
+        await FileController.moveDocument(testuser._id.toString(), documentId, projectId, projectId, '/my folder/', '/my folder/', 'my doc', 'my doc2 ', true);
+        project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[1].children[0].title).toBe('my doc2');
+    });
+
+    test('move a document inside a project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test12');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        let project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[1].children[0].title).toBe('my doc');
+        await FileController.moveDocument(testuser._id.toString(), documentId, projectId, projectId, '/my folder/', '/', 'my doc', 'my doc');
+        project = await ProjectModel.findById(projectId);
+        expect(project.tree[0].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[0].children[0].title).toBe('my doc');
+    });
+
+    test('move a document to a new project', async () => {
+        const projectId = await FileController.createProject(testuser._id.toString(), 'test13');
+        const projectId2 = await FileController.createProject(testuser._id.toString(), 'test14');
+        const documentId = await FileController.createDocument(testuser._id.toString(), projectId, '/my folder/', ' my doc', true);
+        let project = await ProjectModel.findById(projectId);
+        expect(project.tree[1].children[0].documentId.toString()).toBe(documentId);
+        expect(project.tree[1].children[0].title).toBe('my doc');
+        let project2 = await ProjectModel.findById(projectId2);
+        expect(project2.tree[0].children.length).toBe(0);
+        await FileController.moveDocument(testuser._id.toString(), documentId, projectId, projectId2, '/my folder/', '/my folder/', 'my doc', 'my doc', true);
+        project = await ProjectModel.findById(projectId);
+        expect(project.tree[0].children.length).toBe(0);
+        expect(project.tree[1].children.length).toBe(0);
+        project2 = await ProjectModel.findById(projectId2);
+        expect(project2.tree[0].children.length).toBe(0);
+        expect(project2.tree[1].children.length).toBe(1);
+        expect(project2.tree[1].children[0].title).toBe('my doc');
     });
 });
-
 
 afterAll(() => {
     db.close();

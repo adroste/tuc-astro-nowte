@@ -11,25 +11,16 @@ mongoose.Promise = global.Promise;
 
 
 const docSchema = new Schema({
-    title: {
-        type: String,
-        trim: true,
-        required: [true, 'name is required']
-    },
-    parentId: {
+    projectId: {
         type: Schema.Types.ObjectId,
-        ref: 'Folder',
-        required: [true, 'parentId is required']
+        ref: 'Project',
+        required: [true, 'projectId is required']
     },
-    ownerId: {
+    createdById: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: [true, 'ownerId is required']
+        required: [true, 'createdById is required']
     },
-    shareIds: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Share'
-    }],
     data: {
         type: Schema.Types.Mixed
     }

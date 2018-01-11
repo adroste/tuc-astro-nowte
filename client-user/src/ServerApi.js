@@ -4,16 +4,6 @@ import {store} from "./Redux";
 
 "use strict";
 
-// helper for now
-/**
- * @param num maximal number - 1
- * @return {number} integer between 0 and number - 1
- */
-function getRand(num) {
-    return Math.floor(Math.random() * num);
-}
-
-let randId = 1;
 const REQUEST_HEADERS = new Headers({
     'Accept': 'application/json, text/plain, */*',
     'Content-Type': 'application/json'
@@ -40,10 +30,11 @@ export const logOut = (onSuccess, onError) => {
     );
 };
 
-export const getFolder = (folderId, onSuccess, onError) => {
+// see: https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/list-projects
+export const getProjects = (onSuccess, onError) => {
 
     const sessionToken = store.getState().user.token;
-    const url = SERVER_URL + '/api/file/list-folder/' + folderId + '?sessionToken=' + sessionToken;
+    const url = SERVER_URL + '/api/file/list-projects?sessionToken=' + sessionToken;
     fetch(url, {
         method: "GET",
         headers: REQUEST_HEADERS,
@@ -53,46 +44,16 @@ export const getFolder = (folderId, onSuccess, onError) => {
     );
 };
 
-export const getShares = (userId, onSuccess, onError) => {
-    switch (getRand(2))
-    {
-        case 0:
-            onSuccess({
-                users: [
-                    {name: "peter", email: "peter1@2.de", id: randId++, docs: [{name: "mydoc1", id: randId++}], folder: []}
-                ]
-            });
-            return;
-        case 1:
-            onSuccess({
-                users: [
-                    {name: "peter", email: "peter1@2.de", id: randId++, docs: [{name: "mydoc1", id: randId++}], folder: []},
-                    {name: "hans", email: "hanspeter1@2.de", id: randId++, docs: [], folder: [{name: "my shared folder", id: randId++}]}
-                ]
-            });
-            return;
-    }
-    onError("unknown");
-};
+// see: https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-project
+export const createProject = (title, onSuccess, onError) => {
 
-export const createFile = (folderId, filename, onSuccess, onError) => {
-    create(folderId, false, filename, onSuccess, onError);
-};
-
-export const createFolder = (folderId, foldername, onSuccess, onError) => {
-    create(folderId, true, foldername, onSuccess, onError);
-};
-
-const create = (parentId, isFolder, title, onSuccess, onError) => {
     const sessionToken = store.getState().user.token;
-    const url = SERVER_URL + '/api/file/create-file';
+    const url = SERVER_URL + '/api/file/create-project';
     fetch(url, {
         method: "POST",
         headers: REQUEST_HEADERS,
         body: JSON.stringify({
             sessionToken: sessionToken,
-            parentId: parentId,
-            isFolder: isFolder,
             title: title,
         })
     }).then(
@@ -101,34 +62,31 @@ const create = (parentId, isFolder, title, onSuccess, onError) => {
     );
 };
 
-export const removeFile = (fileId, onSuccess, onError) => {
-    onSuccess();
-};
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/list-tree
+export const getFileTree = (projectId, onSuccess, onError) => {
 
-export const removeFolder = (folderId, onSuccess, onError) => {
-    onSuccess();
-};
-
-export const shareFile = (fileId, userEmail, permission, onSuccess, onError) => {
-    share(fileId, false, userEmail, permission, onSuccess, onError);
-};
-
-export const shareFolder = (fileId, userEmail, permission, onSuccess, onError) => {
-    share(fileId, true, userEmail, permission, onSuccess, onError);
-};
-
-const share = (fileId, isFolder, userEmail, permission, onSuccess, onError) => {
     const sessionToken = store.getState().user.token;
-    const url = SERVER_URL + '/api/file/create-share';
+    const url = SERVER_URL + '/api/file/list-tree/' + projectId + '?sessionToken=' + sessionToken;
+    fetch(url, {
+        method: "GET",
+        headers: REQUEST_HEADERS,
+    }).then(
+        (response) => getJsonBody(response, 200, onSuccess, onError),
+        onError
+    );
+};
+
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-path
+export const createFolder = (projectId, path, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/create-path';
     fetch(url, {
         method: "POST",
         headers: REQUEST_HEADERS,
         body: JSON.stringify({
             sessionToken: sessionToken,
-            fileId: fileId,
-            isFolder: isFolder,
-            permissions: permission,
-            shareEmail: userEmail,
+            projectId: projectId,
+            path: path,
         })
     }).then(
         (response) => verifyResponseCode(response, 204, onSuccess, onError),
@@ -136,20 +94,115 @@ const share = (fileId, isFolder, userEmail, permission, onSuccess, onError) => {
     );
 };
 
-export const renameFile = (fileId, title, onSuccess, onError) => {
-    onSuccess();
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/create-document
+export const createDocument = (projectId, path, title, createPath, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/create-document';
+    fetch(url, {
+        method: "POST",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+            path: path,
+            title: title,
+            upsertPath: createPath,
+        })
+    }).then(
+        (response) => getJsonBody(response, 201, onSuccess, onError),
+        onError
+    );
 };
 
-export const renameFolder = (folderId, title, onSuccess, onError) => {
-    onSuccess();
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-path
+export const deleteFolder = (projectId, path, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/delete-path';
+
+    fetch(url, {
+        method: "DELETE",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+            path: path,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
 };
 
-export const moveFile = (fileId, folderId, onSuccess, onError) => {
-    onSuccess();
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-document
+export const deleteDocument = (projectId, path, documentId, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/delete-document';
+
+    fetch(url, {
+        method: "DELETE",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+            path: path,
+            documentId: documentId,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
 };
 
-export const moveFolder = (srcFolderId, dstFolderId, onSuccess, onError) => {
-    onSuccess();
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/delete-project
+export const deleteProject = (projectId, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/delete-project';
+
+    fetch(url, {
+        method: "DELETE",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
+};
+
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/set-access
+export const share = (projectId, email, permissions, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/set-access';
+
+    fetch(url, {
+        method: "PUT",
+        headers: REQUEST_HEADERS,
+        body: JSON.stringify({
+            sessionToken: sessionToken,
+            projectId: projectId,
+            shareEmail: email,
+            permissions: permissions,
+        })
+    }).then(
+        (response) => verifyResponseCode(response, 204, onSuccess, onError),
+        onError
+    );
+};
+
+// see https://gitlab.progmem.de/tuc/astro-nowte/wikis/server/api/rest/file/list-access
+export const getShares = (projectId, onSuccess, onError) => {
+    const sessionToken = store.getState().user.token;
+    const url = SERVER_URL + '/api/file/list-access/' + projectId + "?sessionToken=" + sessionToken;
+
+    fetch(url, {
+        method: "GET",
+        headers: REQUEST_HEADERS,
+    }).then(
+        (response) => getJsonBody(response, 200, onSuccess, onError),
+        onError
+    );
 };
 
 // helper to retrieve the json from a response
