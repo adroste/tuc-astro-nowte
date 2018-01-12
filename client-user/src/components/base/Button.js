@@ -59,8 +59,7 @@ export const lightGreyRoundedTheme = `
     border: 1px solid #ccc;
     border-radius: 15px;
     color: #ccc;
-    transition: color 0.3s;
-    transition: border-color 0.3s;
+    transition: color 0.3s, border-color 0.3s;
     
     &:hover, 
     &:focus {
@@ -73,21 +72,20 @@ export const lightGreyRoundedTheme = `
 
 
 
-
 export class Button extends React.Component {
     /**
      * propTypes
      * @property {function()} onClick callback when button was clicked
      * @property {boolean} center if set button will be center inside block
      * @property {boolean} large if set text size will be bigger
-     * @property {Object} theme theme-objects to apply
+     * @property {string} theme theme-template to apply
      */
     static get propTypes() {
         return {
             onClick: PropTypes.func.isRequired,
             center: PropTypes.bool,
             large: PropTypes.bool,
-            theme: PropTypes.object
+            theme: PropTypes.string
         };
     }
 
