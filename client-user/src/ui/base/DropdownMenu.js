@@ -32,10 +32,10 @@ export default class DropdownMenu extends React.Component {
 
     render() {
         return (
-            <div className="dropdown" onClick={this.onClickHandler}>
+            <div className="dropdown">
                 <button className="dropbtn">{this.props.label}</button>
                 <div className="dropdown-content">
-                    {this.props.entrys.map((entry) => <ul>{entry}</ul>)}
+                    {this.props.entrys.map((entry) => <ul><a href={this.onClickHandler()}>{entry}</a></ul>)}
                 </div>
             </div>
         );
