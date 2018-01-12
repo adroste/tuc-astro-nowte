@@ -7,6 +7,7 @@ import {Path} from "../../geometry/Path";
 import {Pen} from "../../drawing/canvas-tools/Pen";
 import {DrawBrick} from "./bricks/DrawBrick";
 import {Button, lightGreyRoundedTheme} from "../base/Button";
+import {DropButton} from "./base/DropButton";
 
 
 const Wrapper = styled.div`
@@ -44,6 +45,14 @@ const AppendBrickButton = styled(Button).attrs({
 `;
 
 
+const InsertBrickButton = styled(DropButton)`
+    height: 0;
+    position: relative;
+    left: -60px;
+    top: -23px;
+`;
+
+
 export class Editor extends React.Component {
     /**
      * propTypes
@@ -62,11 +71,35 @@ export class Editor extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.state = {
+            bricks: []
+        }
     }
 
 
-    handleAddBrick = () => {
-        alert('pressed');
+    handleAddBrick = (beforeId) => {
+
+        let idx = this.state.bricks.length;
+        let s = this.state.bricks.slice();
+        if (beforeId)
+            idx = this.state.bricks.findIndex(x => x === beforeId);
+        s.splice(idx, 0, s.length + 1);
+        this.setState({
+            bricks: s
+        });
+    };
+
+
+    renderBricks = () => {
+        return this.state.bricks.map(id => {
+            return (
+                <div key={id}>
+                    <InsertBrickButton onClick={() => this.handleAddBrick(id)}/>
+                    <DrawBrick widthCm={17} heightPx={400}/>
+                </div>
+            );
+        });
     };
 
 
@@ -75,11 +108,8 @@ export class Editor extends React.Component {
             <Wrapper className={this.props.className}>
                 <PageOuter>
                     <PageInner>
-                        This is a fancy editor
-                        <DrawBrick width="17cm" height="400px"/>
-                        <DrawBrick width="17cm" height="400px"/>
-                        <DrawBrick width="17cm" height="400px"/>
-                        <AppendBrickButton onClick={this.handleAddBrick}/>
+                        {this.renderBricks()}
+                        <AppendBrickButton onClick={() => this.handleAddBrick()}/>
                     </PageInner>
                 </PageOuter>
             </Wrapper>

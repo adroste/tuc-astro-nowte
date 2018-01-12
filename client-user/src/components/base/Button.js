@@ -85,19 +85,21 @@ export class Button extends React.Component {
             onClick: PropTypes.func.isRequired,
             center: PropTypes.bool,
             large: PropTypes.bool,
-            theme: PropTypes.string
+            theme: PropTypes.string,
+            focusable: PropTypes.bool
         };
     }
 
     static get defaultProps() {
         return {
-
+            focusable: true
         };
     }
 
     onClickHandler = (e) => {
         this.props.onClick();
-        e.preventDefault();
+        // TODO improve focusing
+        this.ref.blur();
     };
 
     handleKeyPress = (e) => {
@@ -110,12 +112,13 @@ export class Button extends React.Component {
         return (
             <Wrapper center={this.props.center}>
                 <ButtonInner
+                    innerRef={ref => this.ref = ref}
                     className={this.props.className}
                     large={this.props.large}
                     theme={this.props.theme}
                     onClick={this.onClickHandler}
                     onKeyPress={this.handleKeyPress}
-                    tabIndex="0"
+                    tabIndex={this.props.focusable ? "0" : undefined}
                 >
                     {this.props.children}
                 </ButtonInner>

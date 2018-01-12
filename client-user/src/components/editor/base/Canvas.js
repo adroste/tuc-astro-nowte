@@ -121,6 +121,7 @@ export class Canvas extends React.Component {
 
 
     render() {
+        // TODO improve focusing (make canvas focusable and listen for focusin to style brick)
         return (
             <CanvasInner
                 className={this.props.className}
