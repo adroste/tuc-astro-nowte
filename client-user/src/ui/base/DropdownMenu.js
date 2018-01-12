@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './DropdownMenu.css';
 
+
 export default class DropdownMenu extends React.Component {
+
     /**
      * propTypes
      * @property {string} label for the Dropdownmenue
@@ -12,7 +14,7 @@ export default class DropdownMenu extends React.Component {
     static get propTypes() {
         return {
             label: PropTypes.string,
-            entrys: PropTypes.strings,
+            entrys: PropTypes.array,
             onclick: PropTypes.func
         };
     }
@@ -33,7 +35,7 @@ export default class DropdownMenu extends React.Component {
             <div className="dropdown" onClick={this.onClickHandler}>
                 <button className="dropbtn">{this.props.label}</button>
                 <div className="dropdown-content">
-                    {this.props.label}
+                    {this.props.entrys.map((entry) => <ul>{entry}</ul>)}
                 </div>
             </div>
         );
