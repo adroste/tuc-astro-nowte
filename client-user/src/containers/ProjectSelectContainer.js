@@ -6,7 +6,7 @@ import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
 import Button from "../components/base/Button";
-import ButtonIcon from "./base/ButtonIcon";
+import ButtonIcon from "../components/base/ButtonIcon";
 import LinkedText from "../components/base/LinkedText";
 
 export default class ProjectSelectContainer extends React.Component {

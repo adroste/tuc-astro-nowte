@@ -5,7 +5,7 @@ import LabelledInputBox from "../base/LabelledInputBox";
 import Button from "../base/Button";
 import "./ShareDialog.css"
 import * as API from '../../ServerApi'
-import DropdownMenu from "./base/DropdownMenu";
+import DropdownMenu from "../base/DropdownMenu";
 
 export default class ShareDialog extends React.Component {
     /**

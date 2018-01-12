@@ -6,7 +6,7 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import {  } from "react-contextmenu";
 import {getFolder} from "../../ServerApi";
 import Button from "../base/Button";
-import ButtonIcon from "./base/ButtonIcon";
+import ButtonIcon from "../base/ButtonIcon";
 
 let uniqueContextId = 0;
 
