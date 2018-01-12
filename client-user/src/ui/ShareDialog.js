@@ -5,6 +5,7 @@ import LabelledInputBox from "./base/LabelledInputBox";
 import Button from "./base/Button";
 import "./ShareDialog.css"
 import * as API from '../ServerApi'
+import DropdownMenu from "./base/DropdownMenu";
 
 export default class ShareDialog extends React.Component {
     /**
@@ -103,6 +104,7 @@ export default class ShareDialog extends React.Component {
                     onChange={(value) => this.email = value}
                     child={this.state.inputChild}
                 />
+                <DropdownMenu label="Permisson" entrys={["NONE","READ","ANNOTATE","EDIT","MANAGE","OWNER"]}/>
                 <div className="align-right">
                     <Button
                         label="Cancel"
