@@ -1,0 +1,11 @@
+.align-right {
+    float: right;
+}
+
+.error-text {
+    color: red;
+}
+
+.dialog {
+    width: 600px;
+}

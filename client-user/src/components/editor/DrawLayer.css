@@ -1,0 +1,11 @@
+.size {
+    width: 200px;
+    height: 200px;
+    background: #4CAF50;
+}
+
+.canvas {
+    width: 180px;
+    height: 180px;
+    background: #20a0ff;
+}

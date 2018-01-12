@@ -4,11 +4,16 @@
   "private": true,
   "devDependencies": {
     "electron": "^1.7.9",
+    "esdoc": "^1.0.4",
+    "esdoc-ecmascript-proposal-plugin": "^1.0.0",
+    "esdoc-jsx-plugin": "^1.0.0",
+    "esdoc-standard-plugin": "^1.0.0",
     "foreman": "^2.0.0"
   },
   "dependencies": {
     "create-react-app": "^1.4.3",
     "history": "^4.7.2",
+    "lodash": "^4.17.4",
     "npm": "^5.6.0",
     "prop-types": "^15.6.0",
     "react": "^15.6.2",
@@ -21,7 +26,8 @@
     "react-router-redux": "^4.0.8",
     "react-scripts": "0.9.5",
     "react-treebeard": "^2.1.0",
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "styled-components": "^2.4.0"
   },
   "main": "src/electron-starter.js",
   "homepage": "./",
@@ -29,9 +35,8 @@
     "start": "set PORT=3001 && react-scripts start",
     "start-unix": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
     "electron": "electron .",
-    "dev": "nf start"
+    "dev-electron": "nf start",
+    "build-doc": "./node_modules/.bin/esdoc"
   }
 }
