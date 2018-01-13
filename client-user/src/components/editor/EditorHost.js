@@ -84,6 +84,11 @@ export class EditorHost extends React.Component {
     }
 
 
+    componentWillUnmount() {
+        clearInterval(this.latencyInterval);
+    }
+
+
     handleConnect = () => {
         this.setState({
             initialConnection: false,
