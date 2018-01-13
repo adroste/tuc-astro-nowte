@@ -5,6 +5,7 @@ import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
 import {Button} from "../components/base/Button";
 import LinkedText from "../components/base/LinkedText";
+import ButtonIcon from "../components/base/ButtonIcon";
 
 
 export default class ProjectSelectContainer extends React.Component {
@@ -125,12 +126,8 @@ export default class ProjectSelectContainer extends React.Component {
                 <div key={p.id}>
                     <LinkedText label={p.title} onClick={() => this.handleProjectClick(p)}/>
                     From: {p.ownerEmail}
-                    <Button onClick={() => this.handleProjectGetShares(p)} >
-                        Shares
-                    </Button>
-                    <Button onClick={() => this.handleProjectDelete(p)} >
-                        Delete
-                    </Button>
+                    <ButtonIcon imgSrc={"./img/people.svg"} label="Shares" onClick={() => this.handleProjectGetShares(p)} />
+                    <ButtonIcon imgSrc={"./img/trash.svg"} label="Delete" onClick={() => this.handleProjectDelete(p)} />
                 </div>
             );
         }

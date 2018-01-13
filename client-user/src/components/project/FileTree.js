@@ -6,6 +6,7 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 // TODO wtf?
 import {  } from "react-contextmenu";
 import {Button} from "../base/Button";
+import ButtonIcon from "../base/ButtonIcon";
 
 
 // styles
@@ -253,20 +254,10 @@ export default class FileTree extends React.Component {
 
         const displayHelperButtons = () => {
             return (
-                /*<div>
-                    <img src="/img/file_add.svg" className="header-icon" onClick={() => this.onCreateFileClick(null)}/>
-                    <img src="/img/folder_add.svg" className="header-icon" onClick={() => this.onCreateFolderClick(null)}/>
-                </div>*/
                 <div>
-                    <Button onClick={() => this.onCreateFileClick(null)}>
-                        doc
-                    </Button>
-                    <Button onClick={() => this.onCreateFolderClick(null)}>
-                        folder
-                    </Button>
-                    <Button onClick={this.props.onShareClick}>
-                        share
-                    </Button>
+                    <ButtonIcon imgSrc={"./img/file_add.svg"} label="doc" onClick={() => this.onCreateFileClick(null)}/>
+                    <ButtonIcon imgSrc={"./img/folder_add.svg"} label="folder" onClick={() => this.onCreateFolderClick(null)}/>
+                    <ButtonIcon imgSrc={"./img/people.svg"} label="share" onClick={this.props.onShareClick}/>
                 </div>
             );
         };
