@@ -50,6 +50,24 @@ const InsertBrickButton = styled(DropButton)`
     position: relative;
     left: -60px;
     top: -23px;
+    
+    &:after { 
+        content: '' ; 
+        display: block ; 
+        position: absolute;
+        height: 1px;
+        top: 23px; 
+        bottom: 0; 
+        left: 60px; 
+        right: -60px; 
+        background: transparent;
+        transition: background 0.3s;
+        pointer-events: none;
+    }
+    
+    &:hover:after {
+        background: #ccc;
+    }
 `;
 
 
