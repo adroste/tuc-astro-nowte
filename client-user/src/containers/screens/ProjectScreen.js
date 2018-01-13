@@ -12,7 +12,7 @@ import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
 import * as AppActionsCreators from "../../actions/app";
-import {Editor} from "../../components/editor/Editor";
+import {EditorHost} from "../../components/editor/EditorHost";
 
 
 const GridContainer = styled.div`
@@ -82,7 +82,8 @@ class ProjectScreen extends React.Component {
                 </ScrollContainer>
 
                 <ScrollContainer>
-                    <Editor
+                    <EditorHost
+                        documentId={null}
                         user={this.props.user}
                     />
                 </ScrollContainer>

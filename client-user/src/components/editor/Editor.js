@@ -77,8 +77,8 @@ export class Editor extends React.Component {
      */
     static get propTypes() {
         return {
-            socketUrl: PropTypes.string,
             user: PropTypes.object.isRequired,
+            socket: PropTypes.object.isRequired
         };
     }
 
@@ -92,7 +92,7 @@ export class Editor extends React.Component {
 
         this.state = {
             bricks: []
-        }
+        };
     }
 
 
