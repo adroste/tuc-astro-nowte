@@ -4,9 +4,7 @@
  */
 
 import React from 'react';
-import PropTypes from "prop-types";
 import styled from 'styled-components';
-import {Point} from "../../../geometry/Point";
 import {Canvas} from "../base/Canvas";
 import {Pen} from "../../../drawing/canvas-tools/Pen";
 import {StrokeStyle} from "../../../drawing/StrokeStyle";

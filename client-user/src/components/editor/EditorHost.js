@@ -14,7 +14,6 @@ import {ConnectionStateEnum} from "../../utilities/ConnectionStateEnum";
 const Host = styled.div`
     position: relative;
     width: 100%;
-    height: 100%
 `;
 
 
@@ -42,6 +41,7 @@ export class EditorHost extends React.Component {
         return {
             documentId: PropTypes.string.isRequired,
             user: PropTypes.object.isRequired,
+            onStatsChange: PropTypes.func
         };
     }
 
@@ -53,8 +53,17 @@ export class EditorHost extends React.Component {
     /**
      * socket.io connection
      * @type {Object|null}
+     * @private
      */
     _socket = null;
+
+
+    /**
+     * stats object
+     * @type {Object}
+     * @private
+     */
+    _stats = {};
 
 
     constructor(props) {
@@ -64,6 +73,11 @@ export class EditorHost extends React.Component {
             initialConnection: true,
             connectionState: ConnectionStateEnum.DISCONNECTED,
         };
+
+
+        this.setStats({
+            connectionRTT: -1
+        });
 
 
         // create socket & bind listeners
@@ -89,11 +103,18 @@ export class EditorHost extends React.Component {
     }
 
 
+    setStats = (stats) => {
+        const prevStats = JSON.stringify(this._stats);
+        Object.assign(this._stats, stats);
+        if (this.props.onStatsChange && prevStats !== JSON.stringify(this._stats))
+            this.props.onStatsChange(this._stats);
+    };
+
+
     handleConnect = () => {
         this.setState({
             initialConnection: false,
-            connectionState: ConnectionStateEnum.CONNECTED,
-            connectionRTT: -1
+            connectionState: ConnectionStateEnum.CONNECTED
         });
         console.log('connect');
     };
@@ -117,7 +138,7 @@ export class EditorHost extends React.Component {
 
     handleEcho = (data) => {
         if (data.hasOwnProperty('timestamp'))
-            this.setState({
+            this.setStats({
                 connectionRTT: Date.now() - data.timestamp
             });
     };
@@ -126,7 +147,6 @@ export class EditorHost extends React.Component {
     render() {
         return (
             <Host>
-                RTT: {this.state.connectionRTT} ms
                 {this.state.connectionState !== ConnectionStateEnum.CONNECTED &&
                 <Overlay>
                     Connecting...
