@@ -18,10 +18,14 @@ const ButtonInner = styled.div`
     background-color: white;
     color: black;
     padding: 5px 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: ${props => props.marginLeft ? '10px' : '0'};
+    margin-right: ${props => props.marginRight ? '10px' : '0'};
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: ${props => props.large ? '20px' : '16px'};
+    font-size: ${props => props.large ? '20px' : '14px'};
     user-select: none;
     cursor: pointer;
     
@@ -39,7 +43,9 @@ const ButtonInner = styled.div`
 
 ButtonInner.defaultProps = {
     theme: `
-        border: 2px solid #4CAF50;
+        border: 1px solid #4CAF50;
+        border-radius: 5px;
+        color: #222;
         
         &:hover, 
         &:focus {
@@ -76,9 +82,12 @@ export class Button extends React.Component {
     /**
      * propTypes
      * @property {function()} onClick callback when button was clicked
-     * @property {boolean} center if set button will be center inside block
-     * @property {boolean} large if set text size will be bigger
-     * @property {string} theme theme-template to apply
+     * @property {boolean} [center=false] if set button will be center inside block
+     * @property {boolean} [large=false] if set text size will be bigger
+     * @property {string} [theme] theme-template to apply
+     * @property {boolean} [focusable=true] determines if button is focusable
+     * @property {boolean} [marginLeft=false] if set button will have left margin
+     * @property {boolean} [marginRight=false] if set button will have right margin
      */
     static get propTypes() {
         return {
@@ -86,13 +95,19 @@ export class Button extends React.Component {
             center: PropTypes.bool,
             large: PropTypes.bool,
             theme: PropTypes.string,
-            focusable: PropTypes.bool
+            focusable: PropTypes.bool,
+            marginLeft: PropTypes.bool,
+            marginRight: PropTypes.bool,
         };
     }
 
     static get defaultProps() {
         return {
-            focusable: true
+            center: false,
+            large: false,
+            focusable: true,
+            marginLeft: false,
+            marginRight: false,
         };
     }
 
@@ -116,6 +131,8 @@ export class Button extends React.Component {
                     className={this.props.className}
                     large={this.props.large}
                     theme={this.props.theme}
+                    marginLeft={this.props.marginLeft}
+                    marginRight={this.props.marginRight}
                     onClick={this.onClickHandler}
                     onKeyPress={this.handleKeyPress}
                     tabIndex={this.props.focusable ? "0" : undefined}
