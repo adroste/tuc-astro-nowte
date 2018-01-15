@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import {Canvas} from "../base/Canvas";
 import {Pen} from "../../../drawing/canvas-tools/Pen";
 import {StrokeStyle} from "../../../drawing/StrokeStyle";
-
+import PropTypes from 'prop-types';
 
 const LayerWrapper = styled.div`
     position: relative;
