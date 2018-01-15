@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import LabelledInputBox from "../base/LabelledInputBox";
 import './UserLoginForm.css';
 import {Button} from "../base/Button";
-import LinkedText from "../base/LinkedText";
+import {Link} from "../base/Link";
 import * as utility from "../../utilities/login"
 import { SERVER_URL } from "../../Globals";
 
@@ -179,9 +179,13 @@ export default class UserLoginForm extends React.Component {
                 </Button>
                 <br/>
                 <br/>
-                <LinkedText label="forgot password" onClick={this.props.onForgotPasswordClick}/>
+                <Link onClick={this.props.onForgotPasswordClick}>
+                    forgot password
+                </Link>
                 <br/>
-                <LinkedText label="create account" onClick={this.props.onCreateAccountClick}/>
+                <Link onClick={this.props.onCreateAccountClick}>
+                    create account
+                </Link>
             </div>
         );
     }

@@ -2,7 +2,7 @@ import React from 'react';
 import LabelledInputBox from "../../components/base/LabelledInputBox";
 import {Button} from "../../components/base/Button";
 import './UserForms.css';
-import LinkedText from "../../components/base/LinkedText";
+import {Link} from "../../components/base/Link";
 import {SERVER_URL} from "../../Globals";
 
 
@@ -102,7 +102,10 @@ export default class ForgotPasswordScreen extends React.Component {
                     </Button>
                     <br/>
                     <br/>
-                    Remembered? <LinkedText label="Log in" onClick={this.handleLoginClick}/>
+                    Remembered?
+                    <Link onClick={this.handleLoginClick}>
+                        login
+                    </Link>
                 </div>
             </div>
         );

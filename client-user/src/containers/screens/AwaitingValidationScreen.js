@@ -1,6 +1,6 @@
 import React from 'react';
 import './UserForms.css';
-import LinkedText from "../../components/base/LinkedText";
+import {Link} from "../../components/base/Link";
 
 
 export default class AwaitingValidationScreen extends React.Component {
@@ -25,7 +25,9 @@ export default class AwaitingValidationScreen extends React.Component {
             <div className="centered-form">
                 <div className="centered-form-inner">
                     <h3>Please check your mailbox and confirm your email</h3>
-                    <LinkedText label="Log in" onClick={this.handleLoginClick}/>
+                    <Link onClick={this.handleLoginClick}>
+                        login
+                    </Link>
                 </div>
             </div>
         );
