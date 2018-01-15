@@ -9,18 +9,7 @@ import * as UserActionCreators from '../../actions/user';
 import * as ProjectActionsCreators from '../../actions/project';
 import * as AppActionsCreators from '../../actions/app';
 import ProjectSelectContainer from "../../containers/ProjectSelectContainer";
-
-
-const Heading1 = styled.h1`
-    font-size: 24px;
-    font-weight: normal;
-`;
-
-
-const Heading2 = styled.h1`
-    font-size: 20px;
-    font-weight: normal;
-`;
+import {Heading1, Heading2} from "../../components/base/Common";
 
 
 const Wrapper = styled.div`
