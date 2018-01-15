@@ -63,7 +63,7 @@ LinkSpan.defaultProps = {
 export class Link extends React.Component {
     /**
      * propTypes
-     * @property {function()} onClick callback when button was clicked
+     * @property {function(event: Object)} onClick callback when button was clicked
      */
     static get propTypes() {
         return {
@@ -76,8 +76,9 @@ export class Link extends React.Component {
     }
 
     onClickHandler = (e) => {
-        this.props.onClick();
-        e.preventDefault();
+        this.props.onClick(e);
+        // TODO improve focusing
+        this.ref.blur();
     };
 
     handleKeyPress = (e) => {
