@@ -1,10 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import {DrawLayer} from "./layer/DrawLayer";
-import {StrokeStyle} from "../../drawing/StrokeStyle";
-import {Path} from "../../geometry/Path";
-import {Pen} from "../../drawing/canvas-tools/Pen";
 import {DrawBrick} from "./bricks/DrawBrick";
 import {Button, lightGreyRoundedTheme} from "../base/Button";
 import {DropButton} from "./base/DropButton";
@@ -102,9 +98,15 @@ export class Editor extends React.Component {
         let s = this.state.bricks.slice();
         if (beforeId)
             idx = this.state.bricks.findIndex(x => x === beforeId);
-        s.splice(idx, 0, s.length + 1);
+        const brickId = s.length + 1;
+        s.splice(idx, 0, brickId);
         this.setState({
             bricks: s
+        });
+
+        this.props.socket.emit("insertBrick", {
+            heightIndex: idx,
+            id: brickId,
         });
     };
 
@@ -114,7 +116,12 @@ export class Editor extends React.Component {
             return (
                 <div key={id}>
                     <InsertBrickButton onClick={() => this.handleAddBrick(id)}/>
-                    <DrawBrick widthCm={17} heightPx={400}/>
+                    <DrawBrick
+                        widthCm={17}
+                        heightPx={400}
+                        socket={this.props.socket}
+                        brickId={id.toString()}
+                    />
                 </div>
             );
         });

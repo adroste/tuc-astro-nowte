@@ -6,7 +6,6 @@
 import React from 'react';
 import PropTypes from "prop-types";
 import styled from 'styled-components';
-import {Point} from "../../../geometry/Point";
 import {Canvas} from "../base/Canvas";
 import {Pen} from "../../../drawing/canvas-tools/Pen";
 import {StrokeStyle} from "../../../drawing/StrokeStyle";
@@ -29,9 +28,13 @@ const CanvasLayer = styled(Canvas)`
 export class DrawLayer extends React.Component {
     /**
      * propTypes
+     * @property {object} socket web socket for the server
+     * @property {string} brickId id of the underlying brick
      */
     static get propTypes() {
         return {
+            socket: PropTypes.object.isRequired,
+            brickId: PropTypes.string.isRequired,
         };
     }
 
@@ -51,12 +54,12 @@ export class DrawLayer extends React.Component {
      * @type {CanvasLayer}
      */
     contentLayer = null;
-
+    currentStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
 
     constructor(props) {
         super(props);
 
-        const pen = new Pen(new StrokeStyle({color: 'red', thickness: 3}));
+        const pen = new Pen(this.currentStrokeStyle);
         pen.onPathBegin = this.penHandlePathBegin;
         pen.onPathPoint = this.penHandlePathPoint;
         pen.onPathEnd = this.penHandlePathEnd;
@@ -68,15 +71,27 @@ export class DrawLayer extends React.Component {
 
 
     penHandlePathBegin = () => {
-
+        this.props.socket.emit("beginPath", {
+            strokeStyle: this.currentStrokeStyle.lean(),
+        });
     };
 
     penHandlePathPoint = (point) => {
+        // TODO buffer multiple points?
 
+        this.props.socket.emit("addPathPoint", {
+            points: [point.lean()],
+            brickId: this.props.brickId,
+        });
     };
 
     penHandlePathEnd = (path) => {
         const spline = path.toSpline();
+
+        this.props.socket.emit("endPath", {
+            spline: spline.lean(),
+        });
+
         spline.draw(this.contentLayer.context);
     };
 

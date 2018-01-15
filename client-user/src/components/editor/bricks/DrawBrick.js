@@ -49,11 +49,15 @@ export class DrawBrick extends React.Component {
      * propTypes
      * @property {number} width width as css unit cm, e.g. 17 => "17cm"
      * @property {number} height height as css unit px, e.g. 100 => "100px"
+     * @property {object} socket web socket for the server
+     * @property {string} brickId id of the underlying brick
      */
     static get propTypes() {
         return {
             widthCm: PropTypes.number.isRequired,
-            heightPx: PropTypes.number.isRequired
+            heightPx: PropTypes.number.isRequired,
+            socket: PropTypes.object.isRequired,
+            brickId: PropTypes.string.isRequired,
         };
     }
 
@@ -77,7 +81,10 @@ export class DrawBrick extends React.Component {
                     });
                 }}
             >
-                <DrawLayer/>
+                <DrawLayer
+                    socket={this.props.socket}
+                    brickId={this.props.brickId}
+                />
             </BrickWrapper>
         );
     }
