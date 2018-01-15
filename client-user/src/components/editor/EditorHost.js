@@ -153,7 +153,7 @@ export class EditorHost extends React.Component {
                 </Overlay>}
                 {!this.state.initialConnection &&
                 <Editor
-                    socket={this.state._socket}
+                    socket={this._socket}
                     user={this.props.user}
                 />}
             </Host>
