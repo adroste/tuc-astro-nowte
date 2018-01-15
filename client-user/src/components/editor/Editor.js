@@ -22,6 +22,7 @@ const PageOuter = styled.div`
     padding-top: 15mm;
     padding-bottom: 10cm; /* scrolling dont stops at last element */
     box-shadow: 0px 0px 15px 0px #ddd;
+    min-height: 100vh;
 `;
 
 
@@ -93,7 +94,6 @@ export class Editor extends React.Component {
 
 
     handleAddBrick = (beforeId) => {
-
         let idx = this.state.bricks.length;
         let s = this.state.bricks.slice();
         if (beforeId)

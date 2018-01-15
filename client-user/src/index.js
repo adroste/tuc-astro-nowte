@@ -10,7 +10,6 @@ import {user as userReducer} from "./reducers/user";
 import {loadState, saveState} from "./utilities/storage";
 import throttle from 'lodash/throttle';
 
-
 const reducers = combineReducers({
     routing: routerReducer,
     user: userReducer,
