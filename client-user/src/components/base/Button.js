@@ -18,8 +18,8 @@ const ButtonInner = styled.div`
     background-color: white;
     color: black;
     padding: 5px 15px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: ${props => props.marginTop ? '10px' : '0'};
+    margin-bottom: ${props => props.marginBottom ? '10px' : '0'};
     margin-left: ${props => props.marginLeft ? '10px' : '0'};
     margin-right: ${props => props.marginRight ? '10px' : '0'};
     text-align: center;
@@ -88,6 +88,8 @@ export class Button extends React.Component {
      * @property {boolean} [focusable=true] determines if button is focusable
      * @property {boolean} [marginLeft=false] if set button will have left margin
      * @property {boolean} [marginRight=false] if set button will have right margin
+     * @property {boolean} [marginTop=false] if set button will have top margin
+     * @property {boolean} [marginBottom=false] if set button will have bottom margin
      */
     static get propTypes() {
         return {
@@ -98,6 +100,8 @@ export class Button extends React.Component {
             focusable: PropTypes.bool,
             marginLeft: PropTypes.bool,
             marginRight: PropTypes.bool,
+            marginTop: PropTypes.bool,
+            marginBottom: PropTypes.bool,
         };
     }
 
@@ -108,6 +112,8 @@ export class Button extends React.Component {
             focusable: true,
             marginLeft: false,
             marginRight: false,
+            marginTop: false,
+            marginBottom: false,
         };
     }
 
@@ -131,6 +137,8 @@ export class Button extends React.Component {
                     className={this.props.className}
                     large={this.props.large}
                     theme={this.props.theme}
+                    marginTop={this.props.marginTop}
+                    marginBottom={this.props.marginBottom}
                     marginLeft={this.props.marginLeft}
                     marginRight={this.props.marginRight}
                     onClick={this.onClickHandler}

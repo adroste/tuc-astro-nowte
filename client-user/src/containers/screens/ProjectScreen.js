@@ -64,7 +64,7 @@ const Wrapper = styled.div`
 const ScrollContainer = styled.div`
     height: 100%;
     width: 100%;
-    overflow: scroll !important;
+    overflow: scroll;
     scroll-behavior: smooth;
     ${props => props.padded && paddingStyle}
 `;

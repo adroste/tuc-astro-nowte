@@ -23,13 +23,19 @@ const Heading2 = styled.h1`
 `;
 
 
-const Header = styled.div`
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100px;
+const Wrapper = styled.div`
     display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+`;
+
+
+const Header = styled.div`
+    width: 100%;
+    flex: 0 0 100px;
+    display: flex;
+    border-bottom: 1px solid #ccc;
 `;
 
 
@@ -42,21 +48,28 @@ const HeaderInner = styled.div`
 `;
 
 
-// TODO fix overflow scroll
 const Main = styled.div`
-    margin-top: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
+    flex: 1;
     width: 100%;
-    overflow: scroll !important;
+    position: relative;
+`;
+
+
+const ScrollContainer = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: scroll;
+    scroll-behavior: smooth;
+    padding: 25px;
 `;
 
 
 const ProjectSelectionContentContainer = styled.div`
-    flex: 1;
     max-width: 800px;
+    margin: 25px auto;
 `;
 
 
@@ -108,7 +121,7 @@ class DashboardScreen extends React.Component {
 
     render() {
         return (
-            <div>
+            <Wrapper>
                 <Header>
                     <HeaderInner left>
                         <Heading1>
@@ -122,18 +135,20 @@ class DashboardScreen extends React.Component {
                     </HeaderInner>
                 </Header>
                 <Main>
-                    <ProjectSelectionContentContainer>
-                        <Heading2>
-                            Projects
-                        </Heading2>
-                        <ProjectSelectContainer
-                            showDialog={this.handleShowDialog}
-                            onProjectClick={this.handleProjectClick}
-                            user={this.props.user}
-                        />
-                    </ProjectSelectionContentContainer>
+                    <ScrollContainer>
+                        <ProjectSelectionContentContainer>
+                            <Heading2>
+                                Projects
+                            </Heading2>
+                            <ProjectSelectContainer
+                                showDialog={this.handleShowDialog}
+                                onProjectClick={this.handleProjectClick}
+                                user={this.props.user}
+                            />
+                        </ProjectSelectionContentContainer>
+                    </ScrollContainer>
                 </Main>
-            </div>
+            </Wrapper>
         );
     }
 }
