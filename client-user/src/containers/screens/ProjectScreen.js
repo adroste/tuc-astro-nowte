@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import {SplitPane} from "../../components/base/SplitPane";
 import ProjectFileTreeContainer from "../ProjectFileTreeContainer";
 import {Button} from "../../components/base/Button";
@@ -38,6 +38,23 @@ const HeaderInner = styled.div`
 `;
 
 
+const marginTopElectronMacFrameless = css`
+    margin-top: 15px;
+`;
+
+
+const paddingStyle = css`
+    padding: 10px;
+`;
+
+
+const HeaderLeftPane = styled.div`
+    border-bottom: 1px solid #ccc;
+    ${paddingStyle}
+    ${marginTopElectronMacFrameless}
+`;
+
+
 const Wrapper = styled.div`
     width: 100vw;
     height: 100vh;
@@ -49,6 +66,7 @@ const ScrollContainer = styled.div`
     width: 100%;
     overflow: scroll !important;
     scroll-behavior: smooth;
+    ${props => props.padded && paddingStyle}
 `;
 
 
@@ -92,10 +110,12 @@ class ProjectScreen extends React.Component {
             <Wrapper>
                 <SplitPane defaultSizePxLeft={250} minSizePxLeft={200} maxSizePxLeft={450}>
                     <div>
-                        <Button onClick={this.handleDeselectProject}>
-                            {"<"} Projects
-                        </Button>
-                        <ScrollContainer>
+                        <HeaderLeftPane>
+                            <Button onClick={this.handleDeselectProject}>
+                                {"<"} Projects
+                            </Button>
+                        </HeaderLeftPane>
+                        <ScrollContainer padded>
                             <ProjectFileTreeContainer
                                 projectId={this.props.project.projectId}
                                 projectTitle={this.props.project.title}
