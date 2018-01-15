@@ -19,8 +19,6 @@ if (isNaN(port) || port < 1024 || port > 49151) {
 const document = new Document();
 
 socket.on('connection', (clientConnection) => {
-    console.log("client connected");
-
     let client = new Client(clientConnection, document);
 });
 

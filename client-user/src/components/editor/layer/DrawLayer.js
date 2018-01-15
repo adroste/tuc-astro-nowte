@@ -72,6 +72,7 @@ export class DrawLayer extends React.Component {
     penHandlePathBegin = () => {
         this.props.socket.emit("beginPath", {
             strokeStyle: this.currentStrokeStyle.lean(),
+            brickId: this.props.brickId,
         });
     };
 
@@ -80,7 +81,6 @@ export class DrawLayer extends React.Component {
 
         this.props.socket.emit("addPathPoint", {
             points: [point.lean()],
-            brickId: this.props.brickId,
         });
     };
 

@@ -106,7 +106,7 @@ export class Editor extends React.Component {
 
         this.props.socket.emit("insertBrick", {
             heightIndex: idx,
-            id: brickId,
+            id: brickId.toString(),
         });
     };
 

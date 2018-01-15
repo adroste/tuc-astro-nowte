@@ -86,6 +86,7 @@ export class EditorHost extends React.Component {
         this._socket.on('disconnect', this.handleDisconnect);
         this._socket.on('reconnecting', this.handleReconnecting);
         this._socket.on('echo', this.handleEcho);
+        this._socket.on('initialize', this.handleInitialize);
     }
 
 
@@ -143,6 +144,9 @@ export class EditorHost extends React.Component {
             });
     };
 
+    handleInitialize = (data) => {
+        alert(JSON.stringify(data));
+    };
 
     render() {
         return (
