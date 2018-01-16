@@ -72,6 +72,7 @@ export class EditorHost extends React.Component {
         this.state = {
             initialConnection: true,
             connectionState: ConnectionStateEnum.DISCONNECTED,
+            bricks: [],
         };
 
 
@@ -159,6 +160,7 @@ export class EditorHost extends React.Component {
                 <Editor
                     socket={this._socket}
                     user={this.props.user}
+                    bricks={this.state.bricks}
                 />}
             </Host>
         );

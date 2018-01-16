@@ -51,6 +51,8 @@ export class DrawBrick extends React.Component {
      * @property {number} height height as css unit px, e.g. 100 => "100px"
      * @property {object} socket web socket for the server
      * @property {string} brickId id of the underlying brick
+     * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
+     * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
      */
     static get propTypes() {
         return {
@@ -58,6 +60,8 @@ export class DrawBrick extends React.Component {
             heightPx: PropTypes.number.isRequired,
             socket: PropTypes.object.isRequired,
             brickId: PropTypes.string.isRequired,
+            paths: PropTypes.array.isRequired,
+            splines: PropTypes.array.isRequired,
         };
     }
 
@@ -84,6 +88,8 @@ export class DrawBrick extends React.Component {
                 <DrawLayer
                     socket={this.props.socket}
                     brickId={this.props.brickId}
+                    paths={this.props.paths}
+                    splines={this.props.splines}
                 />
             </BrickWrapper>
         );

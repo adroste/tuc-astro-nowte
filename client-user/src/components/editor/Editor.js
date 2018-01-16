@@ -71,11 +71,13 @@ const InsertBrickButton = styled(DropButton)`
 export class Editor extends React.Component {
     /**
      * propTypes
+     * @property {array} bricks brick layout [[brick1, brick2], [brick3], ...]. brick1 and brick2 are in the same row. brick3 is in the next row.
      */
     static get propTypes() {
         return {
             user: PropTypes.object.isRequired,
-            socket: PropTypes.object.isRequired
+            socket: PropTypes.object.isRequired,
+            bricks: PropTypes.array.isRequired,
         };
     }
 
@@ -121,6 +123,8 @@ export class Editor extends React.Component {
                         heightPx={400}
                         socket={this.props.socket}
                         brickId={id.toString()}
+                        paths={[]}
+                        splines={[]}
                     />
                 </div>
             );
