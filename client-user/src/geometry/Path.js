@@ -128,16 +128,19 @@ export class Path {
     /**
      * Draws path in rendering context
      * @param {Object} context 2d rendering context of canvas
+     * @param {number} startIndex index of the first path point. This point and all subsequent points will be drawn. (default is 0)
      */
-    draw(context) {
+    draw(context, startIndex) {
         if (this.points.length < 1)
             return;
+        if(startIndex === undefined)
+            startIndex = 0;
 
         context.beginPath();
         this.strokeStyle.apply(context);
 
         // draw single point
-        if (this.points.length === 1) {
+        if (this.points.length === 1 && startIndex < 1) {
             // strokeStyle = fillStyle, thickness = radius
             context.fillStyle = this.strokeStyle.color;
             context.arc(this.points[0].x, this.points[0].y, this.strokeStyle.thickness / 2, 0, 2 * Math.PI, true);
@@ -145,10 +148,13 @@ export class Path {
             return;
         }
 
-        // start point
-        context.moveTo(this.points[0].x, this.points[0].y);
+        if(startIndex + 1 >= this.points.length)
+            return; // nothing to be drawn
 
-        for (let i = 1; i < this.points.length; i++) {
+        // start point
+        context.moveTo(this.points[startIndex].x, this.points[startIndex].y);
+
+        for (let i = startIndex + 1; i < this.points.length; i++) {
             context.lineTo(this.points[i].x, this.points[i].y);
         }
         context.stroke();
