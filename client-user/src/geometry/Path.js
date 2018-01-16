@@ -128,13 +128,11 @@ export class Path {
     /**
      * Draws path in rendering context
      * @param {Object} context 2d rendering context of canvas
-     * @param {number} startIndex index of the first path point. This point and all subsequent points will be drawn. (default is 0)
+     * @param {number} [startIndex=0] index of the first path point. This point and all subsequent points will be drawn.
      */
-    draw(context, startIndex) {
+    draw(context, startIndex = 0) {
         if (this.points.length < 1)
             return;
-        if(startIndex === undefined)
-            startIndex = 0;
 
         context.beginPath();
         this.strokeStyle.apply(context);
