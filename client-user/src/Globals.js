@@ -15,4 +15,12 @@ export const COLOR_CODES = {
 };
 
 
+export const FONT_SIZES = {
+    HUGE: '24px',
+    LARGE: '20px',
+    BIGGER: '16px',
+    NORMAL: '14px'
+};
+
+
 export const SERVER_URL = "http://localhost:3000";
