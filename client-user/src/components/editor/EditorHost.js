@@ -145,7 +145,7 @@ export class EditorHost extends React.Component {
     };
 
     handleInitialize = (data) => {
-        alert(JSON.stringify(data));
+        //alert(JSON.stringify(data));
     };
 
     render() {

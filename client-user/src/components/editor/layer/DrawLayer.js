@@ -108,12 +108,12 @@ export class DrawLayer extends React.Component {
 
 
     componentDidMount() {
-        alert("mountain dew");
+        //alert("mountain dew");
         this.updatePathAndSpline(this.props.paths, this.props.splines);
     }
 
     componentWillUpdate(nextProps, nextState) {
-        alert("new propsies");
+        //alert("new propsies");
         this.updatePathAndSpline(nextProps.paths, nextProps.splines);
     }
 
@@ -121,10 +121,10 @@ export class DrawLayer extends React.Component {
      * draws paths and splines that are not already drawn and erases deleted paths/splines
      */
     updatePathAndSpline = (paths, splines) => {
-        if(!paths)
-            alert("missing paths...");
-        if(!splines)
-            alert("missing splinerinos...");
+        //if(!paths)
+        //    alert("missing paths...");
+        //if(!splines)
+        //    alert("missing splinerinos...");
 
         this.updatePaths(paths);
         this.updateSplines(splines);
