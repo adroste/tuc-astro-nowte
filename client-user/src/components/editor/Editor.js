@@ -153,6 +153,8 @@ export class Editor extends React.Component {
 
             ++curHeight;
         }
+
+        return bricks;
     };
 
 
