@@ -39,6 +39,12 @@ const ButtonInner = styled.div`
     
     ${props => props.theme}
     
+    &[disabled] {
+        cursor: not-allowed;
+        color: ${COLOR_CODES.GREY_LIGHT};
+        border: 1px dashed ${COLOR_CODES.GREY_LIGHT};
+        background: white;
+    }  
 `;
 
 
@@ -103,16 +109,10 @@ export const lightGreyRoundedTheme = `
     }
     
     &:active {
-        background-color: ${COLOR_CODES.GREY_DARKER};
+        border-color: ${COLOR_CODES.GREY_DARKER};
+        color: ${COLOR_CODES.GREY_DARKER};
     }
 `;
-
-
-ButtonInner.defaultProps = {
-    theme: greenBorderTheme
-};
-
-
 
 
 export class Button extends React.Component {
@@ -123,6 +123,7 @@ export class Button extends React.Component {
      * @property {boolean} [large=false] if set text size will be bigger
      * @property {string} [theme] theme-template to apply
      * @property {boolean} [focusable=true] determines if button is focusable
+     * @property {boolean} [disabled=false] determines if button is disabled
      * @property {boolean} [marginLeft=false] if set button will have left margin
      * @property {boolean} [marginRight=false] if set button will have right margin
      * @property {boolean} [marginTop=false] if set button will have top margin
@@ -135,6 +136,7 @@ export class Button extends React.Component {
             large: PropTypes.bool,
             theme: PropTypes.string,
             focusable: PropTypes.bool,
+            disabled: PropTypes.bool,
             marginLeft: PropTypes.bool,
             marginRight: PropTypes.bool,
             marginTop: PropTypes.bool,
@@ -147,10 +149,12 @@ export class Button extends React.Component {
             center: false,
             large: false,
             focusable: true,
+            disabled: false,
             marginLeft: false,
             marginRight: false,
             marginTop: false,
             marginBottom: false,
+            theme: greenBorderTheme
         };
     }
 
@@ -181,6 +185,7 @@ export class Button extends React.Component {
                     onClick={this.onClickHandler}
                     onKeyPress={this.handleKeyPress}
                     tabIndex={this.props.focusable ? "0" : undefined}
+                    disabled={this.props.disabled}
                 >
                     {this.props.children}
                 </ButtonInner>
