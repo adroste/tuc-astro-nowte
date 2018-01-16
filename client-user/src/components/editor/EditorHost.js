@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import lookupSocket from 'socket.io-client';
 import {Editor} from "./Editor";
 import {ConnectionStateEnum} from "../../utilities/ConnectionStateEnum";
+import {Path} from "../../geometry/Path";
 
 
 const Host = styled.div`
@@ -174,16 +175,63 @@ export class EditorHost extends React.Component {
         // TODO send brick notification
     };
 
+    _localPathId = 0;
+    _currentUserPathId = null;
     handlePathBegin = (brick, strokeStyle) => {
 
+
+        // update state
+        brick.paths.push({
+            id: ++this._localPathId,
+            path: new Path(strokeStyle),
+        });
+        // remember that out user is drawing this line
+        this._currentUserPathId = this._localPathId;
+
+        // redrawing not required yet
     };
 
     handlePathPoint = (brick, point) => {
+        // add point to current path
+        let curPath = brick.paths.find(e => e.id === this._currentUserPathId);
+        if(!curPath)
+            return;
 
+        curPath.path.addPoint(point);
+
+        // redraw
+        this.setState({
+            bricks: this._bricks,
+        });
+        //this.forceUpdate();
     };
 
     handlePathEnd = (brick) => {
-        
+        // generate the spline
+        let idx = brick.paths.findIndex(e => e.id === this._currentUserPathId);
+        if(idx < 0)
+            return;
+
+        this._currentUserPathId = null;
+        const spline = brick.paths[idx].path.toSpline();
+
+        // remove path
+        brick.paths.splice(idx, 1);
+
+        if(!spline)
+            return;
+
+        // add spline
+        // TODO generate unique spline id's
+        brick.splines.push({
+            id: ++this._localPathId,
+            spline: spline,
+        });
+
+        // force rerender
+        this.setState({
+            bricks: this._bricks,
+        });
     };
 
     render() {

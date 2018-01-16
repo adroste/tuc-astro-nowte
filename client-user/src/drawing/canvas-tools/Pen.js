@@ -55,10 +55,11 @@ export class Pen {
         this._currentPath = new Path(this.strokeStyle);
         this._currentPath.addPoint(mouse);
 
-        (new Path(
+        /*(new Path(
             this.strokeStyle,
             [ mouse ]
         )).draw(ref.context);
+        */
 
         if (this.onPathBegin)
             this.onPathBegin();
@@ -78,7 +79,7 @@ export class Pen {
 
         // clear rect with current path
         const bbox = this._currentPath.boundingBox;
-        ref.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
+        //ref.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
         this._currentPath = null;
 
         e.preventDefault();
@@ -103,11 +104,11 @@ export class Pen {
         const mouse = ref.getCanvasCoordinate(e);
 
         // draw line between last point and current point
-        (new Path(
+        /*(new Path(
             this.strokeStyle,
             [ this._currentPath.points[this._currentPath.points.length - 1], mouse ]
         )).draw(ref.context);
-
+        */
         this._currentPath.addPoint(mouse);
 
         if (this.onPathPoint)

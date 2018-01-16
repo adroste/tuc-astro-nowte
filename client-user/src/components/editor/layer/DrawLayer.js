@@ -31,6 +31,7 @@ export class DrawLayer extends React.Component {
      * @property {string} brickId id of the underlying brick
      * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
      * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
+     *
      * @property {function()} onPathBegin indicates the start of a user drawn path
      * @property {function(Point)} onPathPoint indicates the addition of a new point to the current path
      * @property {function()} onPathEnd indicates that the user finished drawing
@@ -113,7 +114,7 @@ export class DrawLayer extends React.Component {
             spline: spline.lean(),
         });
 
-        spline.draw(this.contentLayer.context);
+        //spline.draw(this.contentLayer.context);
 
         this.props.onPathEnd();
     };
@@ -151,9 +152,11 @@ export class DrawLayer extends React.Component {
     removeDeletedPaths = (paths) => {
         const deletedPaths = [];
 
-        for(let drawnPathId in this.drawnPaths){
+        for(let drawnPathId of Object.keys(this.drawnPaths)){
+
             // if id is no longer in paths it was deleted
-            if(!paths.some(path => path.id === drawnPathId)){
+            // uage of == instead of === because the dictionary converts numbers to a string and drawnPathId has become a string..
+            if(!paths.some(path => path.id == drawnPathId)){
                 deletedPaths.push(drawnPathId);
             }
         }
@@ -171,8 +174,11 @@ export class DrawLayer extends React.Component {
             this.workingLayer.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
 
             // determine which paths needed to be redrawn due to the clear rect
-            for(let otherPathId in this.drawnPaths) {
+            for(let otherPathId of Object.keys(this.drawnPaths)) {
                 const otherPath = this.drawnPaths[otherPathId];
+                // TODO fix
+                if(!otherPath)
+                    continue;
 
                 // test if already drawn and boudning boxes overlap
                 if(otherPath.drawnSegments !== 0 &&
@@ -199,7 +205,7 @@ export class DrawLayer extends React.Component {
             // draw the remaining segments
             drawnPath.path.draw(this.workingLayer.context, drawnPath.drawnSegments);
             // indicate which segments were drawn
-            drawnPath.drawnSegments = drawnPath.path.points.length;
+            drawnPath.drawnSegments = drawnPath.path.points.length - 1;
         }
     };
 
@@ -280,7 +286,7 @@ export class DrawLayer extends React.Component {
             const curSpline = splines[idx];
 
             // draw spline
-            curSpline.draw(this.contentLayer.context);
+            curSpline.spline.draw(this.contentLayer.context);
 
             // add spline to drawnSplines list
             this.drawnSplines.push(curSpline.id);
