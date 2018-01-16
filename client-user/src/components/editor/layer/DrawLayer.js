@@ -167,8 +167,8 @@ export class DrawLayer extends React.Component {
         // delete the paths and indicate which paths should be redrawn
         for(let pathId of deletedPaths) {
             const bbox = this.drawnPaths[pathId].path.boundingBox;
-            // delete refence to path
-            this.drawnPaths[pathId] = undefined;
+            // delete reference to path
+            delete this.drawnPaths[pathId];
 
             // clear bounding box
             this.workingLayer.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
@@ -176,9 +176,6 @@ export class DrawLayer extends React.Component {
             // determine which paths needed to be redrawn due to the clear rect
             for(let otherPathId of Object.keys(this.drawnPaths)) {
                 const otherPath = this.drawnPaths[otherPathId];
-                // TODO fix
-                if(!otherPath)
-                    continue;
 
                 // test if already drawn and boudning boxes overlap
                 if(otherPath.drawnSegments !== 0 &&
@@ -215,7 +212,14 @@ export class DrawLayer extends React.Component {
     };
 
     removeDeletedSplines = (splines) => {
-        // TODO make early out test
+        // early out test
+        if(this.drawnSplines.length === 0)
+            return;
+        const lastDrawnIdx = this.drawnSplines.length - 1;
+        if(this.drawnSplines.length <= splines.length
+        && this.drawnSplines[lastDrawnIdx].id === splines[lastDrawnIdx].id)
+            return; // the first part of the list remains unchanged => no deletions
+
 
         // splines that were deleted
         const deletedSplines = [];
