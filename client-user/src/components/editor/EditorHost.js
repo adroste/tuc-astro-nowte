@@ -65,7 +65,6 @@ export class EditorHost extends React.Component {
      */
     _stats = {};
 
-
     constructor(props) {
         super(props);
 
@@ -121,7 +120,6 @@ export class EditorHost extends React.Component {
         console.log('connect');
     };
 
-
     handleDisconnect = () => {
         this.setState({
             connectionState: ConnectionStateEnum.DISCONNECTED
@@ -129,14 +127,12 @@ export class EditorHost extends React.Component {
         console.log('disconnect');
     };
 
-
     handleReconnecting = () => {
         this.setState({
             connectionState: ConnectionStateEnum.PENDING
         });
         console.log('reconnecting');
     };
-
 
     handleEcho = (data) => {
         if (data.hasOwnProperty('timestamp'))
@@ -147,6 +143,34 @@ export class EditorHost extends React.Component {
 
     handleInitialize = (data) => {
         //alert(JSON.stringify(data));
+    };
+
+    handleAddBrickClick = (heightIndex, columnIndex) => {
+        // TODO @alex replace with unique id
+        const brickId = Date.now().toString();
+
+        const newBrick =  {
+            id: brickId,
+            paths: [],
+            splines: [],
+        };
+
+        let bricks = this.state.bricks;
+
+        if(columnIndex){
+            // insert next to another container
+            bricks[heightIndex].splice(columnIndex, 0, newBrick);
+        }
+        else {
+            // insert at height index
+            bricks.splice(heightIndex, 0, [newBrick]);
+        }
+
+        this.setState({
+            bricks: bricks,
+        });
+
+        // TODO send brick notification
     };
 
     render() {
@@ -161,6 +185,7 @@ export class EditorHost extends React.Component {
                     socket={this._socket}
                     user={this.props.user}
                     bricks={this.state.bricks}
+                    onBrickAdd={this.handleAddBrickClick}
                 />}
             </Host>
         );

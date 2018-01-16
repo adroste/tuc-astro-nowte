@@ -72,12 +72,15 @@ export class Editor extends React.Component {
     /**
      * propTypes
      * @property {array} bricks brick layout [[brick1, brick2], [brick3], ...]. brick1 and brick2 are in the same row. brick3 is in the next row.
+     * @property {function(rowIndex: number, columnIndex: number)} onBrickAdd requests brick creation.
+     *           columnIndex = undefined => use the whole row. columnIndex = 0 => insert as left brick. columnIndex = 1 => insert as right brick.
      */
     static get propTypes() {
         return {
             user: PropTypes.object.isRequired,
             socket: PropTypes.object.isRequired,
             bricks: PropTypes.array.isRequired,
+            onBrickAdd: PropTypes.func.isRequired,
         };
     }
 
@@ -95,8 +98,13 @@ export class Editor extends React.Component {
     }
 
 
-    handleAddBrick = (beforeId) => {
-        let idx = this.state.bricks.length;
+    handleAddBrickClick = (heightIndex) => {
+        if(heightIndex === undefined)
+            heightIndex = 0;
+
+        this.props.onBrickAdd(heightIndex);
+
+        /*let idx = this.state.bricks.length;
         let s = this.state.bricks.slice();
         if (beforeId)
             idx = this.state.bricks.findIndex(x => x === beforeId);
@@ -109,26 +117,42 @@ export class Editor extends React.Component {
         this.props.socket.emit("insertBrick", {
             heightIndex: idx,
             id: brickId.toString(),
-        });
+        });*/
     };
 
 
     renderBricks = () => {
-        return this.state.bricks.map(id => {
-            return (
-                <div key={id}>
-                    <InsertBrickButton onClick={() => this.handleAddBrick(id)}/>
-                    <DrawBrick
-                        widthCm={17}
-                        heightPx={400}
-                        socket={this.props.socket}
-                        brickId={id.toString()}
-                        paths={[]}
-                        splines={[]}
-                    />
+        let bricks = [];
+        let curHeight = 0;
+
+        // concatenate the id's of the row bricks
+        const getRowId = (row) => row.reduce((brick1, brick2) => brick1.id + brick2.id, "#");
+
+        const listRowItems = (row) => {
+            return row.map(brick =>
+                (<DrawBrick
+                    key={brick.id}
+                    widthCm={17}
+                    heightPx={400}
+                    socket={this.props.socket}
+                    brickId={brick.id}
+                    paths={brick.paths}
+                    splines={brick.splines}
+                />)
+            );
+        };
+
+        for(let row of this.props.bricks){
+            bricks.push(
+                <div key={getRowId(row)}>
+                    <InsertBrickButton onClick={() => this.handleAddBrickClick(curHeight)}/>
+                    {listRowItems(row)}
                 </div>
             );
-        });
+
+
+            ++curHeight;
+        }
     };
 
 
@@ -138,7 +162,7 @@ export class Editor extends React.Component {
                 <PageOuter>
                     <PageInner>
                         {this.renderBricks()}
-                        <AppendBrickButton onClick={() => this.handleAddBrick()}/>
+                        <AppendBrickButton onClick={() => this.handleAddBrickClick()}/>
                     </PageInner>
                 </PageOuter>
             </Wrapper>
