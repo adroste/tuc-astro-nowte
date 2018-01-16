@@ -293,7 +293,7 @@ export class DrawLayer extends React.Component {
             curSpline.spline.draw(this.contentLayer.context);
 
             // add spline to drawnSplines list
-            this.drawnSplines.push(curSpline.id);
+            this.drawnSplines.push(curSpline);
         }
     };
 
