@@ -100,7 +100,7 @@ export class Editor extends React.Component {
 
     handleAddBrickClick = (heightIndex) => {
         if(heightIndex === undefined)
-            heightIndex = 0;
+            heightIndex = this.props.bricks.length;
 
         this.props.onBrickAdd(heightIndex);
 
@@ -143,13 +143,14 @@ export class Editor extends React.Component {
         };
 
         for(let row of this.props.bricks){
+            // this is needed for the lambda to work
+            const leHeight = curHeight;
             bricks.push(
                 <div key={getRowId(row)}>
-                    <InsertBrickButton onClick={() => this.handleAddBrickClick(curHeight)}/>
+                    <InsertBrickButton onClick={() => this.handleAddBrickClick(leHeight)}/>
                     {listRowItems(row)}
                 </div>
             );
-
 
             ++curHeight;
         }

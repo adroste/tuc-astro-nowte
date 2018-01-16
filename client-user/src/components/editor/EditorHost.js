@@ -68,6 +68,7 @@ export class EditorHost extends React.Component {
     constructor(props) {
         super(props);
 
+        this._bricks = [];
         this.state = {
             initialConnection: true,
             connectionState: ConnectionStateEnum.DISCONNECTED,
@@ -155,7 +156,7 @@ export class EditorHost extends React.Component {
             splines: [],
         };
 
-        let bricks = this.state.bricks;
+        let bricks = this._bricks;
 
         if(columnIndex){
             // insert next to another container
