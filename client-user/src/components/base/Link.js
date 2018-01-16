@@ -52,11 +52,6 @@ export const greenHoverTheme = `
 `;
 
 
-LinkSpan.defaultProps = {
-    theme: greenUnderlineTheme
-};
-
-
 /**
  * text that looks like a link and can be clicked
  */
@@ -64,15 +59,19 @@ export class Link extends React.Component {
     /**
      * propTypes
      * @property {function(event: Object)} onClick callback when button was clicked
+     * @property {string} [theme] theme-template to apply
      */
     static get propTypes() {
         return {
             onClick: PropTypes.func.isRequired,
+            theme: PropTypes.string
         };
     }
 
     static get defaultProps() {
-        return {};
+        return {
+            theme: greenUnderlineTheme
+        };
     }
 
     onClickHandler = (e) => {
