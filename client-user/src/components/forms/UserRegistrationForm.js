@@ -1,11 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LabelledInputBox from "../base/LabelledInputBox";
-import './UserRegistrationForm.css';
 import {Button} from "../base/Button";
 import {Link} from "../base/Link";
 import { SERVER_URL } from "../../Globals";
-import * as utility from "../../utilities/login"
+import {INPUT_TYPES} from "../base/InputField";
+import {
+    validateEmail, validateName, validatePassword,
+    validatePasswordConfirm
+} from "../../utilities/inputFieldValidators";
+import {ValidatedInputField} from "../base/ValidatedInputField";
+
 
 export default class UserRegistrationForm extends React.Component {
     /**
@@ -28,6 +32,12 @@ export default class UserRegistrationForm extends React.Component {
     }
 
 
+    get validationSuccess() {
+        return this.state.nameValidation && this.state.emailValidation
+            && this.state.passwordValidation && this.state.passwordConfirmValidation;
+    }
+
+
     constructor(props) {
         super(props);
 
@@ -36,9 +46,10 @@ export default class UserRegistrationForm extends React.Component {
             email: '',
             password: '',
             passwordConfirm: '',
-            nameChild: <br/>,
-            emailChild: <br/>,
-            passwordChild: <br/>
+            nameValidation: false,
+            emailValidation: false,
+            passwordValidation: false,
+            passwordConfirmValidation: false
         }
     }
 
@@ -47,19 +58,7 @@ export default class UserRegistrationForm extends React.Component {
      * handler for the submit button
      */
     onClickHandler = () => {
-        let success = true;
-
-        // verify parameters (+ display message when invalid)
-        if(!this.verifyName())
-            success = false;
-
-        if(!this.verifyEmail())
-            success = false;
-
-        if(!this.verifyPassword())
-            success = false;
-
-        if(!success)
+        if(!this.validationSuccess)
             return;
 
         //send registration request
@@ -102,6 +101,7 @@ export default class UserRegistrationForm extends React.Component {
         alert(message);
     };
 
+
     /**
      * this function will be called when the user succesfully sent a
      * registration to the server
@@ -109,6 +109,7 @@ export default class UserRegistrationForm extends React.Component {
     handleSuccesfullRegistration = () => {
         this.props.onSuccesfullRegistration();
     };
+
 
     /**
      * this function will be called when the user tried to submit
@@ -123,70 +124,6 @@ export default class UserRegistrationForm extends React.Component {
         alert(errmsg);
     };
 
-    /**
-     * verifies this.name and sets an error message if invalid
-     * @returns {boolean} true if the username was correct
-     */
-    verifyName = () => {
-        if(this.state.name.length === 0){
-            this.onNameError("this field is required");
-            return false;
-        }
-
-        // name is correct
-        this.onNameError("");
-        return true;
-    };
-
-    /**
-     * verifies this.email and sets an error message if invalid
-     * @returns {boolean} true if the email was correct
-     */
-    verifyEmail = () => {
-        const res = utility.verifyEmailField(this.state.email);
-        this.onEmailError(res);
-        return res === "";
-    };
-
-    /**
-     * sets the red error text below the email box
-     * @param message message that will appear (may be "")
-     */
-    onEmailError = (message) => {
-        this.setState({
-            emailChild: <div className="ErrorText">{message}<br/></div>
-        });
-    };
-
-    /**
-     * sets the red error text below the username box
-     * @param message message that will appear (may be "")
-     */
-    onNameError = (message) => {
-        this.setState({
-            nameChild: <div className="ErrorText">{message}<br/></div>
-        });
-    };
-
-    /**
-     * verifies this.password and this.password2 and sets an error message if invalid
-     * @returns {boolean} true if password is correct
-     */
-    verifyPassword = () => {
-        const res = utility.verifyPasswordFields(this.state.password, this.state.passwordConfirm);
-        this.onPasswordError(res);
-        return res === "";
-    };
-
-    /**
-     * sets a red error text below the password box
-     * @param message
-     */
-    onPasswordError = (message) => {
-        this.setState({
-            passwordChild: <div className="ErrorText">{message}<br/></div>
-        });
-    };
 
     handleKeyPress = (e) => {
         if(e.key === "Enter"){
@@ -194,45 +131,62 @@ export default class UserRegistrationForm extends React.Component {
         }
     };
 
+
     render(){
         return (
-            <div className="UserRegistrationForm" onKeyPress={this.handleKeyPress}>
-                <LabelledInputBox
+            <div
+                className={this.props.className}
+                onKeyPress={this.handleKeyPress}
+            >
+                <ValidatedInputField
                     label="Name"
                     name="name"
-                    onChange={(name) => this.setState({name})}
-                    child={this.state.nameChild}
+                    type={INPUT_TYPES.TEXT}
+                    onInputChange={(name) => this.setState({name})}
+                    onValidationResultChange={(success) => this.setState({nameValidation: success})}
                     value={this.state.name}
+                    placeholder="display name"
+                    validator={validateName}
                 />
-                <LabelledInputBox
+                <ValidatedInputField
                     label="Email"
                     name="email"
-                    onChange={(email) => this.setState({email})}
-                    child={this.state.emailChild}
+                    type={INPUT_TYPES.EMAIL}
+                    onInputChange={(email) => this.setState({email})}
+                    onValidationResultChange={(success) => this.setState({emailValidation: success})}
                     value={this.state.email}
+                    placeholder="you@example.de"
+                    validator={validateEmail}
                 />
-                <LabelledInputBox
+                <ValidatedInputField
                     label="Password"
                     name="password"
-                    type="password"
-                    onChange={(password) => this.setState({password})}
-                    child={this.state.passwordChild}
+                    type={INPUT_TYPES.PASSWORD}
+                    onInputChange={(password) => this.setState({password})}
+                    onValidationResultChange={(success) => this.setState({passwordValidation: success})}
                     value={this.state.password}
+                    placeholder="choose password"
+                    validator={validatePassword}
                 />
-                <LabelledInputBox
-                    label="Confirm Password"
+                <ValidatedInputField
+                    label="Confirm password"
                     name="password2"
-                    type="password"
-                    onChange={(passwordConfirm) => this.setState({passwordConfirm})}
+                    type={INPUT_TYPES.PASSWORD}
+                    onInputChange={(passwordConfirm) => this.setState({passwordConfirm})}
+                    onValidationResultChange={(success) => this.setState({passwordConfirmValidation: success})}
                     value={this.state.passwordConfirm}
+                    placeholder="re-enter password"
+                    validator={validatePasswordConfirm(this.state.password)}
                 />
-                <br/>
-                <Button onClick={this.onClickHandler}>
-                    Submit
+                <Button
+                    onClick={this.onClickHandler}
+                    disabled={!this.validationSuccess}
+                >
+                    Register
                 </Button>
                 <br/>
                 <br/>
-                Already have an account?
+                Already have an account?&nbsp;
                 <Link onClick={this.props.onLoginClick}>
                     login
                 </Link>
