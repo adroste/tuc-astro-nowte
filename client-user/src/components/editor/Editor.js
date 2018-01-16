@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import {DrawBrick} from "./bricks/DrawBrick";
 import {Button, lightGreyRoundedTheme} from "../base/Button";
 import {DropButton} from "./base/DropButton";
+import {StrokeStyle} from "../../drawing/StrokeStyle";
 
 
 const Wrapper = styled.div`
@@ -74,6 +75,10 @@ export class Editor extends React.Component {
      * @property {array} bricks brick layout [[brick1, brick2], [brick3], ...]. brick1 and brick2 are in the same row. brick3 is in the next row.
      * @property {function(rowIndex: number, columnIndex: number)} onBrickAdd requests brick creation.
      *           columnIndex = undefined => use the whole row. columnIndex = 0 => insert as left brick. columnIndex = 1 => insert as right brick.
+     *
+     * @property {function(brick, strokeStyle)} onPathBegin indicates the start of a user drawn path. brick is the reference to the brick which was passed in this.props.bricks
+     * @property {function(brick, Point)} onPathPoint indicates the addition of a new point to the current path
+     * @property {function(brick)} onPathEnd indicates that the user finished drawing
      */
     static get propTypes() {
         return {
@@ -81,6 +86,10 @@ export class Editor extends React.Component {
             socket: PropTypes.object.isRequired,
             bricks: PropTypes.array.isRequired,
             onBrickAdd: PropTypes.func.isRequired,
+
+            onPathBegin: PropTypes.func.isRequired,
+            onPathPoint: PropTypes.func.isRequired,
+            onPathEnd: PropTypes.func.isRequired,
         };
     }
 
@@ -95,6 +104,8 @@ export class Editor extends React.Component {
         this.state = {
             bricks: []
         };
+
+        this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
     }
 
 
@@ -103,21 +114,6 @@ export class Editor extends React.Component {
             heightIndex = this.props.bricks.length;
 
         this.props.onBrickAdd(heightIndex);
-
-        /*let idx = this.state.bricks.length;
-        let s = this.state.bricks.slice();
-        if (beforeId)
-            idx = this.state.bricks.findIndex(x => x === beforeId);
-        const brickId = s.length + 1;
-        s.splice(idx, 0, brickId);
-        this.setState({
-            bricks: s
-        });
-
-        this.props.socket.emit("insertBrick", {
-            heightIndex: idx,
-            id: brickId.toString(),
-        });*/
     };
 
 
@@ -138,6 +134,10 @@ export class Editor extends React.Component {
                     brickId={brick.id}
                     paths={brick.paths}
                     splines={brick.splines}
+
+                    onPathBegin={() => this.props.onPathBegin(brick, this.curStrokeStyle)}
+                    onPathPoint={(point) => this.props.onPathPoint(brick, point)}
+                    onPathEnd={() => this.props.onPathEnd(brick)}
                 />)
             );
         };

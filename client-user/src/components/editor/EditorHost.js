@@ -174,6 +174,18 @@ export class EditorHost extends React.Component {
         // TODO send brick notification
     };
 
+    handlePathBegin = (brick, strokeStyle) => {
+
+    };
+
+    handlePathPoint = (brick, point) => {
+
+    };
+
+    handlePathEnd = (brick) => {
+        
+    };
+
     render() {
         return (
             <Host>
@@ -186,7 +198,12 @@ export class EditorHost extends React.Component {
                     socket={this._socket}
                     user={this.props.user}
                     bricks={this.state.bricks}
+
                     onBrickAdd={this.handleAddBrickClick}
+
+                    onPathBegin={this.handlePathBegin}
+                    onPathPoint={this.handlePathPoint}
+                    onPathEnd={this.handlePathEnd}
                 />}
             </Host>
         );

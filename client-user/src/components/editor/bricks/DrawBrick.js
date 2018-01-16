@@ -53,6 +53,10 @@ export class DrawBrick extends React.Component {
      * @property {string} brickId id of the underlying brick
      * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
      * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
+     *
+     * @property {function()} onPathBegin indicates the start of a user drawn path
+     * @property {function(Point)} onPathPoint indicates the addition of a new point to the current path
+     * @property {function()} onPathEnd indicates that the user finished drawing
      */
     static get propTypes() {
         return {
@@ -62,6 +66,10 @@ export class DrawBrick extends React.Component {
             brickId: PropTypes.string.isRequired,
             paths: PropTypes.array.isRequired,
             splines: PropTypes.array.isRequired,
+
+            onPathBegin: PropTypes.func.isRequired,
+            onPathPoint: PropTypes.func.isRequired,
+            onPathEnd: PropTypes.func.isRequired,
         };
     }
 
@@ -90,6 +98,10 @@ export class DrawBrick extends React.Component {
                     brickId={this.props.brickId}
                     paths={this.props.paths}
                     splines={this.props.splines}
+
+                    onPathBegin={this.props.onPathBegin}
+                    onPathPoint={this.props.onPathPoint}
+                    onPathEnd={this.props.onPathEnd}
                 />
             </BrickWrapper>
         );
