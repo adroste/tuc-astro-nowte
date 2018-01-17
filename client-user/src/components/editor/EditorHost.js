@@ -237,9 +237,7 @@ export class EditorHost extends React.Component {
         bricks.splice(heightIndex, 0, [newBrick]);
 
 
-        this.setState({
-            bricks: bricks,
-        });
+        this.forceUpdate();
     };
 
     handleBeginPathReceive = (data) => {
@@ -302,9 +300,7 @@ export class EditorHost extends React.Component {
             curPath.path.addPoint(Point.fromObject(point));
         }
 
-        this.setStats({
-            bricks: this._bricks,
-        })
+        this.forceUpdate();
     };
 
     handlePathPoint = (brick, point) => {
@@ -321,9 +317,7 @@ export class EditorHost extends React.Component {
         });
 
         // redraw
-        this.setState({
-            bricks: this._bricks,
-        });
+        this.forceUpdate();
     };
 
     handleEndPathReceive = (data) => {
@@ -351,9 +345,7 @@ export class EditorHost extends React.Component {
             spline: convertedSpline,
         });
 
-        this.setState({
-           bricks: this._bricks,
-        });
+        this.forceUpdate();
     };
 
     handlePathEnd = (brick) => {
@@ -383,9 +375,7 @@ export class EditorHost extends React.Component {
         });
 
         // force rerender
-        this.setState({
-            bricks: this._bricks,
-        });
+        this.forceUpdate();
     };
 
     render() {
