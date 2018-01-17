@@ -1,24 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import {ModalDialog} from 'react-modal-dialog';
-import LabelledInputBox from "../base/LabelledInputBox";
-import {Button} from "../base/Button";
+import {COLOR_CODES} from "../../Globals";
+import {Button, greyBorderTheme} from "../base/Button";
 import "./ShareDialog.css"
 import * as API from '../../ServerApi'
 import DropdownMenu from "../base/DropdownMenu";
+import {DialogButtonsContainer, DialogHeading, DialogMainContent} from "./Common";
+import {ValidatedInputField} from "../base/ValidatedInputField";
+import {INPUT_TYPES, greyTheme} from "../base/InputField";
+import {validateStringNotEmptyCustomMessage} from "../../utilities/inputFieldValidators";
+
+// TODO fix jumping dialog by defining fixed content height (maybe its enough to set fixed height for InputField)
+const ShareList = styled.div`
+    width: 100%;
+    height: 300px;
+    overflow: scroll;
+    border-radius: 5px;
+    border: 1px solid ${COLOR_CODES.GREY_LIGHT};
+`;
+
 
 export default class ShareDialog extends React.Component {
     /**
      * propTypes
      * @property {string} title title of the dialog
-     * @property {function()} onCancel called when forcibly closed
+     * @property {function()} onClose called when forcibly closed
      * @property {string} projectId id of the project
      * @property {object} user user state
      */
     static get propTypes() {
         return {
             title: PropTypes.string,
-            onCancel: PropTypes.func.isRequired,
+            onClose: PropTypes.func.isRequired,
             projectId: PropTypes.string.isRequired,
             user: PropTypes.object.isRequired,
         };
@@ -27,25 +42,32 @@ export default class ShareDialog extends React.Component {
     static get defaultProps() {
         return {};
     }
+
+
     constructor(props){
         super(props);
 
         this.state = {
             users: [],
-            inputChild: <br/>,
-            inputText: "",
-            inputPermission: 5, // TODO dropdown @Aaron
+            shareEmail: '',
+            shareEmailValidation: false,
+            sharePermission: 5,
         };
     }
 
-    componentDidMount() {
-        // request share information
 
-        API.getShares(this.props.user.token, this.props.projectId, this.handleShareList, this.handleError);
+    componentDidMount() {
+        this._getShares();
     }
 
-    handleShareList = (body) => {
-        let users = [];
+
+    _getShares = () => {
+        API.getShares(this.props.user.token, this.props.projectId, this._handleShareList, this._handleError);
+    };
+
+
+    _handleShareList = (body) => {
+        const users = [];
         for(let share of body){
             users.push({
                 name: share.user.name,
@@ -54,31 +76,30 @@ export default class ShareDialog extends React.Component {
             });
         }
 
-        this.setState({
-            users: users,
-            inputChild: <br/>,
-        })
+        this.setState({users});
     };
 
-    handleShareClick = () => {
-        if(this.state.inputText === "")
+
+    _handleShareClick = () => {
+        if(!this.state.shareEmailValidation)
             return;
 
-        API.share(this.props.user.token, this.props.projectId, this.state.inputText, this.state.inputPermission, this.handleShared, this.handleError);
+        API.share(this.props.user.token, this.props.projectId, this.state.shareEmail, this.state.sharePermission, this._handleShared, this._handleError);
     };
 
-    handleShared = () => {
-        // send new share info request
-        API.getShares(this.props.user.token, this.props.projectId, this.handleShareList, this.handleError);
+
+    _handleShared = () => {
+        this._getShares();
     };
 
-    handleError = (error) => {
-        this.setState({
-            inputChild: <div className="error-text">{error}<br/></div>
-        });
+
+    _handleError = (error) => {
+        // TODO: proper error handling
+        alert(error);
     };
 
-    getSharesView = () => {
+
+    _getShareListItems = () => {
         let shares = [];
 
         for(let user of this.state.users){
@@ -91,29 +112,47 @@ export default class ShareDialog extends React.Component {
         return shares;
     };
 
+
     render() {
         return (
-            <ModalDialog className="dialog" onClose={this.props.onCancel}>
-                <h1>{this.props.title}</h1>
-                {this.getSharesView()}
-                <br/>
-                <LabelledInputBox
-                    label="Share with you collaborators"
-                    type="email"
-                    placeholder="someone@example.com"
-                    onChange={(value) => this.setState({inputText: value})}
-                    child={this.state.inputChild}
-                    value={this.state.inputText}
-                />
-                <DropdownMenu label="Permisson" entrys={["NONE","READ","ANNOTATE","EDIT","MANAGE","OWNER"]}/>
-                <div className="align-right">
-                    <Button onClick={this.props.onCancel}>
-                        Cancel
-                    </Button>
-                    <Button onClick={this.handleShareClick}>
+            <ModalDialog
+                className={this.props.className}
+                onClose={this.props.onClose}
+            >
+                <DialogHeading>
+                    {this.props.title}
+                </DialogHeading>
+                <DialogMainContent>
+                    <ShareList>
+                        {this._getShareListItems()}
+                    </ShareList>
+                    <ValidatedInputField
+                        name="email"
+                        type={INPUT_TYPES.TEXT}
+                        onInputChange={(shareEmail) => this.setState({shareEmail})}
+                        onValidationResultChange={(success) => this.setState({shareEmailValidation: success})}
+                        value={this.state.shareEmail}
+                        placeholder="email of user"
+                        validator={validateStringNotEmptyCustomMessage(null)}
+                        defaultTheme={greyTheme}
+                        errorTheme={greyTheme}
+                    />
+
+                    <DropdownMenu label="Permisson" entrys={["NONE","READ","ANNOTATE","EDIT","MANAGE","OWNER"]}/>
+                    <Button onClick={this._handleShareClick}>
                         Share
                     </Button>
-                </div>
+                </DialogMainContent>
+                <DialogButtonsContainer>
+                    <div className="align-right">
+                        <Button
+                            onClick={this.props.onClose}
+                            theme={greyBorderTheme}
+                        >
+                            Close
+                        </Button>
+                    </div>
+                </DialogButtonsContainer>
             </ModalDialog>
         );
     }

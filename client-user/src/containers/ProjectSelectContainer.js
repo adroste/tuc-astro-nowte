@@ -38,7 +38,7 @@ const ProjectListItemInner = styled.div`
 export default class ProjectSelectContainer extends React.Component {
     /**
      * propTypes
-     * @property {function(dialog: object) showDialog callback when a dialog should be displayed
+     * @property {function(dialog: object)} showDialog callback when a dialog should be displayed
      * @property {function(projectId: string, title: string, permissions: number)} onProjectClick callback when a project should be opened
      * @property {object} user user information
      */
@@ -184,7 +184,7 @@ export default class ProjectSelectContainer extends React.Component {
 
     getProjectView = () => {
         let list = [];
-        // TODO make cool styling
+
         for (let p of this.state.projects) {
             list.push(
                 <ProjectListItem

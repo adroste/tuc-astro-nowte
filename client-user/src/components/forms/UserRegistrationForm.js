@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {Button} from "../base/Button";
 import {Link} from "../base/Link";
-import { SERVER_URL } from "../../Globals";
+import {SERVER_URL} from "../../Globals";
 import {INPUT_TYPES} from "../base/InputField";
 import {
     validateEmail, validateName, validatePassword,
