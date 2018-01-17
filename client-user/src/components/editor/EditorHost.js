@@ -89,6 +89,7 @@ export class EditorHost extends React.Component {
         this._socket.on('reconnecting', this.handleReconnecting);
         this._socket.on('echo', this.handleEcho);
         this._socket.on('initialize', this.handleInitialize);
+        this._socket.on('insertedBrick', this.handleInsertedBrick);
     }
 
 
@@ -148,9 +149,18 @@ export class EditorHost extends React.Component {
     };
 
     handleAddBrickClick = (heightIndex, columnIndex) => {
-        // TODO @alex replace with unique id
-        const brickId = Date.now().toString();
 
+        this._socket.emit("insertBrick", {
+            heightIndex: heightIndex,
+            // TODO add column index handling
+        });
+    };
+
+    handleInsertedBrick = (data) => {
+        const heightIndex = data.heightIndex;
+        const brickId = data.brickId;
+
+        // TODO type checking
         const newBrick =  {
             id: brickId,
             paths: [],
@@ -159,11 +169,12 @@ export class EditorHost extends React.Component {
 
         let bricks = this._bricks;
 
-        if(columnIndex){
+        // TODO add proper colum index handling
+        /*if(columnIndex){
             // insert next to another container
             bricks[heightIndex].splice(columnIndex, 0, newBrick);
         }
-        else {
+        else*/ {
             // insert at height index
             bricks.splice(heightIndex, 0, [newBrick]);
         }
@@ -171,8 +182,6 @@ export class EditorHost extends React.Component {
         this.setState({
             bricks: bricks,
         });
-
-        // TODO send brick notification
     };
 
     _localPathId = 0;

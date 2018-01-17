@@ -121,7 +121,7 @@ export class Editor extends React.Component {
         let curHeight = 0;
 
         // concatenate the id's of the row bricks
-        const getRowId = (row) => row.reduce((brick1, brick2) => brick1.id + brick2.id, "#");
+        const getRowId = (row) => row.reduce((brick1, brick2) => (brick1.id?brick1.id:"") + "#" + brick2.id, "-");
 
         const listRowItems = (row) => {
             return row.map(brick =>
