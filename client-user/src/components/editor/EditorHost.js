@@ -174,10 +174,10 @@ export class EditorHost extends React.Component {
             // insert next to another container
             bricks[heightIndex].splice(columnIndex, 0, newBrick);
         }
-        else*/ {
-            // insert at height index
-            bricks.splice(heightIndex, 0, [newBrick]);
-        }
+        else*/
+        // insert at height index
+        bricks.splice(heightIndex, 0, [newBrick]);
+
 
         this.setState({
             bricks: bricks,

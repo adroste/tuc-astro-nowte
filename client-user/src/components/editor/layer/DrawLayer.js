@@ -7,7 +7,6 @@ import React from 'react';
 import styled from 'styled-components';
 import {Canvas} from "../base/Canvas";
 import {Pen} from "../../../drawing/canvas-tools/Pen";
-import {StrokeStyle} from "../../../drawing/StrokeStyle";
 import PropTypes from 'prop-types';
 
 const LayerWrapper = styled.div`
@@ -118,7 +117,7 @@ export class DrawLayer extends React.Component {
 
             // if id is no longer in paths it was deleted
             // uage of == instead of === because the dictionary converts numbers to a string and drawnPathId has become a string..
-            if(!paths.some(path => path.id == drawnPathId)){
+            if(!paths.some(path => path.id.toString() === drawnPathId)){
                 deletedPaths.push(drawnPathId);
             }
         }

@@ -1,5 +1,3 @@
-import {Path} from "../../geometry/Path";
-
 /**
  * @author Alexander Droste
  * @date 07.01.18
@@ -34,10 +32,6 @@ export class Pen {
      * @private
      */
     _drawingPath = false;
-
-    constructor() {
-    }
-
 
     handlePointerDown(e, ref) {
         const mouse = ref.getCanvasCoordinate(e);
