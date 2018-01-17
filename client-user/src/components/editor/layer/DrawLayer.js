@@ -131,6 +131,8 @@ export class DrawLayer extends React.Component {
             // delete reference to path
             delete this.drawnPaths[pathId];
 
+            if(!bbox)
+                return;
             // clear bounding box
             this.workingLayer.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
 
@@ -140,7 +142,7 @@ export class DrawLayer extends React.Component {
 
                 // test if already drawn and boudning boxes overlap
                 if(otherPath.drawnSegments !== 0 &&
-                    otherPath.path.boundingBox.overlaps(bbox)) {
+                    bbox.overlaps(otherPath.path.boundingBox)) {
 
                     // reset drawn segments to force redraw
                     otherPath.drawnSegments = 0;

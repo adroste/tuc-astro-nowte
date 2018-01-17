@@ -11,6 +11,8 @@ import {Editor} from "./Editor";
 import {ConnectionStateEnum} from "../../utilities/ConnectionStateEnum";
 import {Path} from "../../geometry/Path";
 import {Spline} from "../../geometry/Spline";
+import {StrokeStyle} from "../../drawing/StrokeStyle";
+import {Point} from "../../geometry/Point";
 
 
 const Host = styled.div`
@@ -90,7 +92,11 @@ export class EditorHost extends React.Component {
         this._socket.on('reconnecting', this.handleReconnecting);
         this._socket.on('echo', this.handleEcho);
         this._socket.on('initialize', this.handleInitialize);
+
         this._socket.on('insertedBrick', this.handleInsertedBrick);
+        this._socket.on('beginPath', this.handleBeginPathReceive);
+        this._socket.on('addPathPoint', this.handleAddPathPointReceive);
+        this._socket.on('endPath', this.handleEndPathReceive);
     }
 
     componentDidMount() {
@@ -104,6 +110,17 @@ export class EditorHost extends React.Component {
     componentWillUnmount() {
         clearInterval(this.latencyInterval);
     }
+
+    getBrick = (brickId) => {
+        // TODO user a better data structure
+        for(let row of this._bricks){
+            for(let brick of row){
+                if(brick.id === brickId)
+                    return brick;
+            }
+        }
+        return null;
+    };
 
     setStats = (stats) => {
         const prevStats = JSON.stringify(this._stats);
@@ -225,6 +242,27 @@ export class EditorHost extends React.Component {
         });
     };
 
+    handleBeginPathReceive = (data) => {
+        // update state
+        const brickId = data.brickId;
+        const userId = data.userId;
+        const userUniqueId = data.userUniqueId;
+        const strokeStyle = data.strokeStyle;
+        // TODO check data types
+
+        // obtain brick
+        const brick = this.getBrick(brickId);
+        if(!brick)
+            return;
+
+        brick.paths.push({
+            id: ++this._localPathId,
+            path: new Path(StrokeStyle.fromObject(strokeStyle)),
+            userId: userId,
+            userUniqueId: userUniqueId,
+        });
+    };
+
     _localPathId = 0;
     _currentUserPathId = null;
     handlePathBegin = (brick, strokeStyle) => {
@@ -245,6 +283,30 @@ export class EditorHost extends React.Component {
         });
     };
 
+    handleAddPathPointReceive = (data) => {
+        const brickId = data.brickId;
+        const userUniqueId = data.userUniqueId;
+        const points = data.points;
+
+        // obtain brick
+        const brick = this.getBrick(brickId);
+        if(!brick)
+            return;
+
+        // get path
+        let curPath = brick.paths.find(e => e.userUniqueId === userUniqueId);
+        if(!curPath)
+            return;
+
+        for(let point of points){
+            curPath.path.addPoint(Point.fromObject(point));
+        }
+
+        this.setStats({
+            bricks: this._bricks,
+        })
+    };
+
     handlePathPoint = (brick, point) => {
         // add point to current path
         let curPath = brick.paths.find(e => e.id === this._currentUserPathId);
@@ -261,6 +323,36 @@ export class EditorHost extends React.Component {
         // redraw
         this.setState({
             bricks: this._bricks,
+        });
+    };
+
+    handleEndPathReceive = (data) => {
+        const brickId = data.brickId;
+        const userUniqueId = data.userUniqueId;
+        const spline = data.spline;
+
+        // obtain brick
+        const brick = this.getBrick(brickId);
+        if(!brick)
+            return;
+
+        // remove the path
+        let idx = brick.paths.findIndex(e => e.userUniqueId === userUniqueId);
+        if(idx >= 0){
+            brick.paths.splice(idx, 1);
+        }
+
+        const convertedSpline = Spline.fromObject(spline);
+        if(!convertedSpline)
+            return;
+
+        brick.splines.push({
+            id: ++this._localPathId,
+            spline: convertedSpline,
+        });
+
+        this.setState({
+           bricks: this._bricks,
         });
     };
 

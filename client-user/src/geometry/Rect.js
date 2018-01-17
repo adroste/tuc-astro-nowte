@@ -187,12 +187,12 @@ export class Rect {
     }
 
     /**
-     * Tests if two rectangles overlap
-     * @param {Rect} rect
+     * Tests if two rectangles overlap. if rect is null overlaps returns false
+     * @param {Rect|null} rect
      * @return {boolean}
      */
     overlaps(rect) {
-        return (this.x1 <= rect.x2 && this.x2 >= rect.x1) &&
+        return rect && (this.x1 <= rect.x2 && this.x2 >= rect.x1) &&
             (this.y1 <= rect.y2 && this.y2 >= rect.y2);
     }
 }

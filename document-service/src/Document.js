@@ -95,13 +95,19 @@ class Document {
 
     handleBeginPath(user, brickId, strokeStyle) {
         try {
+            // TODO add more verification
             const brick = this._bricks[brickId];
             if(!brick)
                 throw new Error("brick id invalid");
 
             brick.handleBeginPath(user.uniqueIdentifier, strokeStyle);
 
-            // TODO notify other clients
+            this._clients.forEach((client) => {
+                // don't send it to the same user
+                if(user.uniqueIdentifier !== client.uniqueIdentifier){
+                    client.sendBeginPath(user.id, user.uniqueIdentifier, brickId, strokeStyle);
+                }
+            });
         }
         catch (e) {
             console.log("Error handleBeginPath: " + e.message);
@@ -116,7 +122,12 @@ class Document {
 
             brick.handleAddPathPoints(user.uniqueIdentifier, points);
 
-            // TODO notify other clients
+            this._clients.forEach((client) => {
+                // don't send it to the same user
+                if(user.uniqueIdentifier !== client.uniqueIdentifier){
+                    client.sendAddPathPoint(user.uniqueIdentifier, brickId, points);
+                }
+            });
         }
         catch (e) {
             console.log("Error handleAddPathPoints: " + e.message);
@@ -131,7 +142,12 @@ class Document {
 
             brick.handleEndPath(user.uniqueIdentifier, spline);
 
-            // TODO notify other clients
+            this._clients.forEach((client) => {
+                // don't send it to the same user
+                if(user.uniqueIdentifier !== client.uniqueIdentifier){
+                    client.sendEndPath(user.uniqueIdentifier, brickId, spline);
+                }
+            });
         }
         catch (e) {
             console.log("Error handleEndPath: " + e.message);

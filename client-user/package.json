@@ -35,6 +35,7 @@
   "homepage": "http://localhost",
   "scripts": {
     "start": "set PORT=3001 && react-scripts start",
+    "start second": "set PORT=3002 && react-scripts start",
     "start-unix": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
     "electron": "electron .",

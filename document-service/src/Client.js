@@ -98,26 +98,42 @@ class Client {
 
     handleBeginPath(data) {
         this._currentBrick = data.brickId;
+        this._document.handleBeginPath(this, data.brickId, data.strokeStyle);
+    }
 
-        this._document.handleBeginPath(this, data.brickId, this.strokeStyle);
-        console.log("begin path");
-        console.log(JSON.stringify(data));
+    sendBeginPath(userId, userUniqueId, brickId, strokeStyle) {
+        this._connection.emit('beginPath', {
+            userId: userId,
+            userUniqueId: userUniqueId,
+            brickId: brickId,
+            strokeStyle: strokeStyle,
+        });
     }
 
     handleAddPathPoint(data) {
         this._document.handleAddPathPoints(this, this._currentBrick, data.points);
+    }
 
-        console.log("path point");
-        console.log(JSON.stringify(data));
+    sendAddPathPoint(userUniqueId, brickId, points) {
+        this._connection.emit('addPathPoint', {
+            userUniqueId: userUniqueId,
+            brickId: brickId,
+            points: points,
+        });
     }
 
     handleEndPath(data) {
         this._document.handleEndPath(this, this._currentBrick, data.spline);
 
-        console.log("path end");
-        console.log(JSON.stringify(data));
-
         this._currentBrick = null;
+    }
+
+    sendEndPath(userUniqueId, brickId, spline) {
+        this._connection.emit('endPath', {
+            userUniqueId: userUniqueId,
+            brickId: brickId,
+            spline: spline,
+        });
     }
 
 

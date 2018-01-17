@@ -11,6 +11,9 @@ export class Path {
      * @type {Rect|null}
      */
     get boundingBox() {
+        if(!this._bbox)
+            return null;
+
         const b = this._bbox.clone();
         if (this.strokeStyle)
             // + 1 is additional tolerance
