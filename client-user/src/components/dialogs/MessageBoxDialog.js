@@ -4,7 +4,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import {ModalDialog} from 'react-modal-dialog';
 import {Button} from "../base/Button";
 import {DialogButtonsContainer, DialogHeading, DialogMainContent} from "./Common";

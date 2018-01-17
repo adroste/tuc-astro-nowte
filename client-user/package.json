@@ -32,7 +32,7 @@
     "styled-components": "^2.4.0"
   },
   "main": "src/electron-starter.js",
-  "homepage": "./",
+  "homepage": "http://localhost",
   "scripts": {
     "start": "set PORT=3001 && react-scripts start",
     "start-unix": "PORT=3001 react-scripts start",

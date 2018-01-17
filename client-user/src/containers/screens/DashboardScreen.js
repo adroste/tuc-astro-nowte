@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {Button} from "../../components/base/Button";

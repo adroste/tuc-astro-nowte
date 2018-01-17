@@ -16,28 +16,6 @@ import * as AppActionsCreators from "../../actions/app";
 import {EditorHost} from "../../components/editor/EditorHost";
 
 
-const Header = styled.div`
-    display: flex;
-    width: 100%;
-    height: 100%;
-    grid-row: 1;
-    grid-column: 1 / 3;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 1px #ddd;
-    position: relative;
-    z-index: 100;
-`;
-
-
-const HeaderInner = styled.div`
-    flex: ${props => props.center ? '2': '1'};
-    display: flex;
-    align-items: center;
-    justify-content: ${props => props.left ? 'flex-start' : ( props.right ? 'flex-end' : 'center' )};
-`;
-
-
 const marginTopElectronMacFrameless = css`
     margin-top: 15px;
 `;

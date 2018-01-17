@@ -2,7 +2,7 @@
  * @author Alexander Droste
  * @date 15.01.18
  */
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
 
 
 export const Heading1 = styled.h1`

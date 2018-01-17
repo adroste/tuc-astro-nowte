@@ -1,15 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
 import * as API from '../ServerApi'
 import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
-import {
-    Button, greenFilledTheme, greyBorderTheme, redBorderTheme, redFilledTheme,
-    redTheme
-} from "../components/base/Button";
+import {Button, greenFilledTheme, greyBorderTheme, redBorderTheme, redFilledTheme} from "../components/base/Button";
 import {Link, greenHoverTheme} from "../components/base/Link";
-import ButtonIcon from "../components/base/ButtonIcon";
 import {MessageBoxDialog, MessageBoxButtonsEnum, MessageBoxResultEnum} from "../components/dialogs/MessageBoxDialog";
 
 

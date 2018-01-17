@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Button} from "../base/Button";
-import * as utility from "../../utilities/login";
 import {SERVER_URL} from "../../Globals";
 import {validatePassword, validatePasswordConfirm} from "../../utilities/inputFieldValidators";
 import {INPUT_TYPES} from "../base/InputField";
