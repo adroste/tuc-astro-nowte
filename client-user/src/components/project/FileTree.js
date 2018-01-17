@@ -256,7 +256,6 @@ export default class FileTree extends React.Component {
                 <div>
                     <ButtonIcon imgSrc={"./img/file_add.svg"} label="doc" onClick={() => this.onCreateFileClick(null)}/>
                     <ButtonIcon imgSrc={"./img/folder_add.svg"} label="folder" onClick={() => this.onCreateFolderClick(null)}/>
-                    <ButtonIcon imgSrc={"./img/people.svg"} label="share" onClick={this.props.onShareClick}/>
                 </div>
             );
         };
