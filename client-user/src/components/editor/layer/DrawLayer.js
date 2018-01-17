@@ -27,8 +27,6 @@ const CanvasLayer = styled(Canvas)`
 export class DrawLayer extends React.Component {
     /**
      * propTypes
-     * @property {object} socket web socket for the server
-     * @property {string} brickId id of the underlying brick
      * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
      * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
      *
@@ -38,8 +36,6 @@ export class DrawLayer extends React.Component {
      */
     static get propTypes() {
         return {
-            socket: PropTypes.object.isRequired,
-            brickId: PropTypes.string.isRequired,
             paths: PropTypes.array.isRequired,
             splines: PropTypes.array.isRequired,
 
@@ -65,15 +61,14 @@ export class DrawLayer extends React.Component {
      * @type {CanvasLayer}
      */
     contentLayer = null;
-    currentStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
 
     constructor(props) {
         super(props);
 
-        const pen = new Pen(this.currentStrokeStyle);
-        pen.onPathBegin = this.penHandlePathBegin;
-        pen.onPathPoint = this.penHandlePathPoint;
-        pen.onPathEnd = this.penHandlePathEnd;
+        const pen = new Pen();
+        pen.onPathBegin = this.props.onPathBegin;
+        pen.onPathPoint = this.props.onPathPoint;
+        pen.onPathEnd = this.props.onPathEnd;
 
         // path and spline drawing accelerators
         // dictionary with drawn path: key = pathid, value = {drawnSegments: number, path: Path}
@@ -86,39 +81,6 @@ export class DrawLayer extends React.Component {
             activeTool: pen
         }
     }
-
-
-    penHandlePathBegin = () => {
-        this.props.socket.emit("beginPath", {
-            strokeStyle: this.currentStrokeStyle.lean(),
-            brickId: this.props.brickId,
-        });
-
-        this.props.onPathBegin();
-    };
-
-    penHandlePathPoint = (point) => {
-        // TODO buffer multiple points?
-
-        this.props.socket.emit("addPathPoint", {
-            points: [point.lean()],
-        });
-
-        this.props.onPathPoint(point);
-    };
-
-    penHandlePathEnd = (path) => {
-        const spline = path.toSpline();
-
-        this.props.socket.emit("endPath", {
-            spline: spline.lean(),
-        });
-
-        //spline.draw(this.contentLayer.context);
-
-        this.props.onPathEnd();
-    };
-
 
 
     componentDidMount() {

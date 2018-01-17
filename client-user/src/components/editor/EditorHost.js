@@ -189,6 +189,10 @@ export class EditorHost extends React.Component {
         this._currentUserPathId = this._localPathId;
 
         // redrawing not required yet
+        this._socket.emit("beginPath", {
+            strokeStyle: strokeStyle.lean(),
+            brickId: brick.id,
+        });
     };
 
     handlePathPoint = (brick, point) => {
@@ -199,11 +203,15 @@ export class EditorHost extends React.Component {
 
         curPath.path.addPoint(point);
 
+        // TODO send multiple points?
+        this._socket.emit("addPathPoint", {
+            points: [point.lean()],
+        });
+
         // redraw
         this.setState({
             bricks: this._bricks,
         });
-        //this.forceUpdate();
     };
 
     handlePathEnd = (brick) => {
@@ -220,6 +228,10 @@ export class EditorHost extends React.Component {
 
         if(!spline)
             return;
+
+        this._socket.emit("endPath", {
+            spline: spline.lean(),
+        });
 
         // add spline
         // TODO generate unique spline id's
@@ -243,7 +255,6 @@ export class EditorHost extends React.Component {
                 </Overlay>}
                 {!this.state.initialConnection &&
                 <Editor
-                    socket={this._socket}
                     user={this.props.user}
                     bricks={this.state.bricks}
 

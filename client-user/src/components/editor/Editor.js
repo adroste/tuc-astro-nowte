@@ -83,7 +83,6 @@ export class Editor extends React.Component {
     static get propTypes() {
         return {
             user: PropTypes.object.isRequired,
-            socket: PropTypes.object.isRequired,
             bricks: PropTypes.array.isRequired,
             onBrickAdd: PropTypes.func.isRequired,
 
@@ -130,8 +129,6 @@ export class Editor extends React.Component {
                     key={brick.id}
                     widthCm={17}
                     heightPx={400}
-                    socket={this.props.socket}
-                    brickId={brick.id}
                     paths={brick.paths}
                     splines={brick.splines}
 
