@@ -93,26 +93,26 @@ class Client {
     }
 
     handleInsertBrick(data) {
-        this._document.handleInsertBrick("only user", data.heightIndex);
+        this._document.handleInsertBrick(this, data.heightIndex);
     }
 
     handleBeginPath(data) {
         this._currentBrick = data.brickId;
 
-        this._document.handleBeginPath(this._id, data.brickId, this.strokeStyle);
+        this._document.handleBeginPath(this, data.brickId, this.strokeStyle);
         console.log("begin path");
         console.log(JSON.stringify(data));
     }
 
     handleAddPathPoint(data) {
-        this._document.handleAddPathPoints(this._id, this._currentBrick, data.points);
+        this._document.handleAddPathPoints(this, this._currentBrick, data.points);
 
         console.log("path point");
         console.log(JSON.stringify(data));
     }
 
     handleEndPath(data) {
-        this._document.handleEndPath(this._id, this._currentBrick, data.spline);
+        this._document.handleEndPath(this, this._currentBrick, data.spline);
 
         console.log("path end");
         console.log(JSON.stringify(data));

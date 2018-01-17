@@ -30,12 +30,18 @@ class Document {
     }
 
     connectClient(client) {
-        console.log("added client");
+        const idx = this._clients.findIndex((c) => c.uniqueIdentifier === client.uniqueIdentifier);
+        if(idx >= 0){
+            console.log("ERROR: client tried to connect with the same unique indentifier as another client")
+            return;
+        }
+
         this._clients.push(client);
+        console.log("added client");
     }
 
     disconnectClient(client) {
-        const idx = this._clients.findIndex((c) => c.id === client.id);
+        const idx = this._clients.findIndex((c) => c.uniqueIdentifier === client.uniqueIdentifier);
         if (idx < 0)
             return;
 
@@ -48,7 +54,7 @@ class Document {
 
     /**
      * tries to insert a new brick
-     * @param user
+     * @param user client object
      * @param heightIndex insertion height
      * @param columnIndex if undefined => brick is inserted as a new row. if number => brick is inserted into the row at height index at comulm index
      */
@@ -87,13 +93,13 @@ class Document {
         }
     }
 
-    handleBeginPath(userId, brickId, strokeStyle) {
+    handleBeginPath(user, brickId, strokeStyle) {
         try {
             const brick = this._bricks[brickId];
             if(!brick)
                 throw new Error("brick id invalid");
 
-            brick.handleBeginPath(userId, strokeStyle);
+            brick.handleBeginPath(user.uniqueIdentifier, strokeStyle);
 
             // TODO notify other clients
         }
@@ -102,13 +108,13 @@ class Document {
         }
     }
 
-    handleAddPathPoints(userId, brickId, points) {
+    handleAddPathPoints(user, brickId, points) {
         try {
             const brick = this._bricks[brickId];
             if(!brick)
                 throw new Error("brick id invalid");
 
-            brick.handleAddPathPoints(userId, points);
+            brick.handleAddPathPoints(user.uniqueIdentifier, points);
 
             // TODO notify other clients
         }
@@ -117,13 +123,13 @@ class Document {
         }
     }
 
-    handleEndPath(userId, brickId, spline) {
+    handleEndPath(user, brickId, spline) {
         try {
             const brick = this._bricks[brickId];
             if(!brick)
                 throw new Error("brick id invalid");
 
-            brick.handleEndPath(userId, spline);
+            brick.handleEndPath(user.uniqueIdentifier, spline);
 
             // TODO notify other clients
         }

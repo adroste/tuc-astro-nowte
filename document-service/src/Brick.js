@@ -4,7 +4,7 @@ class Brick {
     constructor(id) {
         this._id = id;
 
-        // paths that are currently drawn (key = user id, value = path)
+        // paths that are currently drawn (key = unique user id, value = path)
         this._tempPaths = {};
         // finished splines
         this._splines = [];
@@ -29,6 +29,11 @@ class Brick {
         return this._id;
     }
 
+    /**
+     *
+     * @param userId unique user id
+     * @param strokeStyle
+     */
     handleBeginPath(userId, strokeStyle) {
         this._tempPaths[userId] = {
             strokeStyle: strokeStyle,
@@ -36,6 +41,10 @@ class Brick {
         }
     }
 
+    /**
+     * @param userId unique user id
+     * @param points
+     */
     handleAddPathPoints(userId, points) {
         const user = this._tempPaths[userId];
         if(!user)
@@ -44,12 +53,19 @@ class Brick {
         user.points.concat(points);
     }
 
+    /**
+     * @param userId unique user id
+     * @param spline
+     */
     handleEndPath(userId, spline) {
         // remove temp path
         delete this._tempPaths[userId];
         this._splines.push(spline);
     }
 
+    /**
+     * @param userId unique user id
+     */
     handleDisconnectClient(userId) {
         // remove path that was draw
         delete this._tempPaths[userId];
