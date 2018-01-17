@@ -91,6 +91,7 @@ export class Link extends React.Component {
         return (
             <LinkSpan
                 className={this.props.className}
+                innerRef={ref => this.ref = ref}
                 onClick={this.onClickHandler}
                 onKeyPress={this.handleKeyPress}
                 tabIndex="0"
