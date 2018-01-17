@@ -1,9 +1,11 @@
 import React from 'react';
-import LabelledInputBox from "../../components/base/LabelledInputBox";
 import {Button} from "../../components/base/Button";
 import './UserForms.css';
-import LinkedText from "../../components/base/LinkedText";
+import {Link} from "../../components/base/Link";
 import {SERVER_URL} from "../../Globals";
+import {INPUT_TYPES} from "../../components/base/InputField";
+import {validateEmail} from "../../utilities/inputFieldValidators";
+import {ValidatedInputField} from "../../components/base/ValidatedInputField";
 
 
 export default class ForgotPasswordScreen extends React.Component {
@@ -24,16 +26,20 @@ export default class ForgotPasswordScreen extends React.Component {
         super(props);
 
         this.state = ({
-            email: ''
+            email: '',
+            emailValidation: false
         });
     }
+
 
     handleLoginClick = () => {
         this.props.history.push("/");
     };
 
+
     handleResetClick = () => {
-        // TODO verify email
+        if (!this.state.emailValidation)
+            return;
 
         const url = SERVER_URL + '/api/user/request-password-reset';
         fetch(url, {
@@ -50,6 +56,7 @@ export default class ForgotPasswordScreen extends React.Component {
             this.handleError
         );
     };
+
 
     handleServerResponse = (response) => {
         if(response.status === 204){
@@ -86,23 +93,33 @@ export default class ForgotPasswordScreen extends React.Component {
         alert(errmsg);
     };
 
+
     render() {
         return (
             <div className="centered-form">
                 <div className="centered-form-inner">
-                    <LabelledInputBox
+                    <ValidatedInputField
                         label="Email"
                         name="email"
-                        onChange={(email) => this.setState({email})}
+                        type={INPUT_TYPES.EMAIL}
+                        onInputChange={(email) => this.setState({email})}
+                        onValidationResultChange={(success) => this.setState({emailValidation: success})}
                         value={this.state.email}
+                        placeholder="you@example.de"
+                        validator={validateEmail}
                     />
-                    <br/>
-                    <Button onClick={this.handleResetClick}>
+                    <Button
+                        onClick={this.handleResetClick}
+                        disabled={!this.state.emailValidation}
+                    >
                         Reset Password
                     </Button>
                     <br/>
                     <br/>
-                    Remembered? <LinkedText label="Log in" onClick={this.handleLoginClick}/>
+                    Remembered?&nbsp;
+                    <Link onClick={this.handleLoginClick}>
+                        login
+                    </Link>
                 </div>
             </div>
         );

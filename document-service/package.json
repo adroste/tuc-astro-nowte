@@ -1,0 +1,16 @@
+{
+  "name": "document-service",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/service.js",
+  "scripts": {
+    "start": "nodemon src/service.js 3210",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.11"
+  },
+  "dependencies": {
+    "socket.io": "^2.0.4"
+  }
+}

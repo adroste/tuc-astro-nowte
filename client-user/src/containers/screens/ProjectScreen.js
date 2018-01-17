@@ -5,27 +5,46 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
+import {SplitPane} from "../../components/base/SplitPane";
 import ProjectFileTreeContainer from "../ProjectFileTreeContainer";
 import {Button} from "../../components/base/Button";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
 import * as AppActionsCreators from "../../actions/app";
-import {Editor} from "../../components/editor/Editor";
+import {EditorHost} from "../../components/editor/EditorHost";
 
 
-const GridContainer = styled.div`
-    display: grid;
-    grid-template-columns: 25% 75%;
+const marginTopElectronMacFrameless = css`
+    margin-top: 15px;
+`;
+
+
+const paddingStyle = css`
+    padding: 10px;
+`;
+
+
+const HeaderLeftPane = styled.div`
+    border-bottom: 1px solid #ccc;
+    ${paddingStyle}
+    ${marginTopElectronMacFrameless}
+`;
+
+
+const Wrapper = styled.div`
+    width: 100vw;
+    height: 100vh;
 `;
 
 
 const ScrollContainer = styled.div`
+    height: 100%;
     width: 100%;
-    height: 100vh;
-    overflow: scroll !important;
+    overflow: scroll;
     scroll-behavior: smooth;
+    ${props => props.padded && paddingStyle}
 `;
 
 
@@ -50,6 +69,7 @@ class ProjectScreen extends React.Component {
         return {};
     }
 
+
     handleShowDialog = (dialog) => {
         this.props.appActions.showDialog(dialog);
     };
@@ -65,28 +85,35 @@ class ProjectScreen extends React.Component {
         // TODO go back to dashboard if unset
 
         return (
-            <GridContainer className="container">
-                <ScrollContainer>
-                    <Button onClick={this.handleDeselectProject}>
-                        Back to Projects
-                    </Button>
+            <Wrapper>
+                <SplitPane defaultSizePxLeft={250} minSizePxLeft={200} maxSizePxLeft={450}>
+                    <div>
+                        <HeaderLeftPane>
+                            <Button onClick={this.handleDeselectProject}>
+                                {"<"} Projects
+                            </Button>
+                        </HeaderLeftPane>
+                        <ScrollContainer padded>
+                            <ProjectFileTreeContainer
+                                projectId={this.props.project.projectId}
+                                projectTitle={this.props.project.title}
+                                permissions={this.props.project.permissions}
+                                showDialog={this.handleShowDialog}
+                                onProjectDeselect={this.handleDeselectProject}
+                                user={this.props.user}
+                            />
+                        </ScrollContainer>
+                    </div>
 
-                    <ProjectFileTreeContainer
-                        projectId={this.props.project.projectId}
-                        projectTitle={this.props.project.title}
-                        permissions={this.props.project.permissions}
-                        showDialog={this.handleShowDialog}
-                        onProjectDeselect={this.handleDeselectProject}
-                        user={this.props.user}
-                    />
-                </ScrollContainer>
-
-                <ScrollContainer>
-                    <Editor
-                        user={this.props.user}
-                    />
-                </ScrollContainer>
-            </GridContainer>
+                    <ScrollContainer>
+                        <EditorHost
+                            documentId={null}
+                            user={this.props.user}
+                            onStatsChange={this.handleEditorStatsChange}
+                        />
+                    </ScrollContainer>
+                </SplitPane>
+            </Wrapper>
         );
     }
 }

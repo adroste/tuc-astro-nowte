@@ -1,13 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import {DrawLayer} from "./layer/DrawLayer";
-import {StrokeStyle} from "../../drawing/StrokeStyle";
-import {Path} from "../../geometry/Path";
-import {Pen} from "../../drawing/canvas-tools/Pen";
 import {DrawBrick} from "./bricks/DrawBrick";
 import {Button, lightGreyRoundedTheme} from "../base/Button";
 import {DropButton} from "./base/DropButton";
+import {StrokeStyle} from "../../drawing/StrokeStyle";
 
 
 const Wrapper = styled.div`
@@ -26,6 +23,7 @@ const PageOuter = styled.div`
     padding-top: 15mm;
     padding-bottom: 10cm; /* scrolling dont stops at last element */
     box-shadow: 0px 0px 15px 0px #ddd;
+    min-height: 100vh;
 `;
 
 
@@ -74,11 +72,23 @@ const InsertBrickButton = styled(DropButton)`
 export class Editor extends React.Component {
     /**
      * propTypes
+     * @property {array} bricks brick layout [[brick1, brick2], [brick3], ...]. brick1 and brick2 are in the same row. brick3 is in the next row.
+     * @property {function(rowIndex: number, columnIndex: number)} onBrickAdd requests brick creation.
+     *           columnIndex = undefined => use the whole row. columnIndex = 0 => insert as left brick. columnIndex = 1 => insert as right brick.
+     *
+     * @property {function(brick, strokeStyle)} onPathBegin indicates the start of a user drawn path. brick is the reference to the brick which was passed in this.props.bricks
+     * @property {function(brick, Point)} onPathPoint indicates the addition of a new point to the current path
+     * @property {function(brick)} onPathEnd indicates that the user finished drawing
      */
     static get propTypes() {
         return {
-            socketUrl: PropTypes.string,
             user: PropTypes.object.isRequired,
+            bricks: PropTypes.array.isRequired,
+            onBrickAdd: PropTypes.func.isRequired,
+
+            onPathBegin: PropTypes.func.isRequired,
+            onPathPoint: PropTypes.func.isRequired,
+            onPathEnd: PropTypes.func.isRequired,
         };
     }
 
@@ -92,32 +102,57 @@ export class Editor extends React.Component {
 
         this.state = {
             bricks: []
-        }
+        };
+
+        this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
     }
 
 
-    handleAddBrick = (beforeId) => {
+    handleAddBrickClick = (heightIndex) => {
+        if(heightIndex === undefined)
+            heightIndex = this.props.bricks.length;
 
-        let idx = this.state.bricks.length;
-        let s = this.state.bricks.slice();
-        if (beforeId)
-            idx = this.state.bricks.findIndex(x => x === beforeId);
-        s.splice(idx, 0, s.length + 1);
-        this.setState({
-            bricks: s
-        });
+        this.props.onBrickAdd(heightIndex);
     };
 
 
     renderBricks = () => {
-        return this.state.bricks.map(id => {
-            return (
-                <div key={id}>
-                    <InsertBrickButton onClick={() => this.handleAddBrick(id)}/>
-                    <DrawBrick widthCm={17} heightPx={400}/>
+        let bricks = [];
+        let curHeight = 0;
+
+        // concatenate the id's of the row bricks
+        const getRowId = (row) => row.reduce((brick1, brick2) => (brick1.id?brick1.id:"") + "#" + brick2.id, "-");
+
+        const listRowItems = (row) => {
+            return row.map(brick =>
+                (<DrawBrick
+                    key={brick.id}
+                    widthCm={17}
+                    heightPx={400}
+                    paths={brick.paths}
+                    splines={brick.splines}
+
+                    onPathBegin={() => this.props.onPathBegin(brick, this.curStrokeStyle)}
+                    onPathPoint={(point) => this.props.onPathPoint(brick, point)}
+                    onPathEnd={() => this.props.onPathEnd(brick)}
+                />)
+            );
+        };
+
+        for(let row of this.props.bricks){
+            // this is needed for the lambda to work
+            const leHeight = curHeight;
+            bricks.push(
+                <div key={getRowId(row)}>
+                    <InsertBrickButton onClick={() => this.handleAddBrickClick(leHeight)}/>
+                    {listRowItems(row)}
                 </div>
             );
-        });
+
+            ++curHeight;
+        }
+
+        return bricks;
     };
 
 
@@ -127,7 +162,7 @@ export class Editor extends React.Component {
                 <PageOuter>
                     <PageInner>
                         {this.renderBricks()}
-                        <AppendBrickButton onClick={() => this.handleAddBrick()}/>
+                        <AppendBrickButton onClick={() => this.handleAddBrickClick()}/>
                     </PageInner>
                 </PageOuter>
             </Wrapper>

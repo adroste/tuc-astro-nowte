@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LabelledInputBox from "../base/LabelledInputBox";
-import './UserLoginForm.css';
 import {Button} from "../base/Button";
-import LinkedText from "../base/LinkedText";
-import * as utility from "../../utilities/login"
+import {Link} from "../base/Link";
 import { SERVER_URL } from "../../Globals";
+import {INPUT_TYPES} from "../base/InputField";
+import {ValidatedInputField} from "../base/ValidatedInputField";
+import {validateEmail, validatePassword} from "../../utilities/inputFieldValidators";
 
 export default class UserLoginForm extends React.Component {
     /**
@@ -35,17 +35,14 @@ export default class UserLoginForm extends React.Component {
         this.state = {
             email: '',
             password: '',
-            emailChild: <br/>,
-            passwordChild: <br/>
+            emailValidation: false,
+            passwordValidation: false,
         }
     }
 
 
     handleLoginClick = () => {
-        if(!this.verifyEmailField())
-            return;
-
-        if(!this.verifyPasswordField())
+        if (!this.state.emailValidation || !this.state.passwordValidation)
             return;
 
         // send login request
@@ -66,6 +63,7 @@ export default class UserLoginForm extends React.Component {
         );
     };
 
+
     handleServerResponse = (response) => {
         if(response.status === 201){
             response.json().then(this.handleSuccesfullRegistration, this.handleError);
@@ -75,6 +73,7 @@ export default class UserLoginForm extends React.Component {
         }
     };
 
+
     handleSuccesfullRegistration = (body) => {
         // retrieve session token
         this.props.onUserLoggedIn(body.sessionToken, this.state.email, body.name, body.userId);
@@ -82,7 +81,6 @@ export default class UserLoginForm extends React.Component {
 
 
     handleUnsuccesfullRegistration = (code, data) => {
-
         // email not aouthorized?
         if(code === 401)
         {
@@ -95,6 +93,7 @@ export default class UserLoginForm extends React.Component {
         this.handleError("Error (" + code + "): " + data.error.message);
     };
 
+
     /**
      * displays the error message for the user
      * @param message
@@ -104,49 +103,6 @@ export default class UserLoginForm extends React.Component {
         alert(message);
     };
 
-    /**
-     * verifies if the password field was filled with a syntacticly correct password
-     * @returns {boolean} true if correct
-     */
-    verifyPasswordField = () => {
-        if(this.state.password.length === 0){
-            this.onPasswordError("this field is required");
-            return false;
-        }
-
-        this.onPasswordError("");
-        return true;
-    };
-
-    /**
-     * sets a red error text below the password box
-     * @param message
-     */
-    onPasswordError = (message) => {
-        this.setState({
-            passwordChild: <div className="ErrorText">{message}<br/></div>
-        });
-    };
-
-    /**
-     * verifies this.email and sets an error message if invalid
-     * @returns {boolean} true if the email was correct (valid syntax)
-     */
-    verifyEmailField = () => {
-        const res = utility.verifyEmailField(this.state.email);
-        this.onEmailError(res);
-        return res === "";
-    };
-
-    /**
-     * sets the red error text below the email box
-     * @param message message that will appear (may be "")
-     */
-    onEmailError = (message) => {
-        this.setState({
-            emailChild: <div className="ErrorText">{message}<br/></div>
-        });
-    };
 
     handleKeyPress = (e) => {
         if(e.key === "Enter"){
@@ -155,33 +111,48 @@ export default class UserLoginForm extends React.Component {
         }
     };
 
-    render() {
 
+    render() {
         return (
-            <div className="UserLoginForm" onKeyPress={this.handleKeyPress}>
-                <LabelledInputBox
+            <div
+                className={this.props.className}
+                onKeyPress={this.handleKeyPress}
+            >
+                <ValidatedInputField
                     label="Email"
                     name="email"
-                    onChange={(email) => this.setState({email})}
-                    child={this.state.emailChild}
+                    type={INPUT_TYPES.EMAIL}
+                    onInputChange={(email) => this.setState({email})}
+                    onValidationResultChange={(success) => this.setState({emailValidation: success})}
                     value={this.state.email}
+                    placeholder="you@example.de"
+                    validator={validateEmail}
                 />
-                <LabelledInputBox
+                <ValidatedInputField
                     label="Password"
                     name="password"
-                    type="password"
-                    onChange={(password) => this.setState({password})}
-                    child={this.state.passwordChild}
+                    type={INPUT_TYPES.PASSWORD}
+                    onInputChange={(password) => this.setState({password})}
+                    onValidationResultChange={(success) => this.setState({passwordValidation: success})}
                     value={this.state.password}
+                    placeholder="your secret password"
+                    validator={validatePassword}
                 />
-                <Button onClick={this.handleLoginClick}>
+                <Button
+                    onClick={this.handleLoginClick}
+                    disabled={!this.state.emailValidation || !this.state.passwordValidation}
+                >
                     Login
                 </Button>
                 <br/>
                 <br/>
-                <LinkedText label="forgot password" onClick={this.props.onForgotPasswordClick}/>
+                <Link onClick={this.props.onForgotPasswordClick}>
+                    forgot password
+                </Link>
                 <br/>
-                <LinkedText label="create account" onClick={this.props.onCreateAccountClick}/>
+                <Link onClick={this.props.onCreateAccountClick}>
+                    create account
+                </Link>
             </div>
         );
     }

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {ModalDialog} from 'react-modal-dialog';
-import LabelledInputBox from "../base/LabelledInputBox";
 import { Button } from "../base/Button";
 import "./InputDialog.css"
+import {InputField} from "../base/InputField";
 
 
 export default class InputDialog extends React.Component {
@@ -45,10 +45,10 @@ export default class InputDialog extends React.Component {
         return (
             <ModalDialog onClose={this.props.onCancel}  width="400px">
                 <h1>{this.props.title}</h1>
-                <LabelledInputBox
+                <InputField
                     placeholder="filename"
                     value={this.state.text}
-                    onChange={(value) => this.setState({text: value})}
+                    onInputChange={(value) => this.setState({text: value})}
                     maxLength={255}
                 />
 

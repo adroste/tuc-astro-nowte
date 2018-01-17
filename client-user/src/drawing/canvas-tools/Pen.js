@@ -1,5 +1,3 @@
-import {Path} from "../../geometry/Path";
-
 /**
  * @author Alexander Droste
  * @date 07.01.18
@@ -9,11 +7,6 @@ let _lastEventBeforeLeave = null;
 let _lastEvent = null;
 
 export class Pen {
-    /**
-     * Stroke styling
-     * @type {StrokeStyle}
-     */
-    strokeStyle = null;
 
     /**
      * onPathBegin callback
@@ -29,65 +22,43 @@ export class Pen {
 
     /**
      * onPathEnd callback
-     * @type {function(path: Path)}
+     * @type {function()}
      */
     onPathEnd = null;
 
     /**
-     * current path object
-     * @type {Path}
+     * indicates that a path is currently drawn
+     * @type {boolean}
      * @private
      */
-    _currentPath = null;
-
-
-    /**
-     * @param {StrokeStyle} strokeStyle stroke style to use
-     */
-    constructor(strokeStyle) {
-        this.strokeStyle = strokeStyle;
-    }
-
+    _drawingPath = false;
 
     handlePointerDown(e, ref) {
         const mouse = ref.getCanvasCoordinate(e);
+        this._drawingPath = true;
 
-        this._currentPath = new Path(this.strokeStyle);
-        this._currentPath.addPoint(mouse);
 
-        (new Path(
-            this.strokeStyle,
-            [ mouse ]
-        )).draw(ref.context);
-
-        if (this.onPathBegin)
-            this.onPathBegin();
-        if (this.onPathPoint)
-            this.onPathPoint(mouse);
+        this.onPathBegin();
+        this.onPathPoint(mouse);
         e.preventDefault();
     }
 
 
     handlePointerUp(e, ref) {
-        if(this._currentPath === null)
+        if(!this._drawingPath)
             return; // line already finished
 
         // hit event before clearing path from working canvas
-        if (this.onPathEnd)
-            this.onPathEnd(this._currentPath);
+        this.onPathEnd();
 
-        // clear rect with current path
-        const bbox = this._currentPath.boundingBox;
-        ref.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
-        this._currentPath = null;
-
+        this._drawingPath = false;
         e.preventDefault();
     }
 
 
     handlePointerMove(e, ref) {
         // drawing not required
-        if(this._currentPath == null)
+        if(!this._drawingPath)
             return; // TODO maybe e.preventDefault missing here
 
         // check bit-flag 1 (primary button)
@@ -102,16 +73,7 @@ export class Pen {
 
         const mouse = ref.getCanvasCoordinate(e);
 
-        // draw line between last point and current point
-        (new Path(
-            this.strokeStyle,
-            [ this._currentPath.points[this._currentPath.points.length - 1], mouse ]
-        )).draw(ref.context);
-
-        this._currentPath.addPoint(mouse);
-
-        if (this.onPathPoint)
-            this.onPathPoint(mouse);
+        this.onPathPoint(mouse);
         e.preventDefault();
     }
 

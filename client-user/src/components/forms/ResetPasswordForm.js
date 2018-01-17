@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LabelledInputBox from "../base/LabelledInputBox";
 import {Button} from "../base/Button";
-import * as utility from "../../utilities/login";
 import {SERVER_URL} from "../../Globals";
+import {validatePassword, validatePasswordConfirm} from "../../utilities/inputFieldValidators";
+import {INPUT_TYPES} from "../base/InputField";
+import {ValidatedInputField} from "../base/ValidatedInputField";
 
 export default class ResetPasswordForm extends React.Component {
     /**
@@ -29,17 +30,17 @@ export default class ResetPasswordForm extends React.Component {
         this.state = {
             newPassword: '',
             newPasswordConfirm: '',
-            passwordChild: <br/>
+            newPasswordValidation: false,
+            newPasswordConfirmValidation: false
         }
     }
 
 
     handleSubmitClick = () => {
-        if(!this.verifyPassword())
+        if(!this.state.newPasswordValidation || !this.state.newPasswordConfirmValidation)
             return;
 
         // try to reset the password
-        const resetToken = this.obtainToken();
         const url = SERVER_URL + '/api/user/change-password';
         fetch(url, {
             method: "PUT",
@@ -48,7 +49,7 @@ export default class ResetPasswordForm extends React.Component {
                 'Content-Type': 'application/json'
             }),
             body: JSON.stringify({
-                passwordResetToken: resetToken,
+                passwordResetToken: this.props.passwordResetToken,
                 newPassword: this.state.newPassword
             })
         }).then(
@@ -57,9 +58,6 @@ export default class ResetPasswordForm extends React.Component {
         );
     };
 
-    obtainToken = () => {
-        return this.props.passwordResetToken;
-    };
 
     handleServerResponse = (response) => {
         if(response.status === 204){
@@ -74,6 +72,7 @@ export default class ResetPasswordForm extends React.Component {
         }
     };
 
+
     /**
      * displays the error message for the user
      * @param message
@@ -82,6 +81,7 @@ export default class ResetPasswordForm extends React.Component {
         // TODO do something prettier?
         alert(message);
     };
+
 
     /**
      * this function will be called when the fetch failed
@@ -96,44 +96,32 @@ export default class ResetPasswordForm extends React.Component {
         alert(errmsg);
     };
 
-    /**
-     * verifies this.password and this.password2 and sets an error message if invalid
-     * @returns {boolean} true if password is correct
-     */
-    verifyPassword = () => {
-        const res = utility.verifyPasswordFields(this.state.newPassword, this.state.newPasswordConfirm);
-        this.onPasswordError(res);
-        return res === "";
-    };
-
-    /**
-     * sets a red error text below the password box
-     * @param message
-     */
-    onPasswordError = (message) => {
-        this.setState({
-            passwordChild: <div className="ErrorText">{message}<br/></div>
-        });
-    };
 
     render() {
         return (
             <div>
-                <LabelledInputBox
+                <ValidatedInputField
                     label="New password"
-                    onChange={(newPassword) => this.setState({newPassword})}
-                    child={this.state.passwordChild}
-                    type="password"
+                    type={INPUT_TYPES.PASSWORD}
+                    onInputChange={(newPassword) => this.setState({newPassword})}
+                    onValidationResultChange={(success) => this.setState({newPasswordValidation: success})}
                     value={this.state.newPassword}
+                    placeholder="choose new password"
+                    validator={validatePassword}
                 />
-                <LabelledInputBox
+                <ValidatedInputField
                     label="Confirm new password"
-                    onChange={(newPasswordConfirm) => this.setState({newPasswordConfirm})}
-                    child={<br/>}
-                    type="password"
+                    type={INPUT_TYPES.PASSWORD}
+                    onInputChange={(newPasswordConfirm) => this.setState({newPasswordConfirm})}
+                    onValidationResultChange={(success) => this.setState({newPasswordConfirmValidation: success})}
                     value={this.state.newPasswordConfirm}
+                    placeholder="re-enter new password"
+                    validator={validatePasswordConfirm(this.state.newPassword)}
                 />
-                <Button onClick={this.handleSubmitClick}>
+                <Button
+                    onClick={this.handleSubmitClick}
+                    disabled={!this.state.newPasswordValidation || !this.state.newPasswordConfirmValidation}
+                >
                     Submit
                 </Button>
             </div>

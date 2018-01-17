@@ -5,7 +5,6 @@ import "./FileTree.css"
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 // TODO wtf?
 import {  } from "react-contextmenu";
-import {Button} from "../base/Button";
 import ButtonIcon from "../base/ButtonIcon";
 
 

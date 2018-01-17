@@ -83,17 +83,3 @@
     font-weight: 900;
     font-style: italic;
 }
-
-
-html {
-    box-sizing: border-box;
-
-    /* css hack for disabling overscroll */
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-}
-
-*, *:before, *:after {
-    box-sizing: inherit;
-}

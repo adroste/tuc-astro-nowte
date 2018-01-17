@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LinkedText from "../../components/base/LinkedText";
+import {Link} from "../../components/base/Link";
 import {SERVER_URL} from "../../Globals";
 import "./UserForms.css"
 import {connect} from "react-redux";
@@ -82,9 +82,15 @@ class RequestEmailValidationScreen extends React.Component {
             <div className="centered-form">
                 <div className="centered-form-inner">
                     <h3>Please check your mailbox for the account validation email and validate your account</h3>
-                    Account validated? <LinkedText label="Log in" onClick={this.handleLoginClick}/>
+                    Account validated?
+                    <Link onClick={this.handleLoginClick}>
+                        login
+                    </Link>
                     <br/>
-                    Didn't receive the email? <LinkedText label="Resend" onClick={this.handleResendEmailClick}/>
+                    Didn't receive the email?
+                    <Link onClick={this.handleResendEmailClick}>
+                        resend
+                    </Link>
                 </div>
             </div>
         );

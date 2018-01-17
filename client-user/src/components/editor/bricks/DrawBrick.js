@@ -49,11 +49,23 @@ export class DrawBrick extends React.Component {
      * propTypes
      * @property {number} width width as css unit cm, e.g. 17 => "17cm"
      * @property {number} height height as css unit px, e.g. 100 => "100px"
+     * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
+     * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
+     *
+     * @property {function()} onPathBegin indicates the start of a user drawn path
+     * @property {function(Point)} onPathPoint indicates the addition of a new point to the current path
+     * @property {function()} onPathEnd indicates that the user finished drawing
      */
     static get propTypes() {
         return {
             widthCm: PropTypes.number.isRequired,
-            heightPx: PropTypes.number.isRequired
+            heightPx: PropTypes.number.isRequired,
+            paths: PropTypes.array.isRequired,
+            splines: PropTypes.array.isRequired,
+
+            onPathBegin: PropTypes.func.isRequired,
+            onPathPoint: PropTypes.func.isRequired,
+            onPathEnd: PropTypes.func.isRequired,
         };
     }
 
@@ -77,7 +89,15 @@ export class DrawBrick extends React.Component {
                     });
                 }}
             >
-                <DrawLayer/>
+                <DrawLayer
+                    socket={this.props.socket}
+                    paths={this.props.paths}
+                    splines={this.props.splines}
+
+                    onPathBegin={this.props.onPathBegin}
+                    onPathPoint={this.props.onPathPoint}
+                    onPathEnd={this.props.onPathEnd}
+                />
             </BrickWrapper>
         );
     }
