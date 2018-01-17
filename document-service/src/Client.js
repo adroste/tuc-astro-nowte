@@ -3,6 +3,7 @@
  * @date 13.01.18
  */
 
+let pseudoSessionToken = 1;
 
 class Client {
     /**
@@ -10,6 +11,9 @@ class Client {
      * @param {Object} document current document
      */
     constructor(connection, document) {
+        if (this._connection === null)
+            return;
+
         /**
          * socket.io connection
          * @type {Object|null}
@@ -17,32 +21,56 @@ class Client {
          */
         this._connection = connection;
         this._document = document;
-        this._id = 0;
+        this._id = null;
+        this._sessionToken = null;
+
         // brick where the client is currently drawing (set in path begin)
         this._currentBrick = null;
 
         // setup listeners
-        if (this._connection === null)
-            return;
 
+        this._connection.on('authentication', (data) => this.handleAuthentication(data));
         this._connection.on('disconnect', () => this.handleDisconnect());
         this._connection.on('echo', (data) => this.handleEcho(data));
-        this._connection.on('insertBrick', (data) => this.handleInsertBrick(data));
+
+        this._connection.on('insertBrick',      (data) => this.verifiedHandle(() => this.handleInsertBrick(data)));
 
         // path
-        this._connection.on('beginPath', (data) => this.handleBeginPath(data));
-        this._connection.on('addPathPoint', (data) => this.handleAddPathPoint(data));
-        this._connection.on('endPath', (data) => this.handleEndPath(data));
-
-
-        this._document.connectClient(this);
-
-        // send information about current document
-        this._connection.emit('initialize', document.lean());
+        this._connection.on('beginPath',        (data) => this.verifiedHandle(() => this.handleBeginPath(data)));
+        this._connection.on('addPathPoint',     (data) => this.verifiedHandle(() => this.handleAddPathPoint(data)));
+        this._connection.on('endPath',          (data) => this.verifiedHandle(() => this.handleEndPath(data)));
     }
 
+    /**
+     * calls the callback if isVerified() returns true
+     * @param callback function
+     */
+    verifiedHandle(callback) {
+        if(this.isVerified())
+            callback();
+    }
+
+    /**
+     * @return {boolean} true if the user has sent his sessionToken
+     */
+    isVerified() {
+        return this._id !== null;
+    }
+
+    /**
+     * user id
+     * @return {null|*}
+     */
     get id(){
         return this._id;
+    }
+
+    /**
+     * unique indetifier that should be used for hasing etc. (probably session token)
+     * @return {null|string}
+     */
+    get uniqueIdentifier() {
+        return this._sessionToken.toString();
     }
 
     isConnected() {
@@ -98,6 +126,21 @@ class Client {
             brickId: brickId,
             heightIndex: heightIndex,
         });
+    }
+
+    handleAuthentication(data) {
+        this._id = data.userId;
+        if(!this._id)
+            return; // invalid id
+
+        // TODO replace with session token
+        this._sessionToken = ++pseudoSessionToken;
+
+        // establish connection
+        this._document.connectClient(this);
+
+        // send information about current document
+        this._connection.emit('initialize', this._document.lean());
     }
 }
 

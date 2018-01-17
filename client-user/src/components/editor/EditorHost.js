@@ -118,6 +118,11 @@ export class EditorHost extends React.Component {
             connectionState: ConnectionStateEnum.CONNECTED
         });
         console.log('connect');
+
+        // send user information
+        this._socket.emit('authentication', {
+            userId: this.props.user.userId,
+        });
     };
 
     handleDisconnect = () => {
