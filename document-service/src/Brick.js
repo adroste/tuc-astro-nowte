@@ -4,7 +4,7 @@ class Brick {
     constructor(id) {
         this._id = id;
 
-        // paths that are currently drawn (dictionary with user id)
+        // paths that are currently drawn (key = user id, value = path)
         this._tempPaths = {};
         // finished splines
         this._splines = [];
@@ -12,8 +12,15 @@ class Brick {
 
     // serialize data for new clients
     lean() {
+        const paths = [];
+        // just take stroke style and points from tempPaths
+        for(let userId of Object.keys(this._tempPaths)){
+            paths.push(this._tempPaths[userId]);
+        }
+
         return {
-            paths: this._tempPaths,
+            id: this._id,
+            paths: paths,
             splines: this._splines,
         }
     }
@@ -39,13 +46,13 @@ class Brick {
 
     handleEndPath(userId, spline) {
         // remove temp path
-        this._tempPaths[userId] = undefined;
+        delete this._tempPaths[userId];
         this._splines.push(spline);
     }
 
     handleDisconnectClient(userId) {
         // remove path that was draw
-        this._tempPaths[userId] = undefined;
+        delete this._tempPaths[userId];
 
         // TODO send notification if line drawing was disrupted
     }

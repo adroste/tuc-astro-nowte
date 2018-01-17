@@ -10,6 +10,7 @@ import lookupSocket from 'socket.io-client';
 import {Editor} from "./Editor";
 import {ConnectionStateEnum} from "../../utilities/ConnectionStateEnum";
 import {Path} from "../../geometry/Path";
+import {Spline} from "../../geometry/Spline";
 
 
 const Host = styled.div`
@@ -92,7 +93,6 @@ export class EditorHost extends React.Component {
         this._socket.on('insertedBrick', this.handleInsertedBrick);
     }
 
-
     componentDidMount() {
         this.latencyInterval = setInterval(() => {
             if (this.state.connectionState !== ConnectionStateEnum.CONNECTED)
@@ -101,11 +101,9 @@ export class EditorHost extends React.Component {
         }, 5000);
     }
 
-
     componentWillUnmount() {
         clearInterval(this.latencyInterval);
     }
-
 
     setStats = (stats) => {
         const prevStats = JSON.stringify(this._stats);
@@ -113,7 +111,6 @@ export class EditorHost extends React.Component {
         if (this.props.onStatsChange && prevStats !== JSON.stringify(this._stats))
             this.props.onStatsChange(this._stats);
     };
-
 
     handleConnect = () => {
         this.setState({
@@ -145,7 +142,46 @@ export class EditorHost extends React.Component {
     };
 
     handleInitialize = (data) => {
-        //alert(JSON.stringify(data));
+        // TODO add error handling
+        this._bricks = [];
+        if(data.bricks){
+            for(let row of data.bricks){
+                let curRow = [];
+                for(let brick of row) {
+                    const paths = [];
+                    if(brick.paths){
+                        for(let path of brick.paths){
+                            paths.push({
+                                id: ++this._localPathId,
+                                path: Path.fromObject(path)
+                            });
+                        }
+                    }
+
+                    const splines = [];
+                    if(brick.splines){
+                        for(let spline of brick.splines){
+                            splines.push({
+                                id: ++this._localPathId,
+                                spline: Spline.fromObject(spline),
+                            });
+                        }
+                    }
+
+                    curRow.push({
+                        id: brick.id,
+                        paths: paths,
+                        splines: splines,
+                    });
+                }
+                this._bricks.push(curRow);
+            }
+        }
+
+        // schedule redraw
+        this.setState({
+            bricks: this._bricks,
+        })
     };
 
     handleAddBrickClick = (heightIndex, columnIndex) => {
@@ -169,7 +205,7 @@ export class EditorHost extends React.Component {
 
         let bricks = this._bricks;
 
-        // TODO add proper colum index handling
+        // TODO add proper column index handling
         /*if(columnIndex){
             // insert next to another container
             bricks[heightIndex].splice(columnIndex, 0, newBrick);

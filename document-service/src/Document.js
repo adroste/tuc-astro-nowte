@@ -3,9 +3,12 @@ const Brick = require('./Brick');
 class Document {
 
     constructor() {
-        this.bricks = [];
+        // document layout of bricks [[id1, id2], [id3], ...]
+        this._brickLayout = [];
+        // dictionary of brick object key=id value=Brick
+        this._bricks = {};
         // current connections
-        this.clients = [];
+        this._clients = [];
 
         this._currentBrickId = 0;
     }
@@ -13,8 +16,13 @@ class Document {
     // serialize all data for newly connected clients
     lean() {
         let bricks = [];
-        for (let b of this.bricks)
-            bricks.push(b.lean());
+        for (let row of this._brickLayout){
+            const curRow = [];
+            for(let brickId of row) {
+                curRow.push(this._bricks[brickId].lean());
+            }
+            bricks.push(curRow);
+        }
 
         return {
             bricks: bricks,
@@ -23,39 +31,54 @@ class Document {
 
     connectClient(client) {
         console.log("added client");
-        this.clients.push(client);
+        this._clients.push(client);
     }
 
     disconnectClient(client) {
-        const idx = this.clients.findIndex((c) => c.id === client.id);
+        const idx = this._clients.findIndex((c) => c.id === client.id);
         if (idx < 0)
             return;
 
-        // remove temporary lines
-        for (let b of this.bricks)
-            b.handleDisconnectClient(b.id);
+        // TODO remove temporary lines
 
         // remove element
-        this.clients.splice(idx, 1);
+        this._clients.splice(idx, 1);
         console.log("removed client");
     }
 
-    handleInsertBrick(user, heightIndex) {
+    /**
+     * tries to insert a new brick
+     * @param user
+     * @param heightIndex insertion height
+     * @param columnIndex if undefined => brick is inserted as a new row. if number => brick is inserted into the row at height index at comulm index
+     */
+    handleInsertBrick(user, heightIndex, columnIndex) {
         try {
             if (typeof heightIndex !== typeof 1)
-                throw new Error("invalid height");
-            if (heightIndex < 0 || heightIndex > this.bricks.length)
+                throw new Error("invalid height type");
+            if (heightIndex < 0 || heightIndex > this._brickLayout.length)
                 throw new Error("height index out of range");
 
             // generate id
             const brickId = ++this._currentBrickId;
 
-            // create entry
-            this.bricks.splice(heightIndex, 0, new Brick(brickId));
-            console.log(JSON.stringify(this.bricks));
+            if(columnIndex !== undefined){
+                // insert next to another container
+                // TODO add proper exception handling for this
+                if(typeof columnIndex !== typeof 1)
+                    throw new Error("invalid column index type");
 
-            // TODO notify other clients
-            this.clients.forEach((client) => {
+                this._brickLayout[heightIndex].splice(columnIndex, 0, brickId);
+            } else {
+                // insert at height index
+                this._brickLayout.splice(heightIndex, 0, [brickId]);
+            }
+
+            // add actual brick object
+            this._bricks[brickId] = new Brick(brickId);
+
+            this._clients.forEach((client) => {
+                // TODO add column index for this
                 client.sendInsertedBrick(brickId, heightIndex);
             });
         }
@@ -66,11 +89,11 @@ class Document {
 
     handleBeginPath(userId, brickId, strokeStyle) {
         try {
-            const idx = this.bricks.findIndex((brick) => brickId === brick.id);
-            if (idx < 0)
+            const brick = this._bricks[brickId];
+            if(!brick)
                 throw new Error("brick id invalid");
 
-            this.bricks[idx].handleBeginPath(userId, strokeStyle);
+            brick.handleBeginPath(userId, strokeStyle);
 
             // TODO notify other clients
         }
@@ -81,11 +104,11 @@ class Document {
 
     handleAddPathPoints(userId, brickId, points) {
         try {
-            const idx = this.bricks.findIndex((brick) => brickId === brick.id);
-            if (idx < 0)
+            const brick = this._bricks[brickId];
+            if(!brick)
                 throw new Error("brick id invalid");
 
-            this.bricks[idx].handleAddPathPoints(userId, points);
+            brick.handleAddPathPoints(userId, points);
 
             // TODO notify other clients
         }
@@ -96,11 +119,11 @@ class Document {
 
     handleEndPath(userId, brickId, spline) {
         try {
-            const idx = this.bricks.findIndex((brick) => brickId === brick.id);
-            if (idx < 0)
+            const brick = this._bricks[brickId];
+            if(!brick)
                 throw new Error("brick id invalid");
 
-            this.bricks[idx].handleEndPath(userId, spline);
+            brick.handleEndPath(userId, spline);
 
             // TODO notify other clients
         }
