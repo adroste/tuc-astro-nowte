@@ -65,7 +65,7 @@ class Client {
     }
 
     handleInsertBrick(data) {
-        this._document.handleInsertBrick("only user", data.heightIndex, data.id);
+        this._document.handleInsertBrick("only user", data.heightIndex);
     }
 
     handleBeginPath(data) {
@@ -90,6 +90,15 @@ class Client {
         console.log(JSON.stringify(data));
 
         this._currentBrick = null;
+    }
+
+
+    sendInsertedBrick(brickId, heightIndex) {
+        console.log("id: " + brickId);
+        this._connection.emit("insertedBrick", {
+            brickId: brickId,
+            heightIndex: heightIndex,
+        });
     }
 }
 

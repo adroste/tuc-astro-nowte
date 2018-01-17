@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import lookupSocket from 'socket.io-client';
 import {Editor} from "./Editor";
 import {ConnectionStateEnum} from "../../utilities/ConnectionStateEnum";
+import {Path} from "../../geometry/Path";
 
 
 const Host = styled.div`
@@ -65,13 +66,14 @@ export class EditorHost extends React.Component {
      */
     _stats = {};
 
-
     constructor(props) {
         super(props);
 
+        this._bricks = [];
         this.state = {
             initialConnection: true,
             connectionState: ConnectionStateEnum.DISCONNECTED,
+            bricks: [],
         };
 
 
@@ -87,6 +89,7 @@ export class EditorHost extends React.Component {
         this._socket.on('reconnecting', this.handleReconnecting);
         this._socket.on('echo', this.handleEcho);
         this._socket.on('initialize', this.handleInitialize);
+        this._socket.on('insertedBrick', this.handleInsertedBrick);
     }
 
 
@@ -120,7 +123,6 @@ export class EditorHost extends React.Component {
         console.log('connect');
     };
 
-
     handleDisconnect = () => {
         this.setState({
             connectionState: ConnectionStateEnum.DISCONNECTED
@@ -128,14 +130,12 @@ export class EditorHost extends React.Component {
         console.log('disconnect');
     };
 
-
     handleReconnecting = () => {
         this.setState({
             connectionState: ConnectionStateEnum.PENDING
         });
         console.log('reconnecting');
     };
-
 
     handleEcho = (data) => {
         if (data.hasOwnProperty('timestamp'))
@@ -148,6 +148,113 @@ export class EditorHost extends React.Component {
         //alert(JSON.stringify(data));
     };
 
+    handleAddBrickClick = (heightIndex, columnIndex) => {
+
+        this._socket.emit("insertBrick", {
+            heightIndex: heightIndex,
+            // TODO add column index handling
+        });
+    };
+
+    handleInsertedBrick = (data) => {
+        const heightIndex = data.heightIndex;
+        const brickId = data.brickId;
+
+        // TODO type checking
+        const newBrick =  {
+            id: brickId,
+            paths: [],
+            splines: [],
+        };
+
+        let bricks = this._bricks;
+
+        // TODO add proper colum index handling
+        /*if(columnIndex){
+            // insert next to another container
+            bricks[heightIndex].splice(columnIndex, 0, newBrick);
+        }
+        else*/ {
+            // insert at height index
+            bricks.splice(heightIndex, 0, [newBrick]);
+        }
+
+        this.setState({
+            bricks: bricks,
+        });
+    };
+
+    _localPathId = 0;
+    _currentUserPathId = null;
+    handlePathBegin = (brick, strokeStyle) => {
+
+
+        // update state
+        brick.paths.push({
+            id: ++this._localPathId,
+            path: new Path(strokeStyle),
+        });
+        // remember that out user is drawing this line
+        this._currentUserPathId = this._localPathId;
+
+        // redrawing not required yet
+        this._socket.emit("beginPath", {
+            strokeStyle: strokeStyle.lean(),
+            brickId: brick.id,
+        });
+    };
+
+    handlePathPoint = (brick, point) => {
+        // add point to current path
+        let curPath = brick.paths.find(e => e.id === this._currentUserPathId);
+        if(!curPath)
+            return;
+
+        curPath.path.addPoint(point);
+
+        // TODO send multiple points?
+        this._socket.emit("addPathPoint", {
+            points: [point.lean()],
+        });
+
+        // redraw
+        this.setState({
+            bricks: this._bricks,
+        });
+    };
+
+    handlePathEnd = (brick) => {
+        // generate the spline
+        let idx = brick.paths.findIndex(e => e.id === this._currentUserPathId);
+        if(idx < 0)
+            return;
+
+        this._currentUserPathId = null;
+        const spline = brick.paths[idx].path.toSpline();
+
+        // remove path
+        brick.paths.splice(idx, 1);
+
+        if(!spline)
+            return;
+
+        this._socket.emit("endPath", {
+            spline: spline.lean(),
+        });
+
+        // add spline
+        // TODO generate unique spline id's
+        brick.splines.push({
+            id: ++this._localPathId,
+            spline: spline,
+        });
+
+        // force rerender
+        this.setState({
+            bricks: this._bricks,
+        });
+    };
+
     render() {
         return (
             <Host>
@@ -157,8 +264,14 @@ export class EditorHost extends React.Component {
                 </Overlay>}
                 {!this.state.initialConnection &&
                 <Editor
-                    socket={this._socket}
                     user={this.props.user}
+                    bricks={this.state.bricks}
+
+                    onBrickAdd={this.handleAddBrickClick}
+
+                    onPathBegin={this.handlePathBegin}
+                    onPathPoint={this.handlePathPoint}
+                    onPathEnd={this.handlePathEnd}
                 />}
             </Host>
         );

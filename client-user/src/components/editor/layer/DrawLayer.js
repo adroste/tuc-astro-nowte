@@ -27,17 +27,21 @@ const CanvasLayer = styled(Canvas)`
 export class DrawLayer extends React.Component {
     /**
      * propTypes
-     * @property {object} socket web socket for the server
-     * @property {string} brickId id of the underlying brick
      * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
      * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
+     *
+     * @property {function()} onPathBegin indicates the start of a user drawn path
+     * @property {function(Point)} onPathPoint indicates the addition of a new point to the current path
+     * @property {function()} onPathEnd indicates that the user finished drawing
      */
     static get propTypes() {
         return {
-            socket: PropTypes.object.isRequired,
-            brickId: PropTypes.string.isRequired,
             paths: PropTypes.array.isRequired,
             splines: PropTypes.array.isRequired,
+
+            onPathBegin: PropTypes.func.isRequired,
+            onPathPoint: PropTypes.func.isRequired,
+            onPathEnd: PropTypes.func.isRequired,
         };
     }
 
@@ -57,15 +61,14 @@ export class DrawLayer extends React.Component {
      * @type {CanvasLayer}
      */
     contentLayer = null;
-    currentStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
 
     constructor(props) {
         super(props);
 
-        const pen = new Pen(this.currentStrokeStyle);
-        pen.onPathBegin = this.penHandlePathBegin;
-        pen.onPathPoint = this.penHandlePathPoint;
-        pen.onPathEnd = this.penHandlePathEnd;
+        const pen = new Pen();
+        pen.onPathBegin = this.props.onPathBegin;
+        pen.onPathPoint = this.props.onPathPoint;
+        pen.onPathEnd = this.props.onPathEnd;
 
         // path and spline drawing accelerators
         // dictionary with drawn path: key = pathid, value = {drawnSegments: number, path: Path}
@@ -78,33 +81,6 @@ export class DrawLayer extends React.Component {
             activeTool: pen
         }
     }
-
-
-    penHandlePathBegin = () => {
-        this.props.socket.emit("beginPath", {
-            strokeStyle: this.currentStrokeStyle.lean(),
-            brickId: this.props.brickId,
-        });
-    };
-
-    penHandlePathPoint = (point) => {
-        // TODO buffer multiple points?
-
-        this.props.socket.emit("addPathPoint", {
-            points: [point.lean()],
-        });
-    };
-
-    penHandlePathEnd = (path) => {
-        const spline = path.toSpline();
-
-        this.props.socket.emit("endPath", {
-            spline: spline.lean(),
-        });
-
-        spline.draw(this.contentLayer.context);
-    };
-
 
 
     componentDidMount() {
@@ -138,9 +114,11 @@ export class DrawLayer extends React.Component {
     removeDeletedPaths = (paths) => {
         const deletedPaths = [];
 
-        for(let drawnPathId in this.drawnPaths){
+        for(let drawnPathId of Object.keys(this.drawnPaths)){
+
             // if id is no longer in paths it was deleted
-            if(!paths.some(path => path.id === drawnPathId)){
+            // uage of == instead of === because the dictionary converts numbers to a string and drawnPathId has become a string..
+            if(!paths.some(path => path.id == drawnPathId)){
                 deletedPaths.push(drawnPathId);
             }
         }
@@ -151,14 +129,14 @@ export class DrawLayer extends React.Component {
         // delete the paths and indicate which paths should be redrawn
         for(let pathId of deletedPaths) {
             const bbox = this.drawnPaths[pathId].path.boundingBox;
-            // delete refence to path
-            this.drawnPaths[pathId] = undefined;
+            // delete reference to path
+            delete this.drawnPaths[pathId];
 
             // clear bounding box
             this.workingLayer.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
 
             // determine which paths needed to be redrawn due to the clear rect
-            for(let otherPathId in this.drawnPaths) {
+            for(let otherPathId of Object.keys(this.drawnPaths)) {
                 const otherPath = this.drawnPaths[otherPathId];
 
                 // test if already drawn and boudning boxes overlap
@@ -186,7 +164,7 @@ export class DrawLayer extends React.Component {
             // draw the remaining segments
             drawnPath.path.draw(this.workingLayer.context, drawnPath.drawnSegments);
             // indicate which segments were drawn
-            drawnPath.drawnSegments = drawnPath.path.points.length;
+            drawnPath.drawnSegments = drawnPath.path.points.length - 1;
         }
     };
 
@@ -196,7 +174,14 @@ export class DrawLayer extends React.Component {
     };
 
     removeDeletedSplines = (splines) => {
-        // TODO make early out test
+        // early out test
+        if(this.drawnSplines.length === 0)
+            return;
+        const lastDrawnIdx = this.drawnSplines.length - 1;
+        if(this.drawnSplines.length <= splines.length
+        && this.drawnSplines[lastDrawnIdx].id === splines[lastDrawnIdx].id)
+            return; // the first part of the list remains unchanged => no deletions
+
 
         // splines that were deleted
         const deletedSplines = [];
@@ -267,10 +252,10 @@ export class DrawLayer extends React.Component {
             const curSpline = splines[idx];
 
             // draw spline
-            curSpline.draw(this.contentLayer.context);
+            curSpline.spline.draw(this.contentLayer.context);
 
             // add spline to drawnSplines list
-            this.drawnSplines.push(curSpline.id);
+            this.drawnSplines.push(curSpline);
         }
     };
 
