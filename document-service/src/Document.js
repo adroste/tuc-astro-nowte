@@ -1,4 +1,5 @@
 const Brick = require('./Brick');
+const err = require('./Error');
 
 class Document {
 
@@ -28,6 +29,7 @@ class Document {
             bricks: bricks,
         }
     }
+
 
     connectClient(client) {
         const idx = this._clients.findIndex((c) => c.uniqueIdentifier === client.uniqueIdentifier);
@@ -60,10 +62,8 @@ class Document {
      */
     handleInsertBrick(user, heightIndex, columnIndex) {
         try {
-            if (typeof heightIndex !== typeof 1)
-                throw new Error("invalid height type");
-            if (heightIndex < 0 || heightIndex > this._brickLayout.length)
-                throw new Error("height index out of range");
+            err.verifyType("heightIndex", "number", heightIndex);
+            err.verifyRange("heightIndex", heightIndex, 0, this._brickLayout.length);
 
             // generate id
             const brickId = ++this._currentBrickId;
@@ -71,8 +71,7 @@ class Document {
             if(columnIndex !== undefined){
                 // insert next to another container
                 // TODO add proper exception handling for this
-                if(typeof columnIndex !== typeof 1)
-                    throw new Error("invalid column index type");
+                err.verifyType("columnIndex", "number", columnIndex);
 
                 this._brickLayout[heightIndex].splice(columnIndex, 0, brickId);
             } else {
@@ -95,7 +94,9 @@ class Document {
 
     handleBeginPath(user, brickId, strokeStyle) {
         try {
-            // TODO add more verification
+            err.verifyType("brickId", "number", brickId);
+            // TODO verify stroke style type
+
             const brick = this._bricks[brickId];
             if(!brick)
                 throw new Error("brick id invalid");
@@ -116,6 +117,9 @@ class Document {
 
     handleAddPathPoints(user, brickId, points) {
         try {
+            err.verifyType("brickId", "number", brickId);
+            // TODO verify points
+
             const brick = this._bricks[brickId];
             if(!brick)
                 throw new Error("brick id invalid");
@@ -136,6 +140,9 @@ class Document {
 
     handleEndPath(user, brickId, spline) {
         try {
+            err.verifyType("brickId", "number", brickId);
+            // TODO verify spline
+
             const brick = this._bricks[brickId];
             if(!brick)
                 throw new Error("brick id invalid");
