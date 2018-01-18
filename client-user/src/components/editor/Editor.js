@@ -79,6 +79,8 @@ export class Editor extends React.Component {
      * @property {function(brick, strokeStyle)} onPathBegin indicates the start of a user drawn path. brick is the reference to the brick which was passed in this.props.bricks
      * @property {function(brick, Point)} onPathPoint indicates the addition of a new point to the current path
      * @property {function(brick)} onPathEnd indicates that the user finished drawing
+     *
+     * @property {function(brick, point, point, eraserThickness)} onErase indicates that all splines between the two points should be erase with respect to the eraser thickness
      */
     static get propTypes() {
         return {
@@ -89,6 +91,8 @@ export class Editor extends React.Component {
             onPathBegin: PropTypes.func.isRequired,
             onPathPoint: PropTypes.func.isRequired,
             onPathEnd: PropTypes.func.isRequired,
+
+            onErase: PropTypes.func.isRequired,
         };
     }
 
@@ -107,6 +111,7 @@ export class Editor extends React.Component {
         this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
         this.curPointerMode = PointerMode.PEN;
         this.curEraserThickness = 5;
+        this.lastEraserPoint = null;
     }
 
 
@@ -123,7 +128,8 @@ export class Editor extends React.Component {
                 this.props.onPathBegin(brick, this.curStrokeStyle);
                 break;
             case PointerMode.ERASER:
-
+                // reset eraser
+                this.lastEraserPoint = null;
                 break;
             default:
         }
@@ -135,7 +141,13 @@ export class Editor extends React.Component {
                 this.props.onPathPoint(brick, point);
                 break;
             case PointerMode.ERASER:
-
+                if(this.lastEraserPoint){
+                    this.props.onErase(brick, this.lastEraserPoint, point, this.curEraserThickness);
+                } else {
+                    // erase around current point
+                    this.props.onErase(brick, point, point, this.curEraserThickness);
+                }
+                this.lastEraserPoint = point;
                 break;
             default:
         }
@@ -147,7 +159,8 @@ export class Editor extends React.Component {
                 this.props.onPathEnd(brick);
                 break;
             case PointerMode.ERASER:
-
+                // reset eraser
+                this.lastEraserPoint = null;
                 break;
             default:
         }

@@ -90,6 +90,11 @@ export class Pen {
         // primary button pressed
         if (e.buttons & 1) {
             // last event coords == this event coords => last event was definitive leave from other layer
+            if(!_lastEvent){
+                _lastEvent = e;
+                return;
+            }
+
             if (_lastEvent.clientX === e.clientX && _lastEvent.clientY === e.clientY) {
                 // draw line beginning from last point in previous layer
                 this.handlePointerDown(_lastEventBeforeLeave, ref);

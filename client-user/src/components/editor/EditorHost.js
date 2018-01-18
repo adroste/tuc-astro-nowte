@@ -13,7 +13,7 @@ import {Path} from "../../geometry/Path";
 import {Spline} from "../../geometry/Spline";
 import {StrokeStyle} from "../../drawing/StrokeStyle";
 import {Point} from "../../geometry/Point";
-
+import {Capsule} from "../../geometry/Capsule";
 
 const Host = styled.div`
     position: relative;
@@ -378,6 +378,19 @@ export class EditorHost extends React.Component {
         this.forceUpdate();
     };
 
+    handleErase = (brick, point1, point2, thickness) => {
+        const capsule = new Capsule(point1, point2, thickness / 2.0);
+
+        // test intersection with other splines
+        const prevLength = brick.splines.length;
+        brick.splines = brick.splines.filter((value) => {
+            return !capsule.overlaps(value.spline);
+        });
+
+        if(prevLength !== brick.splines.length)
+            this.forceUpdate();
+    };
+
     render() {
         return (
             <Host>
@@ -395,6 +408,8 @@ export class EditorHost extends React.Component {
                     onPathBegin={this.handlePathBegin}
                     onPathPoint={this.handlePathPoint}
                     onPathEnd={this.handlePathEnd}
+
+                    onErase={this.handleErase}
                 />}
             </Host>
         );
