@@ -13,7 +13,7 @@ let mainWindow;
 
 function createWindow() {
     // Create the browser window.
-    mainWindow = new BrowserWindow({width: 1000, height: 600, titleBarStyle: 'hidden'});
+    mainWindow = new BrowserWindow({width: 1300, height: 800, titleBarStyle: 'hidden'});
 
     // and load the index.html of the app.
     // TODO: Change to lower commented codeblock in production
