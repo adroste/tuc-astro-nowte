@@ -83,12 +83,10 @@ export class DrawLayer extends React.Component {
 
 
     componentDidMount() {
-        //alert("mountain dew");
         this.updatePathAndSpline(this.props.paths, this.props.splines);
     }
 
     componentWillUpdate(nextProps, nextState) {
-        //alert("new propsies");
         this.updatePathAndSpline(nextProps.paths, nextProps.splines);
     }
 
@@ -96,11 +94,6 @@ export class DrawLayer extends React.Component {
      * draws paths and splines that are not already drawn and erases deleted paths/splines
      */
     updatePathAndSpline = (paths, splines) => {
-        //if(!paths)
-        //    alert("missing paths...");
-        //if(!splines)
-        //    alert("missing splinerinos...");
-
         this.updatePaths(paths);
         this.updateSplines(splines);
     };
@@ -269,7 +262,6 @@ export class DrawLayer extends React.Component {
                     resolutionX={1200}
                     resolutionY={800}
                 />
-                {/* TODO working layers for remote users */}
                 {/* layer for persistent content */}
                 <CanvasLayer
                     innerRef={(ref) => this.workingLayer = ref}

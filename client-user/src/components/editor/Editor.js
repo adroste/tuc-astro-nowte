@@ -5,7 +5,7 @@ import {DrawBrick} from "./bricks/DrawBrick";
 import {Button, lightGreyRoundedTheme} from "../base/Button";
 import {DropButton} from "./base/DropButton";
 import {StrokeStyle} from "../../drawing/StrokeStyle";
-
+import {PointerMode} from "../../drawing/PointerMode";
 
 const Wrapper = styled.div`
     display: block;
@@ -105,6 +105,8 @@ export class Editor extends React.Component {
         };
 
         this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
+        this.curPointerMode = PointerMode.PEN;
+        this.curEraserThickness = 5;
     }
 
 
@@ -115,6 +117,41 @@ export class Editor extends React.Component {
         this.props.onBrickAdd(heightIndex);
     };
 
+    handlePathBegin = (brick) => {
+        switch (this.curPointerMode){
+            case PointerMode.PEN:
+                this.props.onPathBegin(brick, this.curStrokeStyle);
+                break;
+            case PointerMode.ERASER:
+
+                break;
+            default:
+        }
+    };
+
+    handlePathPoint = (brick, point) => {
+        switch (this.curPointerMode){
+            case PointerMode.PEN:
+                this.props.onPathPoint(brick, point);
+                break;
+            case PointerMode.ERASER:
+
+                break;
+            default:
+        }
+    };
+
+    handlePathEnd = (brick) => {
+        switch (this.curPointerMode){
+            case PointerMode.PEN:
+                this.props.onPathEnd(brick);
+                break;
+            case PointerMode.ERASER:
+
+                break;
+            default:
+        }
+    };
 
     renderBricks = () => {
         let bricks = [];
@@ -132,9 +169,9 @@ export class Editor extends React.Component {
                     paths={brick.paths}
                     splines={brick.splines}
 
-                    onPathBegin={() => this.props.onPathBegin(brick, this.curStrokeStyle)}
-                    onPathPoint={(point) => this.props.onPathPoint(brick, point)}
-                    onPathEnd={() => this.props.onPathEnd(brick)}
+                    onPathBegin={() => this.handlePathBegin(brick)}
+                    onPathPoint={(point) => this.handlePathPoint(brick, point)}
+                    onPathEnd={() => this.handlePathEnd(brick)}
                 />)
             );
         };
@@ -159,6 +196,38 @@ export class Editor extends React.Component {
     render() {
         return (
             <Wrapper className={this.props.className}>
+                <Button
+                    onClick={() => {
+                        this.curPointerMode = PointerMode.PEN;
+                        this.curStrokeStyle = new StrokeStyle({color: 'black', thickness: 3});
+                    }}
+                >
+                    Black Pen
+                </Button>
+                <Button
+                    onClick={() => {
+                        this.curPointerMode = PointerMode.PEN;
+                        this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
+                    }}
+                >
+                    Red Pen
+                </Button>
+                <Button
+                    onClick={() => {
+                        this.curPointerMode = PointerMode.PEN;
+                        this.curStrokeStyle = new StrokeStyle({color: 'green', thickness: 3})
+                    }}
+                >
+                    Green Pen
+                </Button>
+                <Button
+                    onClick={() => {
+                        this.curPointerMode = PointerMode.ERASER;
+                        this.curEraserThickness = 5;
+                    }}
+                >
+                    Eraser
+                </Button>
                 <PageOuter>
                     <PageInner>
                         {this.renderBricks()}
