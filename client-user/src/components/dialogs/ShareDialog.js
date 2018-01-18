@@ -12,10 +12,10 @@ import {ValidatedInputField} from "../base/ValidatedInputField";
 import {INPUT_TYPES, greyTheme} from "../base/InputField";
 import {validateStringNotEmptyCustomMessage} from "../../utilities/inputFieldValidators";
 
-// TODO fix jumping dialog by defining fixed content height (maybe its enough to set fixed height for InputField)
+
 const ShareList = styled.div`
-    width: 100%;
-    height: 300px;
+    width: 450px;
+    height: 250px;
     overflow: scroll;
     border-radius: 5px;
     border: 1px solid ${COLOR_CODES.GREY_LIGHT};
@@ -26,7 +26,7 @@ export default class ShareDialog extends React.Component {
     /**
      * propTypes
      * @property {string} title title of the dialog
-     * @property {function()} onClose called when forcibly closed
+     * @property {function()} onClose called when user closed dialog
      * @property {string} projectId id of the project
      * @property {object} user user state
      */
