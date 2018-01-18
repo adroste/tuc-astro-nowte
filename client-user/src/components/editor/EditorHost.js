@@ -97,6 +97,7 @@ export class EditorHost extends React.Component {
         this._socket.on('beginPath', this.handleBeginPathReceive);
         this._socket.on('addPathPoint', this.handleAddPathPointReceive);
         this._socket.on('endPath', this.handleEndPathReceive);
+        this._socket.on('eraseSplines', this.handleEraseSplinesReceive);
     }
 
     componentDidMount() {
@@ -184,8 +185,8 @@ export class EditorHost extends React.Component {
                     if(brick.splines){
                         for(let spline of brick.splines){
                             splines.push({
-                                id: ++this._localPathId,
-                                spline: Spline.fromObject(spline),
+                                id: spline.id,
+                                spline: Spline.fromObject(spline.spline),
                             });
                         }
                     }
@@ -324,6 +325,7 @@ export class EditorHost extends React.Component {
         const brickId = data.brickId;
         const userUniqueId = data.userUniqueId;
         const spline = data.spline;
+        const splineId = data.id;
 
         // obtain brick
         const brick = this.getBrick(brickId);
@@ -341,7 +343,7 @@ export class EditorHost extends React.Component {
             return;
 
         brick.splines.push({
-            id: ++this._localPathId,
+            id: splineId,
             spline: convertedSpline,
         });
 
@@ -363,14 +365,18 @@ export class EditorHost extends React.Component {
         if(!spline)
             return;
 
+        // TODO @alex replace with unique id
+        const splineId = Date.now().toString();
+
         this._socket.emit("endPath", {
             spline: spline.lean(),
+            id: splineId,
         });
 
         // add spline
         // TODO generate unique spline id's
         brick.splines.push({
-            id: ++this._localPathId,
+            id: splineId,
             spline: spline,
         });
 
@@ -378,17 +384,53 @@ export class EditorHost extends React.Component {
         this.forceUpdate();
     };
 
+    handleEraseSplinesReceive = (data) => {
+        const brickId = data.brickId;
+        const ids = data.ids;
+
+        // make ids to a dictionary for faster access
+        const idDict = {};
+        for(let id of ids){
+            idDict[id] = true;
+        }
+
+        // obtain brick
+        const brick = this.getBrick(brickId);
+        if(!brick)
+            return;
+
+        brick.splines = brick.splines.filter((value => {
+            return idDict[value.id] !== true;
+        }));
+
+        this.forceUpdate();
+    };
+
     handleErase = (brick, point1, point2, thickness) => {
         const capsule = new Capsule(point1, point2, thickness / 2.0);
+
+        // ids of the removed splines
+        const removedSplines = [];
 
         // test intersection with other splines
         const prevLength = brick.splines.length;
         brick.splines = brick.splines.filter((value) => {
-            return !capsule.overlaps(value.spline);
+            if(!capsule.overlaps(value.spline))
+                return true;
+            // add to removed list
+            removedSplines.push(value.id);
+            return false;
         });
 
-        if(prevLength !== brick.splines.length)
+        if(prevLength !== brick.splines.length){
+            // send removed list
+            this._socket.emit('eraseSplines', {
+                brickId: brick.id,
+                ids: removedSplines,
+            });
+
             this.forceUpdate();
+        }
     };
 
     render() {

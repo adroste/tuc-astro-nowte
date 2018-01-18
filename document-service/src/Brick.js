@@ -6,7 +6,7 @@ class Brick {
 
         // paths that are currently drawn (key = unique user id, value = path)
         this._tempPaths = {};
-        // finished splines
+        // finished splines {id, spline} pair
         this._splines = [];
     }
 
@@ -56,11 +56,28 @@ class Brick {
     /**
      * @param userId unique user id
      * @param spline
+     * @param id
      */
-    handleEndPath(userId, spline) {
+    handleEndPath(userId, spline, id) {
         // remove temp path
         delete this._tempPaths[userId];
-        this._splines.push(spline);
+        this._splines.push({
+            spline: spline,
+            id: id,
+        });
+    }
+
+    handleEraseSplines(ids) {
+        // make ids to a dictionary for faster access
+        const idDict = {};
+        for(let id of ids){
+            idDict[id] = true;
+        }
+
+        // remove splines with matching ids
+        this._splines = this._splines.filter((value) => {
+            return idDict[value.id] !== true;
+        });
     }
 
     /**

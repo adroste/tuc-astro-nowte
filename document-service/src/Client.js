@@ -39,6 +39,7 @@ class Client {
         this._connection.on('beginPath',        (data) => this.verifiedHandle(() => this.handleBeginPath(data)));
         this._connection.on('addPathPoint',     (data) => this.verifiedHandle(() => this.handleAddPathPoint(data)));
         this._connection.on('endPath',          (data) => this.verifiedHandle(() => this.handleEndPath(data)));
+        this._connection.on('eraseSplines',     (data) => this.verifiedHandle(() => this.handleEraseSplines(data)));
     }
 
     /**
@@ -96,6 +97,13 @@ class Client {
         this._document.handleInsertBrick(this, data.heightIndex);
     }
 
+    sendInsertedBrick(brickId, heightIndex) {
+        this._connection.emit("insertedBrick", {
+            brickId: brickId,
+            heightIndex: heightIndex,
+        });
+    }
+
     handleBeginPath(data) {
         this._currentBrick = data.brickId;
         this._document.handleBeginPath(this, data.brickId, data.strokeStyle);
@@ -123,24 +131,28 @@ class Client {
     }
 
     handleEndPath(data) {
-        this._document.handleEndPath(this, this._currentBrick, data.spline);
+        this._document.handleEndPath(this, this._currentBrick, data.spline, data.id);
 
         this._currentBrick = null;
     }
 
-    sendEndPath(userUniqueId, brickId, spline) {
+    sendEndPath(userUniqueId, brickId, spline, id) {
         this._connection.emit('endPath', {
             userUniqueId: userUniqueId,
             brickId: brickId,
             spline: spline,
+            id: id,
         });
     }
 
+    handleEraseSplines(data) {
+        this._document.handleEraseSplines(this, data.brickId, data.ids);
+    }
 
-    sendInsertedBrick(brickId, heightIndex) {
-        this._connection.emit("insertedBrick", {
+    sendEraseSplines(brickId, ids) {
+        this._connection.emit('eraseSplines', {
             brickId: brickId,
-            heightIndex: heightIndex,
+            ids: ids,
         });
     }
 

@@ -138,26 +138,49 @@ class Document {
         }
     }
 
-    handleEndPath(user, brickId, spline) {
+    handleEndPath(user, brickId, spline, id) {
         try {
             err.verifyType("brickId", "number", brickId);
+            err.verifyType("id", "string", id);
             // TODO verify spline
 
             const brick = this._bricks[brickId];
             if(!brick)
                 throw new Error("brick id invalid");
 
-            brick.handleEndPath(user.uniqueIdentifier, spline);
+            brick.handleEndPath(user.uniqueIdentifier, spline, id);
 
             this._clients.forEach((client) => {
                 // don't send it to the same user
                 if(user.uniqueIdentifier !== client.uniqueIdentifier){
-                    client.sendEndPath(user.uniqueIdentifier, brickId, spline);
+                    client.sendEndPath(user.uniqueIdentifier, brickId, spline, id);
                 }
             });
         }
         catch (e) {
             console.log("Error handleEndPath: " + e.message);
+        }
+    }
+
+    handleEraseSplines(user, brickId, ids){
+        try {
+            err.verifyType("brickId", "number", brickId);
+            err.verifyType("ids", "object", ids);
+
+            const brick = this._bricks[brickId];
+            if(!brick)
+                throw new Error("brick id invalid");
+
+            brick.handleEraseSplines(ids);
+
+            this._clients.forEach((client) => {
+                if(user.uniqueIdentifier !== client.uniqueIdentifier){
+                    client.sendEraseSplines(brickId, ids);
+                }
+            });
+        }
+        catch (e) {
+            console.log("Error handleEraseSplines: " + e.message);
         }
     }
 }
