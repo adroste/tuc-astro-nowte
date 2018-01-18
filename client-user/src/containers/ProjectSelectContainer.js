@@ -6,7 +6,8 @@ import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
 import {Button, greenFilledTheme, greyBorderTheme, redBorderTheme, redFilledTheme} from "../components/base/Button";
 import {Link, greenHoverTheme} from "../components/base/Link";
-import {MessageBoxDialog, MessageBoxButtonsEnum, MessageBoxResultEnum} from "../components/dialogs/MessageBoxDialog";
+import {MessageBoxDialog} from "../components/dialogs/MessageBoxDialog";
+import {DialogResultEnum, DialogButtonsEnum} from "../components/dialogs/Common";
 
 
 const SubInfo = styled.div`
@@ -92,19 +93,27 @@ export default class ProjectSelectContainer extends React.Component {
 
 
     handleCreateProjectClick = () => {
-        this.props.showDialog(<InputDialog
-            title="Create Project"
-            onCreate={(title) => {
-                this.props.showDialog(null);
-                this.handleCreateProject(title);
-            }}
-            onCancel={() => this.props.showDialog(null)}
-        />);
+        const handleResult = (result, inputText) => {
+            this.props.showDialog(null);
+
+            if (result === DialogResultEnum.OK_YES)
+                API.createProject(this.props.user.token, inputText, (body) => this.handleProjectCreated(inputText, body.projectId), this.handleError);        
+        };
+
+        this.props.showDialog(
+            <InputDialog
+                title="Create Project"
+                placeholder="project name"
+                onResult={handleResult}
+                buttons={DialogButtonsEnum.OK}
+                buttonOkYesText="Create"
+                buttonOkYesTheme={greenFilledTheme}
+            />
+        );
     };
 
 
     handleCreateProject = (title) => {
-        API.createProject(this.props.user.token, title, (body) => this.handleProjectCreated(title, body.projectId), this.handleError);
     };
 
 
@@ -137,7 +146,7 @@ export default class ProjectSelectContainer extends React.Component {
         const handleResult = (result) => {
             this.props.showDialog(null);
 
-            if (result === MessageBoxResultEnum.OK_YES)
+            if (result === DialogResultEnum.OK_YES)
                 API.deleteProject(this.props.user.token, project.id, () => this.handleProjectDeleted(project.id), this.handleError);
         };
 
@@ -145,7 +154,7 @@ export default class ProjectSelectContainer extends React.Component {
             <MessageBoxDialog
                 title="Delete Project"
                 onResult={handleResult}
-                buttons={MessageBoxButtonsEnum.YES_NO}
+                buttons={DialogButtonsEnum.YES_NO}
                 buttonOkYesText="Delete"
                 buttonOkYesTheme={redFilledTheme}
                 buttonCancelNoText="Cancel"
@@ -169,7 +178,7 @@ export default class ProjectSelectContainer extends React.Component {
         this.props.showDialog(<ShareDialog
             title="Share Project"
             projectId={project.id}
-            onCancel={() => this.props.showDialog(null)}
+            onClose={() => this.props.showDialog(null)}
             user={this.props.user}
         />);
         e.preventDefault();

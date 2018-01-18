@@ -6,30 +6,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {ModalDialog} from 'react-modal-dialog';
 import {Button} from "../base/Button";
-import {DialogButtonsContainer, DialogHeading, DialogMainContent} from "./Common";
-
-
-export const MessageBoxResultEnum = {
-    CANCEL_NO: 0,
-    OK_YES: 1,
-};
-
-
-export const MessageBoxButtonsEnum = {
-    OK: 0,
-    YES_NO: 1,
-};
+import {DialogResultEnum, DialogButtonsEnum, DialogButtonsContainer, DialogHeading, DialogMainContent} from "./Common";
 
 
 export class MessageBoxDialog extends React.Component {
     /**
      * propTypes
      * @property {string} title title of the dialog
-     * @property {function(result: MessageBoxResultEnum)} onResult called on user result
-     * @property {number} [buttons=MessageBoxButtonsEnum.OK] defines buttons to show
-     * @property {string} [buttonOkYesText] test of OK/Yes button
+     * @property {function(result: DialogResultEnum)} onResult called on user result
+     * @property {number} [buttons=DialogButtonsEnum.OK] defines buttons to show
+     * @property {string} [buttonOkYesText] text of OK/Yes button
      * @property {string} [buttonOkYesTheme] theme of OK/Yes button
-     * @property {string} [buttonCancelNoText] test of Cancel/No button
+     * @property {string} [buttonCancelNoText] text of Cancel/No button
      * @property {string} [buttonCancelNoTheme] theme of Cancel/No button
      */
     static get propTypes() {
@@ -46,14 +34,14 @@ export class MessageBoxDialog extends React.Component {
 
     static get defaultProps() {
         return {
-            buttons: MessageBoxButtonsEnum.OK,
+            buttons: DialogButtonsEnum.OK,
         };
     }
 
 
     get _buttonOkYesText() {
         return this.props.buttonOkYesText ? this.props.buttonOkYesText
-                : (this.props.buttons === MessageBoxButtonsEnum.OK ? 'OK' : 'Yes');
+                : (this.props.buttons === DialogButtonsEnum.OK ? 'OK' : 'Yes');
     }
 
 
@@ -63,17 +51,17 @@ export class MessageBoxDialog extends React.Component {
 
 
     _handleModalClose = () => {
-        this.props.onResult(MessageBoxResultEnum.CANCEL_NO);
+        this.props.onResult(DialogResultEnum.CANCEL_NO);
     };
 
 
     _handleCancelNoClick = () => {
-        this.props.onResult(MessageBoxResultEnum.CANCEL_NO);
+        this.props.onResult(DialogResultEnum.CANCEL_NO);
     };
 
 
     _handleOkYesClick = () => {
-        this.props.onResult(MessageBoxResultEnum.OK_YES);
+        this.props.onResult(DialogResultEnum.OK_YES);
     };
 
 
@@ -97,7 +85,7 @@ export class MessageBoxDialog extends React.Component {
                     >
                         {this._buttonOkYesText}
                     </Button>
-                    {this.props.buttons === MessageBoxButtonsEnum.YES_NO &&
+                    {this.props.buttons === DialogButtonsEnum.YES_NO &&
                         <Button
                             onClick={this._handleCancelNoClick}
                             theme={this.props.buttonCancelNoTheme}

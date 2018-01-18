@@ -4,7 +4,8 @@ import FileTree from "../components/project/FileTree";
 import * as API from '../ServerApi'
 import InputDialog from "../components/dialogs/InputDialog";
 import ShareDialog from "../components/dialogs/ShareDialog";
-import {Button} from "../components/base/Button";
+import {DialogResultEnum, DialogButtonsEnum} from "../components/dialogs/Common";
+import {Button, greenFilledTheme} from "../components/base/Button";
 
 
 /**
@@ -14,7 +15,7 @@ export default class ProjectFileTreeContainer extends React.Component {
 
     /**
      * propTypes
-     * @property {function(Dialog: object) showDialog callback when a dialog should be displayed
+     * @property {function(Dialog: object)} showDialog callback when a dialog should be displayed
      * @property {function()} onProjectDeselect called when the project should be deselected
      * @property {object} user user state
      */
@@ -148,15 +149,23 @@ export default class ProjectFileTreeContainer extends React.Component {
     };
 
     handleFolderCreate = (path) => {
-        // open modal dialog
-        this.props.showDialog(<InputDialog
-            title="Create Folder"
-            onCreate={(title) => {
-                this.props.showDialog(null);
-                API.createFolder(this.props.user.token, this.props.projectId, path + title + "/", () => this.handleFolderCreated(path + title + "/"), this.handleError);
-            }}
-            onCancel={() => this.props.showDialog(null)}
-        />);
+        const handleResult = (result, inputText) => {
+            this.props.showDialog(null);
+
+            if (result === DialogResultEnum.OK_YES)
+                API.createFolder(this.props.user.token, this.props.projectId, path + inputText + "/", () => this.handleFolderCreated(path + inputText + "/"), this.handleError);
+        };
+
+        this.props.showDialog(
+            <InputDialog
+                title="Create folder"
+                placeholder="folder name"
+                onResult={handleResult}
+                buttons={DialogButtonsEnum.OK}
+                buttonOkYesText="Create"
+                buttonOkYesTheme={greenFilledTheme}
+            />
+        );
     };
 
     handleFolderCreated = (path) => {
@@ -188,14 +197,23 @@ export default class ProjectFileTreeContainer extends React.Component {
     };
 
     handleFileCreate = (path) => {
-        this.props.showDialog(<InputDialog
-            title="Create File"
-            onCreate={(title) => {
-                this.props.showDialog(null);
-                API.createDocument(this.props.user.token, this.props.projectId, path, title, false, (body) => this.handleFileCreated(path, title, body.documentId), this.handleError);
-            }}
-            onCancel={() => this.props.showDialog(null)}
-        />);
+        const handleResult = (result, inputText) => {
+            this.props.showDialog(null);
+
+            if (result === DialogResultEnum.OK_YES)
+            API.createDocument(this.props.user.token, this.props.projectId, path, inputText, false, (body) => this.handleFileCreated(path, inputText, body.documentId), this.handleError);
+        };
+
+        this.props.showDialog(
+            <InputDialog
+                title="Create document"
+                placeholder="document name"
+                onResult={handleResult}
+                buttons={DialogButtonsEnum.OK}
+                buttonOkYesText="Create"
+                buttonOkYesTheme={greenFilledTheme}
+            />
+        );
     };
 
     handleFileCreated = (path, filename, id) => {
