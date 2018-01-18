@@ -21,7 +21,7 @@ export class Capsule {
 
     /**
      * tests if two objects overlap
-     * @param {Rect|Spline} other
+     * @param {Rect|Spline|Curve} other
      * @return {boolean}
      */
     overlaps(other) {
@@ -30,11 +30,27 @@ export class Capsule {
                 return false;
 
             // TODO further tests
-        } else if (other.constructor.name === "Spline"){
+        } else if (other.constructor.name === "Spline") {
+            if (!this.overlaps(other.boundingBox))
+                return false;
+
+            if(other.spoints.length === 1)
+                return true; // bounding box test was enough
+
+            // test for all inner bounding boxes
+            for (let curveIdx = 0; curveIdx < other.spoints.length - 1; ++curveIdx) {
+                const curve = other.getCurve(curveIdx);
+                if(this.overlaps(curve))
+                    return true;
+            }
+
+            return false;
+        }
+        else if(other.constructor.name === "Curve"){
             if(!this.overlaps(other.boundingBox))
                 return false;
 
-            // TODO further tests
+            // TODO further curve testing
         } else {
             alert("invalid overlap check");
         }

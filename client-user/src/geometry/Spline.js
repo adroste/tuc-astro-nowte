@@ -2,6 +2,7 @@ import {StrokeStyle} from "../drawing/StrokeStyle";
 import {SplinePoint} from "./SplinePoint";
 import {fromObjectArray, leanArray} from "../utilities/arrayConverter";
 import {Rect} from "./Rect";
+import {Curve} from "./Curve";
 
 
 export class Spline {
@@ -132,5 +133,14 @@ export class Spline {
             context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, this.spoints[i].point.x, this.spoints[i].point.y);
         }
         context.stroke();
+    }
+
+    /**
+     * gets curve
+     * @param index range [0, spoints.length - 2]
+     * @return {Curve}
+     */
+    getCurve(index){
+        return new Curve(this.spoints[index], this.spoints[index + 1], this.strokeStyle.thickness / 2.0);
     }
 }
