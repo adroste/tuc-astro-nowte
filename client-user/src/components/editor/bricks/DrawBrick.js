@@ -84,9 +84,12 @@ export class DrawBrick extends React.Component {
                 tabIndex="0"
                 onClick={() => {
                     this.wrapperRef.focus();
-                    this.wrapperRef.scrollIntoView({
-                        behavior: "smooth"
-                    });
+                    // this.wrapperRef.scrollIntoView({
+                    //     behavior: "smooth"
+                    // });
+                    //const rect = this.wrapperRef.getBoundingClientRect();
+                    //alert(rect.top);
+                    //window.scrollBy(rect.left / 2, rect.top - (window.innerHeight / 2));
                 }}
             >
                 <DrawLayer
