@@ -6,6 +6,24 @@ import styled from 'styled-components';
 import {Heading2} from "../base/Common";
 
 
+// ------------------
+// enum definitions
+// ------------------
+export const DialogResultEnum = {
+    CANCEL_NO: 0,
+    OK_YES: 1,
+};
+
+
+export const DialogButtonsEnum = {
+    OK: 0,
+    YES_NO: 1,
+};
+
+
+// ------------------
+// styled components
+// ------------------
 export const DialogButtonsContainer = styled.div`
     text-align: right;
     margin-top: 15px;
