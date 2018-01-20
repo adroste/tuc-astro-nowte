@@ -8,11 +8,12 @@ import {Button, greenFilledTheme, greyBorderTheme, redBorderTheme, redFilledThem
 import {Link, greenHoverTheme} from "../components/base/Link";
 import {MessageBoxDialog} from "../components/dialogs/MessageBoxDialog";
 import {DialogResultEnum, DialogButtonsEnum} from "../components/dialogs/Common";
+import {COLOR_CODES, FONT_SIZES} from "../Globals";
 
 
 const SubInfo = styled.div`
-    font-size: 14px;
-    color: #666;
+    font-size: ${FONT_SIZES.NORMAL};
+    color: ${COLOR_CODES.GREY};
 `;
 
 
@@ -21,7 +22,7 @@ const ProjectListItem = styled(Link).attrs({
 })`
     padding-top: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid ${COLOR_CODES.GREY_LIGHT};
     display: flex;
     align-items: center;
     justify-content: center;
