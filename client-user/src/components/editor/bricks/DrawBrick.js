@@ -5,43 +5,8 @@
 
 import React from 'react';
 import PropTypes from "prop-types";
-import styled from 'styled-components';
 import {DrawLayer} from "../layer/DrawLayer";
-
-
-const BrickWrapper = styled.div`
-    position: relative;
-    width: ${props => props.widthCm}cm;
-    height: ${props => props.heightPx}px;
-    overflow: hidden;
-    
-    &:focus {
-        outline: none;
-    }
-    
-    &:after { 
-        content: '' ; 
-        display: block ; 
-        position: absolute ; 
-        top: 0 ; 
-        bottom: 0 ; 
-        left: 0 ; 
-        right: 0 ; 
-        border-radius: 5px ; 
-        border: 1px transparent solid; 
-        transition: border 0.2s;
-        pointer-events: none;
-    }
-    
-    &:hover:after {
-        border-color: #ddd;
-    }
-    
-    &:focus:after {
-        border-color: #999;
-        outline: none;
-    }
-`;
+import {BrickWrapper} from "./Common";
 
 
 export class DrawBrick extends React.Component {
@@ -93,7 +58,6 @@ export class DrawBrick extends React.Component {
                 }}
             >
                 <DrawLayer
-                    socket={this.props.socket}
                     paths={this.props.paths}
                     splines={this.props.splines}
 

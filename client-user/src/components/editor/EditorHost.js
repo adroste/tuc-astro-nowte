@@ -207,13 +207,15 @@ export class EditorHost extends React.Component {
         })
     };
 
-    handleAddBrickClick = (heightIndex, columnIndex) => {
 
+    handleAddBrickClick = (brickType, heightIndex, columnIndex) => {
         this._socket.emit("insertBrick", {
-            heightIndex: heightIndex,
+            brickType,
+            heightIndex,
             // TODO add column index handling
         });
     };
+
 
     handleInsertedBrick = (data) => {
         const heightIndex = data.heightIndex;

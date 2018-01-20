@@ -93,9 +93,11 @@ class Client {
         this._connection.emit('echo', data);
     }
 
+
     handleInsertBrick(data) {
-        this._document.handleInsertBrick(this, data.heightIndex);
+        this._document.handleInsertBrick(this, data.brickType, data.heightIndex);
     }
+
 
     sendInsertedBrick(brickId, heightIndex) {
         this._connection.emit("insertedBrick", {

@@ -73,7 +73,7 @@ export class Editor extends React.Component {
     /**
      * propTypes
      * @property {array} bricks brick layout [[brick1, brick2], [brick3], ...]. brick1 and brick2 are in the same row. brick3 is in the next row.
-     * @property {function(rowIndex: number, columnIndex: number)} onBrickAdd requests brick creation.
+     * @property {function(brickType: BrickTypesEnum, rowIndex: number, columnIndex: number)} onBrickAdd requests brick creation.
      *           columnIndex = undefined => use the whole row. columnIndex = 0 => insert as left brick. columnIndex = 1 => insert as right brick.
      *
      * @property {function(brick, strokeStyle)} onPathBegin indicates the start of a user drawn path. brick is the reference to the brick which was passed in this.props.bricks
@@ -115,11 +115,8 @@ export class Editor extends React.Component {
     }
 
 
-    handleAddBrickClick = (heightIndex) => {
-        if(heightIndex === undefined)
-            heightIndex = this.props.bricks.length;
-
-        this.props.onBrickAdd(heightIndex);
+    handleAddBrickClick = (brickType, heightIndex = this.props.bricks.length) => {
+        this.props.onBrickAdd(brickType, heightIndex);
     };
 
     handlePathBegin = (brick) => {
@@ -244,6 +241,7 @@ export class Editor extends React.Component {
                 <PageOuter>
                     <PageInner>
                         {this.renderBricks()}
+                        <AppendBrickButton onClick={() => this.handleAddBrickClick()}/>
                         <AppendBrickButton onClick={() => this.handleAddBrickClick()}/>
                     </PageInner>
                 </PageOuter>
