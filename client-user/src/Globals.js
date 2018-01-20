@@ -19,7 +19,8 @@ export const FONT_SIZES = {
     HUGE: '24px',
     LARGE: '20px',
     BIGGER: '16px',
-    NORMAL: '14px'
+    NORMAL: '14px',
+    SMALL: '12px'
 };
 
 

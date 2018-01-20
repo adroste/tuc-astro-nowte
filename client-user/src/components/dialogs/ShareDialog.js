@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {ModalDialog} from 'react-modal-dialog';
-import {COLOR_CODES} from "../../Globals";
-import {Button, greyBorderTheme} from "../base/Button";
-import "./ShareDialog.css"
+import {COLOR_CODES, FONT_SIZES} from "../../Globals";
+import {Button, greyBorderTheme, greenFilledTheme} from "../base/Button";
 import * as API from '../../ServerApi'
 import DropdownMenu from "../base/DropdownMenu";
 import {DialogButtonsContainer, DialogHeading, DialogMainContent} from "./Common";
@@ -14,12 +13,50 @@ import {validateStringNotEmptyCustomMessage} from "../../utilities/inputFieldVal
 
 
 const ShareList = styled.div`
-    width: 450px;
+    width: 550px;
     height: 250px;
     overflow: scroll;
     border-radius: 5px;
     border: 1px solid ${COLOR_CODES.GREY_LIGHT};
+    font-size: ${FONT_SIZES.NORMAL};
+    padding: 5px;
 `;
+
+
+const SubInfo = styled.div`
+    font-size: ${FONT_SIZES.SMALL};
+    color: ${COLOR_CODES.GREY};
+`;
+
+
+const ShareListItem = styled.div`
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid ${COLOR_CODES.GREY_LIGHT};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+
+
+const ShareListItemLeftInner = styled.div`
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+`;
+
+
+const AddShareControlsContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+
+const ValidatedInputFieldFlex = styled(ValidatedInputField)`
+    flex: 1;
+`
 
 
 export default class ShareDialog extends React.Component {
@@ -68,23 +105,28 @@ export default class ShareDialog extends React.Component {
 
     _handleShareList = (body) => {
         const users = [];
-        for(let share of body){
-            users.push({
-                name: share.user.name,
-                email: share.user.email,
-                permissions: share.permissions,
-            });
+        for(let access of body){
+            users.push(Object.assign({}, access));
         }
-
         this.setState({users});
+    };
+
+
+    _setAccess = (email, permissions) => {
+        API.share(this.props.user.token, this.props.projectId, email, permissions, this._handleShared, this._handleError);        
     };
 
 
     _handleShareClick = () => {
         if(!this.state.shareEmailValidation)
             return;
+        this._setAccess(this.state.shareEmail, this.state.sharePermission);
+    };
 
-        API.share(this.props.user.token, this.props.projectId, this.state.shareEmail, this.state.sharePermission, this._handleShared, this._handleError);
+
+    _handlePermissionsChange = () => {
+        // TODO implement
+        throw new Error('not implemented yet');
     };
 
 
@@ -102,11 +144,22 @@ export default class ShareDialog extends React.Component {
     _getShareListItems = () => {
         let shares = [];
 
-        for(let user of this.state.users){
+        for(let access of this.state.users){
             shares.push(
-                <div key={user.email}>
-                    name: {user.name} email: {user.email} permission: {user.permissions}
-                </div>);
+                <ShareListItem key={access.user.email}>
+                    <ShareListItemLeftInner>
+                        <div>
+                            <div>
+                                {access.user.name} ({access.user.email})
+                            </div>
+                            <SubInfo>
+                                Shared by: {access.grantedBy.name} ({access.grantedBy.email})
+                            </SubInfo>
+                        </div>
+                    </ShareListItemLeftInner>
+                    permission: {access.permissions}
+                    
+                </ShareListItem>);
         }
 
         return shares;
@@ -126,22 +179,28 @@ export default class ShareDialog extends React.Component {
                     <ShareList>
                         {this._getShareListItems()}
                     </ShareList>
-                    <ValidatedInputField
-                        name="email"
-                        type={INPUT_TYPES.TEXT}
-                        onInputChange={(shareEmail) => this.setState({shareEmail})}
-                        onValidationResultChange={(success) => this.setState({shareEmailValidation: success})}
-                        value={this.state.shareEmail}
-                        placeholder="email of user"
-                        validator={validateStringNotEmptyCustomMessage(null)}
-                        defaultTheme={greyTheme}
-                        errorTheme={greyTheme}
-                    />
+                    <AddShareControlsContainer>
+                        <ValidatedInputFieldFlex
+                            name="email"
+                            type={INPUT_TYPES.TEXT}
+                            onInputChange={(shareEmail) => this.setState({shareEmail})}
+                            onValidationResultChange={(success) => this.setState({shareEmailValidation: success})}
+                            value={this.state.shareEmail}
+                            placeholder="email of user"
+                            validator={validateStringNotEmptyCustomMessage(null)}
+                            defaultTheme={greyTheme}
+                            errorTheme={greyTheme}
+                        />
 
-                    <DropdownMenu label="Permisson" entrys={["NONE","READ","ANNOTATE","EDIT","MANAGE","OWNER"]}/>
-                    <Button onClick={this._handleShareClick}>
-                        Share
-                    </Button>
+                        <DropdownMenu label="Permisson" entrys={["NONE","READ","ANNOTATE","EDIT","MANAGE","OWNER"]}/>
+                        <Button 
+                            onClick={this._handleShareClick}
+                            theme={greenFilledTheme}
+                            marginLeft
+                        >
+                            Share
+                        </Button>
+                    </AddShareControlsContainer>
                 </DialogMainContent>
                 <DialogButtonsContainer>
                     <div className="align-right">
