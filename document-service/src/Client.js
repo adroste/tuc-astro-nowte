@@ -40,6 +40,9 @@ class Client {
         this._connection.on('addPathPoint',     (data) => this.verifiedHandle(() => this.handleAddPathPoint(data)));
         this._connection.on('endPath',          (data) => this.verifiedHandle(() => this.handleEndPath(data)));
         this._connection.on('eraseSplines',     (data) => this.verifiedHandle(() => this.handleEraseSplines(data)));
+
+        // text
+        this._connection.on('textInsert',       (data) => this.verifiedHandle(() => this.handleTextInsert(data)));
     }
 
     /**
@@ -156,6 +159,17 @@ class Client {
         this._connection.emit('eraseSplines', {
             brickId: brickId,
             ids: ids,
+        });
+    }
+
+    handleTextInsert(data) {
+        this._document.handleTextInsert(this, data.brickId, data.changes);
+    }
+
+    sendTextInserted(brickId, changes) {
+        this._connection.emit({
+            brickId: brickId,
+            changes: changes,
         });
     }
 
