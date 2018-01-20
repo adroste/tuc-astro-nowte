@@ -133,6 +133,15 @@ export class Point {
     }
 
     /**
+     * calculates the squared distance between two points
+     * @param point
+     * @return number
+     */
+    distSq(point) {
+        return this.subtract(point).lengthSq();
+    }
+
+    /**
      * normalizes the point if this.length() != 0
      * @param {number} length length to normalize to
      * @return {Point}

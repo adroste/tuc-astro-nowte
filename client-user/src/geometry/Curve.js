@@ -9,6 +9,7 @@ export class Curve{
     /**
      * @param {SplinePoint} p1
      * @param {SplinePoint} p2
+     * @param {number} radius half thickness of curve
      */
     constructor(p1, p2, radius){
         this.p1 = p1;
