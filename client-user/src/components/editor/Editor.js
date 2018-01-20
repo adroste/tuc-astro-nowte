@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import {DrawBrick} from "./bricks/DrawBrick";
 import {Button, lightGreyRoundedTheme} from "../base/Button";
 import {DropButton} from "./base/DropButton";
-import {StrokeStyle} from "../../drawing/StrokeStyle";
-import {EditorToolsEnum} from "../../drawing/EditorToolsEnum";
+import {StrokeStyle} from "../../editor/drawing/StrokeStyle";
+import {EditorToolsEnum} from "../../editor/EditorToolsEnum";
 
 const Wrapper = styled.div`
     display: block;
