@@ -9,16 +9,16 @@ import {Heading2} from "../base/Common";
 // ------------------
 // enum definitions
 // ------------------
-export const DialogResultEnum = {
+export const DialogResultEnum = Object.freeze({
     CANCEL_NO: 0,
     OK_YES: 1,
-};
+});
 
 
-export const DialogButtonsEnum = {
+export const DialogButtonsEnum = Object.freeze({
     OK: 0,
     YES_NO: 1,
-};
+});
 
 
 // ------------------

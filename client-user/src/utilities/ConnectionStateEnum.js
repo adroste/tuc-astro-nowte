@@ -4,8 +4,8 @@
  */
 
 
-export const ConnectionStateEnum = {
+export const ConnectionStateEnum = Object.freeze({
     DISCONNECTED: 0,
     PENDING: 1,
     CONNECTED: 2
-};
+});

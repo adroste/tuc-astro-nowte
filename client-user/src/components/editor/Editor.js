@@ -5,7 +5,7 @@ import {DrawBrick} from "./bricks/DrawBrick";
 import {Button, lightGreyRoundedTheme} from "../base/Button";
 import {DropButton} from "./base/DropButton";
 import {StrokeStyle} from "../../drawing/StrokeStyle";
-import {PointerMode} from "../../drawing/PointerMode";
+import {EditorToolsEnum} from "../../drawing/EditorToolsEnum";
 
 const Wrapper = styled.div`
     display: block;
@@ -109,7 +109,7 @@ export class Editor extends React.Component {
         };
 
         this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
-        this.curPointerMode = PointerMode.PEN;
+        this.curPointerMode = EditorToolsEnum.PEN;
         this.curEraserThickness = 5;
         this.lastEraserPoint = null;
     }
@@ -124,10 +124,10 @@ export class Editor extends React.Component {
 
     handlePathBegin = (brick) => {
         switch (this.curPointerMode){
-            case PointerMode.PEN:
+            case EditorToolsEnum.PEN:
                 this.props.onPathBegin(brick, this.curStrokeStyle);
                 break;
-            case PointerMode.ERASER:
+            case EditorToolsEnum.ERASER:
                 // reset eraser
                 this.lastEraserPoint = null;
                 break;
@@ -137,10 +137,10 @@ export class Editor extends React.Component {
 
     handlePathPoint = (brick, point) => {
         switch (this.curPointerMode){
-            case PointerMode.PEN:
+            case EditorToolsEnum.PEN:
                 this.props.onPathPoint(brick, point);
                 break;
-            case PointerMode.ERASER:
+            case EditorToolsEnum.ERASER:
                 if(this.lastEraserPoint){
                     this.props.onErase(brick, this.lastEraserPoint, point, this.curEraserThickness);
                 } else {
@@ -155,10 +155,10 @@ export class Editor extends React.Component {
 
     handlePathEnd = (brick) => {
         switch (this.curPointerMode){
-            case PointerMode.PEN:
+            case EditorToolsEnum.PEN:
                 this.props.onPathEnd(brick);
                 break;
-            case PointerMode.ERASER:
+            case EditorToolsEnum.ERASER:
                 // reset eraser
                 this.lastEraserPoint = null;
                 break;
@@ -211,7 +211,7 @@ export class Editor extends React.Component {
             <Wrapper className={this.props.className}>
                 <Button
                     onClick={() => {
-                        this.curPointerMode = PointerMode.PEN;
+                        this.curPointerMode = EditorToolsEnum.PEN;
                         this.curStrokeStyle = new StrokeStyle({color: 'black', thickness: 3});
                     }}
                 >
@@ -219,7 +219,7 @@ export class Editor extends React.Component {
                 </Button>
                 <Button
                     onClick={() => {
-                        this.curPointerMode = PointerMode.PEN;
+                        this.curPointerMode = EditorToolsEnum.PEN;
                         this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
                     }}
                 >
@@ -227,7 +227,7 @@ export class Editor extends React.Component {
                 </Button>
                 <Button
                     onClick={() => {
-                        this.curPointerMode = PointerMode.PEN;
+                        this.curPointerMode = EditorToolsEnum.PEN;
                         this.curStrokeStyle = new StrokeStyle({color: 'green', thickness: 3})
                     }}
                 >
@@ -235,7 +235,7 @@ export class Editor extends React.Component {
                 </Button>
                 <Button
                     onClick={() => {
-                        this.curPointerMode = PointerMode.ERASER;
+                        this.curPointerMode = EditorToolsEnum.ERASER;
                         this.curEraserThickness = 5;
                     }}
                 >

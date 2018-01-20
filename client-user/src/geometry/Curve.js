@@ -1,4 +1,3 @@
-import {SplinePoint} from "./SplinePoint";
 import {Rect} from "./Rect";
 
 /**

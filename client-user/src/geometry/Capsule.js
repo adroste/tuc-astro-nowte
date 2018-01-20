@@ -1,6 +1,4 @@
-
 import {Rect} from "./Rect";
-import {Spline} from "./Spline";
 import {clamp} from "../utilities/math";
 
 /**
