@@ -22,7 +22,7 @@ export class Capsule {
 
     /**
      * tests if two objects overlap
-     * @param {Rect|Spline|Curve} other
+     * @param {Rect|Spline|Curve|Capsule} other
      * @return {boolean}
      */
     overlaps(other) {
@@ -52,15 +52,25 @@ export class Capsule {
                 return false;
 
             // TODO further curve testing
+            const capsule = new Capsule(other.p1.point, other.p2.point, other.radius);
+            return this.overlaps(capsule);
         }
         else if(other.constructor.name === "Capsule") {
-            const dist2 = 0Capsule._closestPointCapsuleCapsule(this._p1, this._p2, other._p1, other._p2);
+            // first check bbox
+            if (!this.overlaps(other.boundingBox))
+                return false;
+
+            const dist2 = Capsule._closestPointCapsuleCapsule(this._p1, this._p2, other._p1, other._p2);
             const radius = this._radius + other._radius;
             return dist2 <= radius * radius;
         } else {
             alert("invalid overlap check");
         }
         return true;
+    }
+
+    get boundingBox(){
+        return this._bbox;
     }
 
     _calcBoundingBox() {
@@ -86,7 +96,7 @@ export class Capsule {
         const EPSILON = 1e-12;
 
         const d1 = q1.subtract(p1); // direction of first line
-        const d2 = q2.subtract(p1); // direction of second line
+        const d2 = q2.subtract(p2); // direction of second line
         const r = p1.subtract(p2);
         const a = d1.dot(d1); // squared length of segment S1
         const e = d2.dot(d2); // squared length of segment S2
@@ -141,7 +151,7 @@ export class Capsule {
 
         // set closest points
         const c1 = p1.add(d1.multiply(s));
-        const c2 = p1.add(d2.multiply(t));
+        const c2 = p2.add(d2.multiply(t));
 
         return c1.distSq(c2);
     }
