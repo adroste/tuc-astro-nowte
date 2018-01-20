@@ -40,13 +40,15 @@ const ProjectListItemInner = styled.div`
 export default class ProjectSelectContainer extends React.Component {
     /**
      * propTypes
-     * @property {function(dialog: object)} showDialog callback when a dialog should be displayed
+     * @property {function(dialog: object)} pushDialog callback when a dialog should be displayed
+     * @property [function()} popDialog callback to close a dialog
      * @property {function(projectId: string, title: string, permissions: number)} onProjectClick callback when a project should be opened
      * @property {object} user user information
      */
     static get propTypes() {
         return {
-            showDialog: PropTypes.func.isRequired,
+            pushDialog: PropTypes.func.isRequired,
+            popDialog: PropTypes.func.isRequired,
             onProjectClick: PropTypes.func.isRequired,
             user: PropTypes.object.isRequired,
         };
@@ -95,13 +97,13 @@ export default class ProjectSelectContainer extends React.Component {
 
     handleCreateProjectClick = () => {
         const handleResult = (result, inputText) => {
-            this.props.showDialog(null);
+            this.props.popDialog();
 
             if (result === DialogResultEnum.OK_YES)
                 API.createProject(this.props.user.token, inputText, (body) => this.handleProjectCreated(inputText, body.projectId), this.handleError);        
         };
 
-        this.props.showDialog(
+        this.props.pushDialog(
             <InputDialog
                 title="Create Project"
                 placeholder="project name"
@@ -145,13 +147,13 @@ export default class ProjectSelectContainer extends React.Component {
 
     handleProjectDeleteClick = (project) => (e) => {
         const handleResult = (result) => {
-            this.props.showDialog(null);
+            this.props.popDialog();
 
             if (result === DialogResultEnum.OK_YES)
                 API.deleteProject(this.props.user.token, project.id, () => this.handleProjectDeleted(project.id), this.handleError);
         };
 
-        this.props.showDialog(
+        this.props.pushDialog(
             <MessageBoxDialog
                 title="Delete Project"
                 onResult={handleResult}
@@ -176,10 +178,10 @@ export default class ProjectSelectContainer extends React.Component {
 
 
     handleProjectShareClick = (project) => (e) => {
-        this.props.showDialog(<ShareDialog
+        this.props.pushDialog(<ShareDialog
             title="Share Project"
             projectId={project.id}
-            onClose={() => this.props.showDialog(null)}
+            onClose={() => this.props.popDialog()}
             user={this.props.user}
         />);
         e.preventDefault();

@@ -15,13 +15,15 @@ export default class ProjectFileTreeContainer extends React.Component {
 
     /**
      * propTypes
-     * @property {function(Dialog: object)} showDialog callback when a dialog should be displayed
+     * @property {function(Dialog: object)} pushDialog callback when a dialog should be displayed
+     * @property {function()} popDialog callback when a dialog should be closed
      * @property {function()} onProjectDeselect called when the project should be deselected
      * @property {object} user user state
      */
     static get propTypes() {
         return {
-            showDialog: PropTypes.func.isRequired,
+            pushDialog: PropTypes.func.isRequired,
+            popDialog: PropTypes.func.isRequired,
             projectId: PropTypes.string.isRequired,
             projectTitle: PropTypes.string.isRequired,
             permissions: PropTypes.number.isRequired,
@@ -150,13 +152,13 @@ export default class ProjectFileTreeContainer extends React.Component {
 
     handleFolderCreate = (path) => {
         const handleResult = (result, inputText) => {
-            this.props.showDialog(null);
+            this.props.popDialog();
 
             if (result === DialogResultEnum.OK_YES)
                 API.createFolder(this.props.user.token, this.props.projectId, path + inputText + "/", () => this.handleFolderCreated(path + inputText + "/"), this.handleError);
         };
 
-        this.props.showDialog(
+        this.props.pushDialog(
             <InputDialog
                 title="Create folder"
                 placeholder="folder name"
@@ -198,13 +200,13 @@ export default class ProjectFileTreeContainer extends React.Component {
 
     handleFileCreate = (path) => {
         const handleResult = (result, inputText) => {
-            this.props.showDialog(null);
+            this.props.popDialog();
 
             if (result === DialogResultEnum.OK_YES)
             API.createDocument(this.props.user.token, this.props.projectId, path, inputText, false, (body) => this.handleFileCreated(path, inputText, body.documentId), this.handleError);
         };
 
-        this.props.showDialog(
+        this.props.pushDialog(
             <InputDialog
                 title="Create document"
                 placeholder="document name"
@@ -330,10 +332,10 @@ export default class ProjectFileTreeContainer extends React.Component {
     };
 
     handleShareClick = () =>{
-        this.props.showDialog(<ShareDialog
+        this.props.pushDialog(<ShareDialog
             title="Share Project"
             projectId={this.props.projectId}
-            onCancel={() => this.props.showDialog(null)}
+            onCancel={() => this.props.popDialog()}
         />);
     };
 

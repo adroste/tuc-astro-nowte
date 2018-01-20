@@ -69,11 +69,13 @@ class ProjectScreen extends React.Component {
         return {};
     }
 
-
-    handleShowDialog = (dialog) => {
-        this.props.appActions.showDialog(dialog);
+    handlePushDialog = (dialog) => {
+        this.props.appActions.pushDialog(dialog);
     };
 
+    handlePopDialog = () => {
+        this.props.appActions.popDialog();
+    };
 
     handleDeselectProject = () => {
         this.props.projectActions.deselect();
@@ -98,7 +100,8 @@ class ProjectScreen extends React.Component {
                                 projectId={this.props.project.projectId}
                                 projectTitle={this.props.project.title}
                                 permissions={this.props.project.permissions}
-                                showDialog={this.handleShowDialog}
+                                pushDialog={this.handlePushDialog}
+                                popDialog={this.handlePopDialog}
                                 onProjectDeselect={this.handleDeselectProject}
                                 user={this.props.user}
                             />

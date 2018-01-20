@@ -43,6 +43,19 @@ class App extends Component {
         //localStorage.setItem('user', JSON.stringify(userStore));
     };
 
+    showDialogs = () => {
+        const dias = [];
+        for(let d of this.props.app.activeDialogs){
+            dias.push(
+                (<div key={d.id}>
+                    <ModalContainer>
+                        {d.dialog}
+                    </ModalContainer>
+                </div>));
+        }
+        return dias;
+    };
+
     render() {
         return (
             <Provider store={this.props.store}>
@@ -68,10 +81,7 @@ class App extends Component {
                         <Route path="/email-validation-done/:emailValidationToken" component={EmailValidationDoneScreen}/>
                         <Route exact path="/awaiting-password-change" component={AwaitingPasswordChangeScreen}/>
 
-                        {this.props.app.activeDialog &&
-                        <ModalContainer>
-                            {this.props.app.activeDialog}
-                        </ModalContainer>}
+                        {this.showDialogs()}
                     </div>
                 </Router>
             </Provider>

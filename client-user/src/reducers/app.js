@@ -1,8 +1,10 @@
 import * as AppActionTypes from '../actiontypes/app';
 
 const initialState = {
-    activeDialog: null,
+    activeDialogs: [],
 };
+
+let localDialogId = 0;
 
 /**
  * Project reducer function
@@ -11,11 +13,27 @@ const initialState = {
  */
 export const app = (state = initialState, action) => {
     switch (action.type){
-        case AppActionTypes.SHOW_DIALOG:
+        case AppActionTypes.PUSH_DIALOG:
+        {
+            let newDias = state.activeDialogs.slice();
+            newDias.push({dialog: action.dialog, id: ++localDialogId});
             return {
                 ...state,
-                activeDialog: action.dialog,
+                // TODO deep copy required?
+                activeDialogs: newDias,
             };
+        }
+        case AppActionTypes.POP_DIALOG:
+        {
+            if(state.activeDialogs.length === 0)
+                return state;
+            let newDias = state.activeDialogs.slice();
+            newDias.pop();
+            return {
+                ...state,
+                activeDialogs: newDias,
+            };
+        }
         default:
             return state;
     }

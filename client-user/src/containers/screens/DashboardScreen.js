@@ -92,8 +92,12 @@ class DashboardScreen extends React.Component {
     };
 
 
-    handleShowDialog = (dialog) => {
-        this.props.appActions.showDialog(dialog);
+    handlePushDialog = (dialog) => {
+        this.props.appActions.pushDialog(dialog);
+    };
+
+    handlePopDialog = () => {
+        this.props.appActions.popDialog();
     };
 
     handleProjectClick = (projectId, title, permissions) => {
@@ -130,7 +134,8 @@ class DashboardScreen extends React.Component {
                                 Projects
                             </Heading2>
                             <ProjectSelectContainer
-                                showDialog={this.handleShowDialog}
+                                pushDialog={this.handlePushDialog}
+                                popDialog={this.handlePopDialog}
                                 onProjectClick={this.handleProjectClick}
                                 user={this.props.user}
                             />

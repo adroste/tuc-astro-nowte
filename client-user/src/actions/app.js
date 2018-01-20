@@ -1,12 +1,14 @@
 import * as AppActionTypes from '../actiontypes/app';
 
-export const showDialog = (dialog) => {
+export const pushDialog = (dialog) => {
     return {
-        type: AppActionTypes.SHOW_DIALOG,
+        type: AppActionTypes.PUSH_DIALOG,
         dialog: dialog,
     };
 };
 
-export const closeDialog = () => {
-    return showDialog(null);
+export const popDialog = () => {
+    return {
+        type: AppActionTypes.POP_DIALOG,
+    };
 };
