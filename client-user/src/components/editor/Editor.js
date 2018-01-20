@@ -83,6 +83,8 @@ export class Editor extends React.Component {
      * @property {function(brick)} onPathEnd indicates that the user finished drawing
      *
      * @property {function(brick, point, point, eraserThickness)} onErase indicates that all splines between the two points should be erase with respect to the eraser thickness
+     *
+     * @property {function(brick, text)} onTextChanged indicates that the text in a text brick has changed
      */
     static get propTypes() {
         return {
@@ -95,6 +97,8 @@ export class Editor extends React.Component {
             onPathEnd: PropTypes.func.isRequired,
 
             onErase: PropTypes.func.isRequired,
+
+            onTextChanged: PropTypes.func.isRequired,
         };
     }
 

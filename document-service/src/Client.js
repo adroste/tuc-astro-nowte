@@ -167,7 +167,7 @@ class Client {
     }
 
     sendTextInserted(brickId, changes) {
-        this._connection.emit({
+        this._connection.emit('textInserted', {
             brickId: brickId,
             changes: changes,
         });
