@@ -99,9 +99,10 @@ class Client {
     }
 
 
-    sendInsertedBrick(brickId, heightIndex) {
+    sendInsertedBrick(brickId, brickType, heightIndex) {
         this._connection.emit("insertedBrick", {
             brickId: brickId,
+            brickType: brickType,
             heightIndex: heightIndex,
         });
     }

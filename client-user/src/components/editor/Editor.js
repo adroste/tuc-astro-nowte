@@ -6,6 +6,8 @@ import {Button, lightGreyRoundedTheme} from "../base/Button";
 import {DropButton} from "./base/DropButton";
 import {StrokeStyle} from "../../editor/drawing/StrokeStyle";
 import {EditorToolsEnum} from "../../editor/EditorToolsEnum";
+import {BrickTypesEnum} from "../../editor/BrickTypesEnum";
+import {TextBrick} from "./bricks/TextBrick";
 
 const Wrapper = styled.div`
     display: block;
@@ -172,7 +174,20 @@ export class Editor extends React.Component {
 
         const listRowItems = (row) => {
             return row.map(brick =>
+                brick.type === BrickTypesEnum.DRAW?
                 (<DrawBrick
+                    key={brick.id}
+                    widthCm={17}
+                    heightPx={400}
+                    paths={brick.paths}
+                    splines={brick.splines}
+
+                    onPathBegin={() => this.handlePathBegin(brick)}
+                    onPathPoint={(point) => this.handlePathPoint(brick, point)}
+                    onPathEnd={() => this.handlePathEnd(brick)}
+                />)
+                    :
+                (<TextBrick
                     key={brick.id}
                     widthCm={17}
                     heightPx={400}
@@ -241,8 +256,8 @@ export class Editor extends React.Component {
                 <PageOuter>
                     <PageInner>
                         {this.renderBricks()}
-                        <AppendBrickButton onClick={() => this.handleAddBrickClick()}/>
-                        <AppendBrickButton onClick={() => this.handleAddBrickClick()}/>
+                        <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}/>
+                        <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.TEXT)}/>
                     </PageInner>
                 </PageOuter>
             </Wrapper>

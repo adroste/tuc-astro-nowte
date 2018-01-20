@@ -220,9 +220,11 @@ export class EditorHost extends React.Component {
     handleInsertedBrick = (data) => {
         const heightIndex = data.heightIndex;
         const brickId = data.brickId;
+        const brickType = data.brickType;
 
         // TODO type checking
         const newBrick =  {
+            type: brickType,
             id: brickId,
             paths: [],
             splines: [],

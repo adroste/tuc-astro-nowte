@@ -1,5 +1,5 @@
 
-class Brick {
+class DrawBrick {
 
     constructor(id) {
         this._id = id;
@@ -20,9 +20,14 @@ class Brick {
 
         return {
             id: this._id,
+            type: this._brickType,
             paths: paths,
             splines: this._splines,
         }
+    }
+
+    get _brickType(){
+        return 0;
     }
 
     get id() {
@@ -91,4 +96,4 @@ class Brick {
     }
 }
 
-module.exports = Brick;
+module.exports = DrawBrick;

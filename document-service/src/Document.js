@@ -1,4 +1,5 @@
-const Brick = require('./Brick');
+const DrawBrick = require('./DrawBrick');
+const TextBrick = require('./TextBrick');
 const err = require('./Error');
 
 class Document {
@@ -64,6 +65,7 @@ class Document {
     handleInsertBrick(user, brickType, heightIndex, columnIndex) {
         try {
             err.verifyType("brickType", "number", brickType);
+            err.verifyRange("brickType", "number", 0, 1);
             err.verifyType("heightIndex", "number", heightIndex);
             err.verifyRange("heightIndex", heightIndex, 0, this._brickLayout.length);
 
@@ -82,11 +84,14 @@ class Document {
             }
 
             // add actual brick object
-            this._bricks[brickId] = new Brick(brickId);
+            if(brickType === 0)
+                this._bricks[brickId] = new DrawBrick(brickId);
+            else
+                this._bricks[brickId] = new TextBrick(brickId);
 
             this._clients.forEach((client) => {
                 // TODO add column index for this
-                client.sendInsertedBrick(brickId, heightIndex);
+                client.sendInsertedBrick(brickId, brickType, heightIndex);
             });
         }
         catch (e) {
