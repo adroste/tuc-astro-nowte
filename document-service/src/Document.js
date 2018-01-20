@@ -57,11 +57,13 @@ class Document {
     /**
      * tries to insert a new brick
      * @param user client object
+     * @param brickType type of brick to add
      * @param heightIndex insertion height
      * @param columnIndex if undefined => brick is inserted as a new row. if number => brick is inserted into the row at height index at comulm index
      */
-    handleInsertBrick(user, heightIndex, columnIndex) {
+    handleInsertBrick(user, brickType, heightIndex, columnIndex) {
         try {
+            err.verifyType("brickType", "number", brickType);
             err.verifyType("heightIndex", "number", heightIndex);
             err.verifyRange("heightIndex", heightIndex, 0, this._brickLayout.length);
 
@@ -91,6 +93,7 @@ class Document {
             console.log("Error handleInsertBrick: " + e.message);
         }
     }
+
 
     handleBeginPath(user, brickId, strokeStyle) {
         try {

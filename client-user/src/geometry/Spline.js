@@ -1,4 +1,4 @@
-import {StrokeStyle} from "../drawing/StrokeStyle";
+import {StrokeStyle} from "../editor/drawing/StrokeStyle";
 import {SplinePoint} from "./SplinePoint";
 import {fromObjectArray, leanArray} from "../utilities/arrayConverter";
 import {Rect} from "./Rect";

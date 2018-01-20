@@ -6,7 +6,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {Canvas} from "../base/Canvas";
-import {Pen} from "../../../drawing/canvas-tools/Pen";
+import {Pen} from "../../../editor/drawing/canvas-tools/Pen";
 import PropTypes from 'prop-types';
 
 const LayerWrapper = styled.div`

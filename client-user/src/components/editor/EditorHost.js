@@ -8,10 +8,10 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import lookupSocket from 'socket.io-client';
 import {Editor} from "./Editor";
-import {ConnectionStateEnum} from "../../utilities/ConnectionStateEnum";
+import {ConnectionStateEnum} from "../../editor/ConnectionStateEnum";
 import {Path} from "../../geometry/Path";
 import {Spline} from "../../geometry/Spline";
-import {StrokeStyle} from "../../drawing/StrokeStyle";
+import {StrokeStyle} from "../../editor/drawing/StrokeStyle";
 import {Point} from "../../geometry/Point";
 import {Capsule} from "../../geometry/Capsule";
 
@@ -207,13 +207,15 @@ export class EditorHost extends React.Component {
         })
     };
 
-    handleAddBrickClick = (heightIndex, columnIndex) => {
 
+    handleAddBrickClick = (brickType, heightIndex, columnIndex) => {
         this._socket.emit("insertBrick", {
-            heightIndex: heightIndex,
+            brickType,
+            heightIndex,
             // TODO add column index handling
         });
     };
+
 
     handleInsertedBrick = (data) => {
         const heightIndex = data.heightIndex;
