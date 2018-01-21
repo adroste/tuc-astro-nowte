@@ -14,6 +14,7 @@ import {Spline} from "../../geometry/Spline";
 import {StrokeStyle} from "../../editor/drawing/StrokeStyle";
 import {Point} from "../../geometry/Point";
 import {Capsule} from "../../geometry/Capsule";
+import {BrickTypesEnum} from "../../editor/BrickTypesEnum";
 
 const Host = styled.div`
     position: relative;
@@ -98,6 +99,8 @@ export class EditorHost extends React.Component {
         this._socket.on('addPathPoint', this.handleAddPathPointReceive);
         this._socket.on('endPath', this.handleEndPathReceive);
         this._socket.on('eraseSplines', this.handleEraseSplinesReceive);
+
+        this._socket.on('textInserted', this.handleTextInsertReceive);
     }
 
     componentDidMount() {
@@ -437,6 +440,71 @@ export class EditorHost extends React.Component {
         }
     };
 
+    handleTextInsertReceive = (data) => {
+        const brickId = data.brickId;
+        const changes = data.changes;
+
+        // obtain brick
+        const brick = this.getBrick(brickId);
+        if(!brick)
+            return;
+
+        // apply changes to the brick text
+        let newText = "";
+        let oldIdx = 0;
+        for(let op of changes){
+            if(op.r !== undefined) {
+                // retain
+                newText = newText + brick.text.substr(oldIdx, op.r);
+                oldIdx += op.r;
+            }
+            else if(op.d !== undefined){
+                // delete
+                oldIdx += op.r;
+            } else if (op.i !== undefined){
+                // insert
+                newText = newText + op.i;
+            }
+        }
+
+        if(oldIdx < this._text.length){
+            // append remaining
+            newText = newText + brick.text.substr(oldIdx);
+        }
+
+        // set new text
+        brick.text = newText;
+
+        this.forceUpdate();
+    };
+
+    handleTextChange = (brick, text) => {
+        // use the text as it is
+
+        if(brick.type !== BrickTypesEnum.TEXT){
+            alert("wrong brick?");
+        }
+
+        // send
+        // TODO make proper diff
+        let ops = [];
+        // delete the old text
+        ops.push({'d': brick.text.length});
+        // insert the new text
+        ops.push({'i': text});
+
+        // transmit
+        this._socket.emit('textInsert', {
+            brickId: brick.id,
+            changes: ops,
+        });
+
+        // set local properties
+        brick.text = text;
+
+        this.forceUpdate();
+    };
+
     render() {
         return (
             <Host>
@@ -456,6 +524,8 @@ export class EditorHost extends React.Component {
                     onPathEnd={this.handlePathEnd}
 
                     onErase={this.handleErase}
+
+                    onTextChanged={this.handleTextChange}
                 />}
             </Host>
         );

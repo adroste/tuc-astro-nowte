@@ -191,6 +191,28 @@ class Document {
             console.log("Error handleEraseSplines: " + e.message);
         }
     }
+
+    handleTextInsert(user, brickId, changes) {
+        try {
+            err.verifyType("brickId", "number", brickId);
+            err.verifyType("changes", "object", changes);
+
+            const brick = this._bricks[brickId];
+            if(!brick)
+                throw new Error("brick id invalid");
+
+            brick.handleTextInsert(changes);
+
+            this._clients.forEach((client) => {
+                if(user.uniqueIdentifier !== client.uniqueIdentifier){
+                    user.sendTextInserted(brickId, changes);
+                }
+            });
+        }
+        catch (e) {
+            console.log("Error handleTextInsert: " + e.message);
+        }
+    }
 }
 
 
