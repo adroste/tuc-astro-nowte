@@ -8,12 +8,7 @@ import styled from 'styled-components';
 import {Canvas} from "../base/Canvas";
 import {Pen} from "../../../editor/drawing/canvas-tools/Pen";
 import PropTypes from 'prop-types';
-
-const LayerWrapper = styled.div`
-    position: relative;
-    width: 100%;
-    height: 100%
-`;
+import {LayerWrapper} from './Common';
 
 
 const CanvasLayer = styled(Canvas)`

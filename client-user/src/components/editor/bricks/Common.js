@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { COLOR_CODES } from '../../../Globals';
 
 
 export const BrickWrapper = styled.div`
@@ -26,11 +27,11 @@ export const BrickWrapper = styled.div`
     }
     
     &:hover:after {
-        border-color: #ddd;
+        border-color: rgba(0, 0, 0, 0.1);
     }
     
     &:focus:after {
-        border-color: #999;
+        border-color: rgba(0, 0, 0, 0.5);
         outline: none;
     }
 `;
