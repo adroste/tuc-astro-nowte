@@ -196,6 +196,7 @@ export class EditorHost extends React.Component {
 
                     curRow.push({
                         id: brick.id,
+                        type: brick.type,
                         paths: paths,
                         splines: splines,
                     });
