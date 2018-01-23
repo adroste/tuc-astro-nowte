@@ -31,6 +31,33 @@ class Document {
         }
     }
 
+    /**
+     * @param id brick id
+     * @return {object} brick object
+     * @throws {Error} if brick was not found
+     * @private
+     */
+    _getBrick(id) {
+        const brick = this._bricks[id];
+        if(!brick)
+            throw new Error("brick id invalid");
+        return brick;
+    }
+
+    /**
+     * @param id id of the brick to be removed
+     * @return {boolean} true if removal was successful
+     * @private
+     */
+    _removeBrick(id){
+        if(this._bricks[id] === undefined)
+            return false;
+
+        delete this._bricks[id];
+        // remove from the layout
+        this._brickLayout = this._brickLayout.filter((brickId) => brickId !== id);
+        return true;
+    }
 
     connectClient(client) {
         const idx = this._clients.findIndex((c) => c.uniqueIdentifier === client.uniqueIdentifier);
@@ -99,16 +126,95 @@ class Document {
         }
     }
 
+    handleRemoveBrick(user, brickId) {
+        try {
+            err.verifyType("brickId", "number", brickId);
+            if (this._removeBrick(brickId))
+                throw new Error("could not remove brick with id " + brickId);
+
+            this._clients.forEach((client) => {
+                client.sendRemovedBrick(brickId);
+            });
+        }
+        catch (e) {
+            console.log("Error handleRemoveBrick: " + e.message);
+        }
+    }
+
+    handleMoveBrick(user, brickId, heightIndex, columnIndex) {
+        try {
+            err.verifyType("brickId", "number", brickId);
+            err.verifyType("heightIndex", "number", dstHeightIndex);
+
+            let dstHeightIndex = heightIndex;
+            let dstColumnIndex = columnIndex;
+
+            // find the current location of the brick
+            let srcColumnIndex = -1;
+            let srcHeightIndex = this._brickLayout.findIndex((row) => {
+                return (srcColumnIndex = row.findIndex((id) => {
+                     return id === brickId;
+                })) !== -1;
+            });
+            if(srcHeightIndex === -1)
+                throw new Error("could not find brick with id " + brickId);
+
+            // make sure the change does something
+            if(srcHeightIndex === dstHeightIndex){
+                if(dstColumnIndex === undefined && this._brickLayout[srcHeightIndex].length === 1
+                || dstColumnIndex === srcColumnIndex)
+                    throw new Error("brick would be moved to his current location");
+            }
+
+            // create a deep copy
+            let newLayout = JSON.parse(JSON.stringify(this._brickLayout));
+
+            // insert
+            if(dstColumnIndex !== undefined){
+                err.verifyRange("heightIndex", dstHeightIndex, 0, this._brickLayout.length);
+                err.verifyType("columnIndex", "number", dstColumnIndex);
+                err.verifyRange("columnIndex", dstColumnIndex, 0, 1);
+                // TODO implement
+            } else {
+                // move into a new row
+
+                // delete old occurence
+                if(newLayout[srcHeightIndex].length > 1){
+                    // remove column (number of rows will increase by 1 after insertion)
+                    err.verifyRange("heightIndex", dstHeightIndex, 0, newLayout.length);
+
+                    newLayout[srcHeightIndex] =
+                        newLayout[srcHeightIndex].splice(srcColumnIndex, 1);
+
+                } else {
+                    // remove entire row (number of rows remains unchanged after insertion)
+                    err.verifyRange("heightIndex", dstHeightIndex, 0, newLayout.length - 1);
+
+                    newLayout = newLayout[srcHeightIndex].splice(srcHeightIndex, 1);
+                    if(dstHeightIndex > srcHeightIndex)
+                        dstHeightIndex--; // adjust height index
+                }
+
+                // insert at dstHeightIndex as new row
+                newLayout = newLayout.splice(dstHeightIndex, 0, [brickId]);
+            }
+
+            this._brickLayout = newLayout;
+            this._clients.forEach((client) => {
+                client.sendMovedBrick(brickId, heightIndex, columnIndex);
+            });
+        }
+        catch (e) {
+            console.log("Error handleMoveBrick: " + e.message);
+        }
+    }
 
     handleBeginPath(user, brickId, strokeStyle) {
         try {
             err.verifyType("brickId", "number", brickId);
             // TODO verify stroke style type
 
-            const brick = this._bricks[brickId];
-            if(!brick)
-                throw new Error("brick id invalid");
-
+            const brick = this._getBrick(brickId);
             brick.handleBeginPath(user.uniqueIdentifier, strokeStyle);
 
             this._clients.forEach((client) => {
@@ -128,10 +234,7 @@ class Document {
             err.verifyType("brickId", "number", brickId);
             // TODO verify points
 
-            const brick = this._bricks[brickId];
-            if(!brick)
-                throw new Error("brick id invalid");
-
+            const brick = this._getBrick(brickId);
             brick.handleAddPathPoints(user.uniqueIdentifier, points);
 
             this._clients.forEach((client) => {
@@ -152,9 +255,7 @@ class Document {
             err.verifyType("id", "string", id);
             // TODO verify spline
 
-            const brick = this._bricks[brickId];
-            if(!brick)
-                throw new Error("brick id invalid");
+            const brick = this._getBrick(brickId);
 
             brick.handleEndPath(user.uniqueIdentifier, spline, id);
 
@@ -175,9 +276,7 @@ class Document {
             err.verifyType("brickId", "number", brickId);
             err.verifyType("ids", "object", ids);
 
-            const brick = this._bricks[brickId];
-            if(!brick)
-                throw new Error("brick id invalid");
+            const brick = this._getBrick(brickId);
 
             brick.handleEraseSplines(ids);
 
@@ -197,10 +296,7 @@ class Document {
             err.verifyType("brickId", "number", brickId);
             err.verifyType("changes", "object", changes);
 
-            const brick = this._bricks[brickId];
-            if(!brick)
-                throw new Error("brick id invalid");
-
+            const brick = this._getBrick(brickId);
             brick.handleTextInsert(changes);
 
             this._clients.forEach((client) => {

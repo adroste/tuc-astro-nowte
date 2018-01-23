@@ -33,7 +33,10 @@ class Client {
         this._connection.on('disconnect', () => this.handleDisconnect());
         this._connection.on('echo', (data) => this.handleEcho(data));
 
+        // brick
         this._connection.on('insertBrick',      (data) => this.verifiedHandle(() => this.handleInsertBrick(data)));
+        this._connection.on('removeBrick',      (data) => this.verifiedHandle(() => this.handleRemoveBrick(data)));
+        this._connection.on('moveBrick',        (data) => this.verifiedHandle(() => this.handleMoveBrick(data)));
 
         // path
         this._connection.on('beginPath',        (data) => this.verifiedHandle(() => this.handleBeginPath(data)));
@@ -107,6 +110,28 @@ class Client {
             brickId: brickId,
             brickType: brickType,
             heightIndex: heightIndex,
+        });
+    }
+
+    handleRemoveBrick(data) {
+        this._document.handleRemoveBrick(this, data.brickId);
+    }
+
+    sendRemovedBrick(brickId) {
+        this._connection.emit("removedBrick", {
+            brickId
+        });
+    }
+
+    handleMoveBrick(data) {
+        this._document.handleMoveBrick(this, data.brickId, data.heightIndex, data.columnIndex);
+    }
+
+    sendMovedBrick(brickId, heightIndex, columnIndex) {
+        this._connection.emit("movedBrick", {
+            brickId,
+            heightIndex,
+            columnIndex,
         });
     }
 
