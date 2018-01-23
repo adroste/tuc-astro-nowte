@@ -55,8 +55,33 @@ class Document {
 
         delete this._bricks[id];
         // remove from the layout
-        this._brickLayout = this._brickLayout.filter((brickId) => brickId !== id);
+        let pos = this._findBrickPosition(id);
+        if(pos.heightIndex !== -1 && pos.columnIndex !== -1){
+            if(this._brickLayout[pos.heightIndex].length === 1){
+                // remove entire row
+                this._brickLayout = this._brickLayout.splice(pos.heightIndex, 1);
+            } else {
+                // remove column
+                this._brickLayout[pos.heightIndex] =
+                    this._brickLayout[pos.heightIndex].splice(pos.columnIndex, 1);
+            }
+        }
         return true;
+    }
+
+    /**
+     * @param brickId
+     * @return {{heightIndex: number, columnIndex: number}}
+     * @private
+     */
+    _findBrickPosition(brickId) {
+        let columnIndex = -1;
+        let heightIndex = this._brickLayout.findIndex((row) => {
+            return (columnIndex = row.findIndex((id) => {
+                return id === brickId;
+            })) !== -1;
+        });
+        return {heightIndex, columnIndex};
     }
 
     connectClient(client) {

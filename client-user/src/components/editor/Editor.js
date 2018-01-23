@@ -77,6 +77,8 @@ export class Editor extends React.Component {
      * @property {array} bricks brick layout [[brick1, brick2], [brick3], ...]. brick1 and brick2 are in the same row. brick3 is in the next row.
      * @property {function(brickType: BrickTypesEnum, rowIndex: number, columnIndex: number)} onBrickAdd requests brick creation.
      *           columnIndex = undefined => use the whole row. columnIndex = 0 => insert as left brick. columnIndex = 1 => insert as right brick.
+     * @property {function(brickId: number)} onBrickRemove deletes the brick
+     * @property {function(brickId: number, heightIndex)} onBrickMove changes the height of the brick to heightIndex
      *
      * @property {function(brick, strokeStyle)} onPathBegin indicates the start of a user drawn path. brick is the reference to the brick which was passed in this.props.bricks
      * @property {function(brick, Point)} onPathPoint indicates the addition of a new point to the current path

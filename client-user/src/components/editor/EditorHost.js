@@ -95,6 +95,9 @@ export class EditorHost extends React.Component {
         this._socket.on('initialize', this.handleInitialize);
 
         this._socket.on('insertedBrick', this.handleInsertedBrick);
+        this._socket.on('removedBrick', this.handleRemovedBrickReceived);
+        this._socket.on('movedBrick', this.handleMovedBrickReceived);
+
         this._socket.on('beginPath', this.handleBeginPathReceive);
         this._socket.on('addPathPoint', this.handleAddPathPointReceive);
         this._socket.on('endPath', this.handleEndPathReceive);
@@ -124,6 +127,40 @@ export class EditorHost extends React.Component {
             }
         }
         return null;
+    };
+
+    /**
+     * returns the brick layout position
+     * @param brickId
+     * @return {{heightIndex: number, columnIndex: number}}
+     */
+    getBrickPosition = (brickId) => {
+        let columnIndex = -1;
+        let heightIndex = this._bricks.findIndex((row) => {
+            return (columnIndex = row.findIndex((brick) => {
+                return brick.id === brickId;
+            })) !== -1;
+        });
+        return {heightIndex, columnIndex};
+    };
+
+    removeBrick = (brickId) => {
+        const pos = this.getBrickPosition(brickId);
+        if(pos.columnIndex === -1 || pos.heightIndex === -1)
+            return;
+
+        if(this._bricks[pos.heightIndex].length === 1){
+            // remove entire row
+            this._bricks = this._bricks.splice(pos.heightIndex, 1);
+        } else {
+            // remove column
+            this._bricks[pos.heightIndex] =
+                this._bricks[pos.heightIndex].splice(pos.columnIndex, 1);
+        }
+
+        this.setState({
+            bricks: this._bricks,
+        });
     };
 
     setStats = (stats) => {
@@ -247,6 +284,47 @@ export class EditorHost extends React.Component {
 
 
         this.forceUpdate();
+    };
+
+    handleRemoveBrickClick = (brickId) => {
+        this._socket.emit("removeBrick", {
+            brickId,
+        });
+    };
+
+    handleRemovedBrickReceived = (data) => {
+        const brickId = data.brickId;
+
+        this.removeBrick(brickId);
+    };
+
+    handleMoveBrickClick = (brickId, heightIndex) => {
+          this._socket.emit("moveBrick", {
+              brickId,
+              heightIndex,
+              // TODO add column index
+          });
+    };
+
+    handleMovedBrickReceived = (data) => {
+        const brickId = data.brickId;
+        let heightIndex = data.heightIndex;
+        //const columnIndex = data.columnIndex;
+        // TODO add column Index handling
+        const pos = this.getBrickPosition(brickId);
+
+        // get current row
+        let row = this._bricks[pos.heightIndex];
+        // remove old entry
+        this._bricks = this._bricks.splice(pos.heightIndex, 1);
+        if(heightIndex > pos.heightIndex)
+            heightIndex--;
+        // insert new entry
+        this._bricks = this._bricks.splice(heightIndex, 0, row);
+
+        this.setState({
+            bricks: this._bricks,
+        });
     };
 
     handleBeginPathReceive = (data) => {
@@ -519,6 +597,8 @@ export class EditorHost extends React.Component {
                     bricks={this.state.bricks}
 
                     onBrickAdd={this.handleAddBrickClick}
+                    onBrickRemove={this.handleRemoveBrickClick}
+                    onBrickMove={this.handleMoveBrickClick}
 
                     onPathBegin={this.handlePathBegin}
                     onPathPoint={this.handlePathPoint}
