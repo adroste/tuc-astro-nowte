@@ -326,7 +326,7 @@ class Document {
 
             this._clients.forEach((client) => {
                 if(user.uniqueIdentifier !== client.uniqueIdentifier){
-                    user.sendTextInserted(brickId, changes);
+                    client.sendTextInserted(brickId, changes);
                 }
             });
         }

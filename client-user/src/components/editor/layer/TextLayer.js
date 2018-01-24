@@ -46,7 +46,7 @@ export class TextLayer extends React.Component {
                       object: 'text',
                       leaves: [
                         {
-                          text: 'A line of text in a paragraph.'
+                          text: ''
                         }
                       ]
                     }
@@ -78,11 +78,20 @@ export class TextLayer extends React.Component {
     };
 
 
+
     componentWillReceiveProps(nextProps) {
         if(nextProps.text !== this.props.text){
             // update state
+            if(nextProps.text === this._prevContent){
+                // text is already there (local update )
+                return;
+            }
+
+            const serValue = Plain.deserialize(nextProps.text);
+            this._prevContent = serValue;
+            const value = this.state.value.set('document', serValue.document);
             this.setState({
-                value: Plain.deserialize(nextProps.text),
+                value: value,
             });
         }
     }
