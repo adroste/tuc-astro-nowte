@@ -88,10 +88,10 @@ export class TextLayer extends React.Component {
             }
 
             const serValue = Plain.deserialize(nextProps.text);
-            this._prevContent = serValue;
-            const value = this.state.value.set('document', serValue.document);
+            this._prevContent = nextProps.text;
+            
             this.setState({
-                value: value,
+                value: serValue,
             });
         }
     }

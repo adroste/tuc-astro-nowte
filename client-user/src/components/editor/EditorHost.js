@@ -529,7 +529,7 @@ export class EditorHost extends React.Component {
     };
 
     handleTextInsertReceive = (data) => {
-        /*const brickId = data.brickId;
+        const brickId = data.brickId;
         const changes = data.changes;
 
         // obtain brick
@@ -564,7 +564,6 @@ export class EditorHost extends React.Component {
         brick.text = newText;
 
         this.forceUpdate();
-        */
     };
 
     handleTextChange = (brick, text) => {
