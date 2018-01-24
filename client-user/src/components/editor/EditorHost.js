@@ -231,12 +231,18 @@ export class EditorHost extends React.Component {
                         }
                     }
 
-                    curRow.push({
+                    const newBrick = {
                         id: brick.id,
                         type: brick.type,
                         paths: paths,
                         splines: splines,
-                    });
+                    };
+
+                    if(brick.type === BrickTypesEnum.TEXT){
+                        newBrick.text = "";
+                    }
+
+                    curRow.push(newBrick);
                 }
                 this._bricks.push(curRow);
             }
@@ -270,6 +276,9 @@ export class EditorHost extends React.Component {
             paths: [],
             splines: [],
         };
+        if(brickType === BrickTypesEnum.TEXT){
+            newBrick.text = "";
+        }
 
         let bricks = this._bricks;
 
@@ -546,7 +555,7 @@ export class EditorHost extends React.Component {
             }
         }
 
-        if(oldIdx < this._text.length){
+        if(oldIdx < brick.text.length){
             // append remaining
             newText = newText + brick.text.substr(oldIdx);
         }
@@ -559,7 +568,6 @@ export class EditorHost extends React.Component {
 
     handleTextChange = (brick, text) => {
         // use the text as it is
-
         if(brick.type !== BrickTypesEnum.TEXT){
             alert("wrong brick?");
         }
@@ -606,7 +614,7 @@ export class EditorHost extends React.Component {
 
                     onErase={this.handleErase}
 
-                    onTextChanged={this.handleTextChange}
+                    onTextChange={this.handleTextChange}
                 />}
             </Host>
         );

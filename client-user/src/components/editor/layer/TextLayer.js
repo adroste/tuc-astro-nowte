@@ -5,7 +5,7 @@ import {LayerWrapper} from './Common';
 import throttle from 'lodash/throttle';
 import { Editor } from 'slate-react';
 import { Value } from 'slate';
-
+import Plain from 'slate-plain-serializer';
 
 const StyledEditor = styled(Editor)`
     width: 100%;
@@ -16,10 +16,13 @@ const StyledEditor = styled(Editor)`
 export class TextLayer extends React.Component {
     /**
      * propTypes
+     * @property {function(string)} onChange indicates that the text was changed by the user
+     * @property {string} text text that should be displayed in the editor
      */
     static get propTypes() {
         return {
-            onChange: PropTypes.func.isRequired
+            onChange: PropTypes.func.isRequired,
+            text: PropTypes.string.isRequired,
         };
     }
 
@@ -53,23 +56,47 @@ export class TextLayer extends React.Component {
             }
           });
 
-
+        this._value = initialValue;
+        this._prevContent = "";
         this.state = {
             value: initialValue
         };
     }
 
 
-    handleChange = ({value}) => {
-        this.setState({ value });
+    handleChange = (change) => {
+        const content = Plain.serialize(change.value);
+        if(content !== this._prevContent) {
+            this._prevContent = content;
+            this.props.onChange(content);
+        }
+        //} else {
+            this.setState({
+                value: change.value,
+            });
+        //}
     };
 
+
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.text !== this.props.text){
+            // update state
+            this.setState({
+                value: Plain.deserialize(nextProps.text),
+            });
+        }
+    }
+
+    getValue = () => {
+
+        return this.state.value;
+    };
 
     render() {
         return (
             <LayerWrapper className={this.props.className}>
                 <StyledEditor
-                    value={this.state.value}
+                    value={this.getValue()}
                     onChange={this.handleChange}
                 />
             </LayerWrapper>

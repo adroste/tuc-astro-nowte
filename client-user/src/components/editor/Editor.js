@@ -86,7 +86,7 @@ export class Editor extends React.Component {
      *
      * @property {function(brick, point, point, eraserThickness)} onErase indicates that all splines between the two points should be erase with respect to the eraser thickness
      *
-     * @property {function(brick, text)} onTextChanged indicates that the text in a text brick has changed
+     * @property {function(brick, text)} onTextChange indicates that the text in a text brick has changed
      */
     static get propTypes() {
         return {
@@ -100,7 +100,7 @@ export class Editor extends React.Component {
 
             onErase: PropTypes.func.isRequired,
 
-            onTextChanged: PropTypes.func.isRequired,
+            onTextChange: PropTypes.func.isRequired,
         };
     }
 
@@ -199,10 +199,13 @@ export class Editor extends React.Component {
                     heightPx={400}
                     paths={brick.paths}
                     splines={brick.splines}
+                    text={brick.text}
 
                     onPathBegin={() => this.handlePathBegin(brick)}
                     onPathPoint={(point) => this.handlePathPoint(brick, point)}
                     onPathEnd={() => this.handlePathEnd(brick)}
+
+                    onTextChange={(text) => this.props.onTextChange(brick, text)}
                 />)
             );
         };
