@@ -239,7 +239,7 @@ export class EditorHost extends React.Component {
                     };
 
                     if(brick.type === BrickTypesEnum.TEXT){
-                        newBrick.text = "";
+                        newBrick.text = brick.text;
                     }
 
                     curRow.push(newBrick);

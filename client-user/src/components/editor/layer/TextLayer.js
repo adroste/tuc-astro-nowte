@@ -78,6 +78,11 @@ export class TextLayer extends React.Component {
     };
 
 
+    componentDidMount() {
+        this.setState({
+           value:  Plain.deserialize(this.props.text),
+        });
+    }
 
     componentWillReceiveProps(nextProps) {
         if(nextProps.text !== this.props.text){
@@ -89,7 +94,7 @@ export class TextLayer extends React.Component {
 
             const serValue = Plain.deserialize(nextProps.text);
             this._prevContent = nextProps.text;
-            
+
             this.setState({
                 value: serValue,
             });
