@@ -8,16 +8,19 @@ import {StrokeStyle} from "../../editor/drawing/StrokeStyle";
 import {EditorToolsEnum} from "../../editor/EditorToolsEnum";
 import {BrickTypesEnum} from "../../editor/BrickTypesEnum";
 import {TextBrick} from "./bricks/TextBrick";
+import {Tooldock} from "./Tooldock";
+
 
 const Wrapper = styled.div`
-    display: block;
     width: 100%;
+    height: 100%;
+    overflow: scroll;
+    scroll-behavior: smooth;
 `;
 
 
 const PageOuter = styled.div`
     width: 210mm;
-    height: 100%;
     background-color: white;
     margin: auto;
     padding-right: 20mm;
@@ -30,6 +33,7 @@ const PageOuter = styled.div`
 
 
 const PageInner = styled.div`
+    height: 100%;
     /*border: #ddd 1px solid;*/
 `;
 
@@ -225,7 +229,7 @@ export class Editor extends React.Component {
     render() {
         return (
             <Wrapper className={this.props.className}>
-                <Button
+                {/* <Button
                     onClick={() => {
                         this.curPointerMode = EditorToolsEnum.PEN;
                         this.curStrokeStyle = new StrokeStyle({color: 'black', thickness: 3});
@@ -256,7 +260,8 @@ export class Editor extends React.Component {
                     }}
                 >
                     Eraser
-                </Button>
+                </Button> */}
+                <Tooldock/>
                 <PageOuter>
                     <PageInner>
                         {this.renderBricks()}

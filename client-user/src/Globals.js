@@ -15,6 +15,15 @@ export const COLOR_CODES = {
 };
 
 
+export const COLOR_RGBA = {
+    GREY: 'rgba(200, 200, 200, 0.85)',
+    RED: 'rgba(205, 83, 96, 0.75)',
+    BLUE: 'rgba(40, 109, 168, 0.75)',
+    TEAL: 'rgba(67, 132, 150, 0.75)',
+    YELLOW: 'rgba(179, 125, 78, 0.75)'
+}
+
+
 export const FONT_SIZES = {
     HUGE: '24px',
     LARGE: '20px',

@@ -107,14 +107,12 @@ class ProjectScreen extends React.Component {
                             />
                         </ScrollContainer>
                     </div>
-
-                    <ScrollContainer>
-                        <EditorHost
-                            documentId={null}
-                            user={this.props.user}
-                            onStatsChange={this.handleEditorStatsChange}
-                        />
-                    </ScrollContainer>
+                    
+                    <EditorHost
+                        documentId={null}
+                        user={this.props.user}
+                        onStatsChange={this.handleEditorStatsChange}
+                    />
                 </SplitPane>
             </Wrapper>
         );

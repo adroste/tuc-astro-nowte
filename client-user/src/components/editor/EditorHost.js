@@ -19,6 +19,7 @@ import {BrickTypesEnum} from "../../editor/BrickTypesEnum";
 const Host = styled.div`
     position: relative;
     width: 100%;
+    height: 100%;
 `;
 
 
