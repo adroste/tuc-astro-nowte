@@ -16,7 +16,7 @@ class Collaboration{
         this._pointer = {};
 
         // colors of other users
-        this._colors = {};
+        this._userInfo = {};
 
         this._curColorCode = 0;
     }
@@ -25,20 +25,39 @@ class Collaboration{
     lean(){
         return {
             pointer: this._pointer,
-            colors: this._colors,
+            userInfo: this._userInfo,
         }
     }
 
-    registerUser(userId) {
+    /**
+     *
+     * @param userId unique user id (e.g. session token)
+     * @param id general user id
+     * @param name username
+     */
+    registerUser(userId, id, name) {
         // generate a new color
         // TODO make a better algorithm maybe
-        this._colors[userId] = colorTable[this._curColorCode];
+        this._userInfo[userId] = {
+            color: colorTable[this._curColorCode],
+            id: id,
+            name: name,
+        };
         this._curColorCode = (this._curColorCode + 1) % colorTable.length;
+    }
+
+    /**
+     *
+     * @param userId
+     * @return {color, id, name | undefined}
+     */
+    getUserInfo(userId) {
+        return this._userInfo[userId];
     }
 
     unregisterUser(userId) {
         delete this._pointer[userId];
-        delete this._colors[userId];
+        delete this._userInfo[userId];
     }
 
     /**

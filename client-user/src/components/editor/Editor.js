@@ -79,6 +79,8 @@ export class Editor extends React.Component {
     /**
      * propTypes
      * @property {array} bricks brick layout [[brick1, brick2], [brick3], ...]. brick1 and brick2 are in the same row. brick3 is in the next row.
+     * @property {object} clients other clients that are currently connected (dictionary: key=userUniqueId value={id, name, color})
+     *
      * @property {function(brickType: BrickTypesEnum, rowIndex: number, columnIndex: number)} onBrickAdd requests brick creation.
      *           columnIndex = undefined => use the whole row. columnIndex = 0 => insert as left brick. columnIndex = 1 => insert as right brick.
      * @property {function(brickId: number)} onBrickRemove deletes the brick
@@ -96,6 +98,8 @@ export class Editor extends React.Component {
         return {
             user: PropTypes.object.isRequired,
             bricks: PropTypes.array.isRequired,
+            clients: PropTypes.object.isRequired,
+
             onBrickAdd: PropTypes.func.isRequired,
 
             onPathBegin: PropTypes.func.isRequired,
@@ -236,10 +240,17 @@ export class Editor extends React.Component {
         return bricks;
     };
 
+    renderClients = () => {
+        // TODO render the clients
+        for(let uniqueId of Object.keys(this.props.clients)){
+            alert(JSON.stringify(this.props.clients[uniqueId]));
+        }
+    };
 
     render() {
         return (
             <Wrapper className={this.props.className}>
+                {this.renderClients()}
                 <Tooldock
                     onToolChange={this.handleToolChange}
                     selectedTool={this.state.activeTool}

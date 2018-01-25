@@ -2,6 +2,7 @@
  * @author Alexander Droste
  * @date 13.01.18
  */
+const err = require('./Error');
 
 let pseudoSessionToken = 1;
 
@@ -22,6 +23,7 @@ class Client {
         this._connection = connection;
         this._document = document;
         this._id = null;
+        this._name = null;
         this._sessionToken = null;
 
         // brick where the client is currently drawing (set in path begin)
@@ -72,10 +74,18 @@ class Client {
 
     /**
      * user id
-     * @return {null|*}
+     * @return {null|string}
      */
     get id(){
         return this._id;
+    }
+
+    /**
+     * username
+     * @return {null|string}
+     */
+    get name(){
+        return this._name;
     }
 
     /**
@@ -247,18 +257,42 @@ class Client {
     }
 
     handleAuthentication(data) {
-        this._id = data.userId;
-        if(!this._id)
-            return; // invalid id
+        try {
+            err.verifyType("id", "string", data.userId);
+            this._id = data.userId;
+
+            err.verifyType("name", "string", data.name);
+            this._name = data.name;
+        }
+        catch (e) {
+            console.log("Error (client) handleAuthentication: " + e.message);
+            return;
+        }
 
         // TODO replace with session token
         this._sessionToken = ++pseudoSessionToken;
 
         // establish connection
         this._document.connectClient(this);
+    }
 
-        // send information about current document
-        this._connection.emit('initialize', this._document.lean());
+    sendInitialization(data) {
+        this._connection.emit('initialize', data);
+    }
+
+    sendClientConnected(userUniqueId, id, name, color) {
+        this._connection.emit('clientConnect', {
+            userUniqueId,
+            id,
+            name,
+            color,
+        });
+    }
+
+    sendClientDisconnected(userUniqueId) {
+        this._connection.emit('clientDisconnect', {
+            userUniqueId,
+        });
     }
 }
 

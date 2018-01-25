@@ -32,6 +32,7 @@ class Document {
 
         return {
             bricks: bricks,
+            clients: this._collabPanel.lean(),
         }
     }
 
@@ -95,10 +96,17 @@ class Document {
             return;
         }
 
-        this._clients.push(client);
-        this._collabPanel.registerUser(client.uniqueIdentifier);
+        // send information about current document
+        client.sendInitialization(this.lean());
+        this._collabPanel.registerUser(client.uniqueIdentifier, client.id, client.name);
 
-        // TODO set init and client connect message
+        const clientInfo = this._collabPanel.getUserInfo(client.uniqueIdentifier);
+        this._clients.forEach((other) => {
+            // inform other clients about new connection
+            other.sendClientConnected(client.uniqueIdentifier, clientInfo.id, clientInfo.name, clientInfo.color);
+        });
+
+        this._clients.push(client);
         console.log("added client");
     }
 
@@ -113,7 +121,10 @@ class Document {
         this._clients.splice(idx, 1);
         this._collabPanel.unregisterUser(client.uniqueIdentifier);
 
-        // TODO send disconnect message
+        this._clients.forEach((other) => {
+            other.sendClientDisconnected(client.uniqueIdentifier);
+        });
+
         console.log("removed client");
     }
 
@@ -393,7 +404,7 @@ class Document {
             this._collabPanel.handleUserPointer(user.uniqueIdentifier, point);
             this._clients.forEach((client) => {
                 if(user.uniqueIdentifier !== client.uniqueIdentifier){
-
+                    client.sendClientPointer(user.uniqueIdentifier, point);
                 }
             });
         }

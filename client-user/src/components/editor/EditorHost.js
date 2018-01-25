@@ -75,10 +75,13 @@ export class EditorHost extends React.Component {
         super(props);
 
         this._bricks = [];
+        // other clients that are connected
+        this._clients = {};
         this.state = {
             initialConnection: true,
             connectionState: ConnectionStateEnum.DISCONNECTED,
             bricks: [],
+            clients: {},
         };
 
 
@@ -93,7 +96,10 @@ export class EditorHost extends React.Component {
         this._socket.on('disconnect', this.handleDisconnect);
         this._socket.on('reconnecting', this.handleReconnecting);
         this._socket.on('echo', this.handleEcho);
+
         this._socket.on('initialize', this.handleInitialize);
+        this._socket.on('clientConnect', this.handleOtherConnected);
+        this._socket.on('clientDisconnect', this.handleOtherDisconnected);
 
         this._socket.on('insertedBrick', this.handleInsertedBrick);
         this._socket.on('removedBrick', this.handleRemovedBrickReceived);
@@ -181,6 +187,7 @@ export class EditorHost extends React.Component {
         // send user information
         this._socket.emit('authentication', {
             userId: this.props.user.userId,
+            name: this.props.user.username,
         });
     };
 
@@ -206,10 +213,21 @@ export class EditorHost extends React.Component {
     };
 
     handleInitialize = (data) => {
+        this.initBricks(data.bricks);
+        this.initClients(data.clients);
+
+        // schedule redraw
+        this.setState({
+            bricks: this._bricks,
+            clients: this._clients,
+        })
+    };
+
+    initBricks = (bricks) => {
         // TODO add error handling
         this._bricks = [];
-        if(data.bricks){
-            for(let row of data.bricks){
+        if(bricks){
+            for(let row of bricks){
                 let curRow = [];
                 for(let brick of row) {
                     const paths = [];
@@ -248,13 +266,40 @@ export class EditorHost extends React.Component {
                 this._bricks.push(curRow);
             }
         }
-
-        // schedule redraw
-        this.setState({
-            bricks: this._bricks,
-        })
     };
 
+    initClients = (clients) => {
+        this._clients = {};
+
+        for(let userId of Object.keys(clients.userInfo)){
+            // copy information (name, id, color)
+            this._clients[userId] = clients.userInfo[userId];
+        }
+    };
+
+    handleOtherConnected = (data) => {
+        const userUniqueId = data.userUniqueId;
+        const id = data.id;
+        const name = data.name;
+        const color = data.color;
+
+        this._clients[userUniqueId] = {
+            id, name, color,
+        };
+
+        this.setState({
+            clients: this._clients,
+        });
+    };
+
+    handleOtherDisconnected = (data) => {
+        const userUniqueId = data.userUniqueId;
+        delete this._clients[userUniqueId];
+
+        this.setState({
+            clients: this._clients,
+        });
+    };
 
     handleAddBrickClick = (brickType, heightIndex, columnIndex) => {
         this._socket.emit("insertBrick", {
@@ -605,6 +650,7 @@ export class EditorHost extends React.Component {
                 <Editor
                     user={this.props.user}
                     bricks={this.state.bricks}
+                    clients={this.state.clients}
 
                     onBrickAdd={this.handleAddBrickClick}
                     onBrickRemove={this.handleRemoveBrickClick}
