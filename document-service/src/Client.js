@@ -46,6 +46,11 @@ class Client {
 
         // text
         this._connection.on('textInsert',       (data) => this.verifiedHandle(() => this.handleTextInsert(data)));
+
+        // collaboration
+        this._connection.on('beginMagic',       (data) => this.verifiedHandle(() => this.handleMagicPenBegin(data)));
+        this._connection.on('addMagicPoint',    (data) => this.verifiedHandle(() => this.handleMagicPenPoints(data)));
+        this._connection.on('endMagic',         (data) => this.verifiedHandle(() => this.handleMagicPenEnd(data)));
     }
 
     /**
@@ -195,6 +200,37 @@ class Client {
         this._connection.emit('textInserted', {
             brickId: brickId,
             changes: changes,
+        });
+    }
+
+    handleMagicPenBegin(data) {
+        this._document.handleMagicPenBegin(this);
+    }
+
+    sendMagicPenBegin(userUniqueId) {
+        this._connection.emit('beginMagic', {
+             userUniqueId,
+        });
+    }
+
+    handleMagicPenPoints(data) {
+        this._document.handleMagicPenPoints(this, data.points);
+    }
+
+    sendMagicPoints(userUniqueId, points){
+        this._connection.emit('addMagicPoints', {
+            userUniqueId,
+            points,
+        });
+    }
+
+    handleMagicPenEnd(data) {
+        this._document.handleMagicPenEnd(this);
+    }
+
+    sendEndMagic(userUniqueId) {
+        this._connection.emit('endMagic', {
+            userUniqueId,
         });
     }
 

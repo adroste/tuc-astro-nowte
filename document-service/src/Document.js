@@ -1,5 +1,6 @@
 const DrawBrick = require('./DrawBrick');
 const TextBrick = require('./TextBrick');
+const Collaboration = require('./Collaboration');
 const err = require('./Error');
 
 class Document {
@@ -13,6 +14,9 @@ class Document {
         this._clients = [];
 
         this._currentBrickId = 0;
+
+        // collaboration panel for magic pen and user pointers
+        this._collabPanel = new Collaboration();
     }
 
     // serialize all data for newly connected clients
@@ -332,6 +336,48 @@ class Document {
         }
         catch (e) {
             console.log("Error handleTextInsert: " + e.message);
+        }
+    }
+
+    handleMagicPenBegin(user) {
+        try {
+            this._collabPanel.handleBeginPath(user.uniqueIdentifier);
+            this._clients.forEach((client) => {
+                 if(user.uniqueIdentifier !== client.uniqueIdentifier){
+                     client.sendMagicPenBegin(user.uniqueIdentifier);
+                 }
+            });
+        }
+        catch (e) {
+            console.log("Error handleMagicPenBegin: " + e.message);
+        }
+    }
+
+    handleMagicPenPoints(user, points) {
+        try {
+            this._collabPanel.handleAddPathPoints(user.uniqueIdentifier, points);
+            this._clients.forEach((client) => {
+                if(user.uniqueIdentifier !== client.uniqueIdentifier){
+                    client.sendMagicPoints(user.uniqueIdentifier, points);
+                }
+            });
+        }
+        catch (e) {
+            console.log("Error handleMagicPenPoints: " + e.message);
+        }
+    }
+
+    handleMagicPenEnd(user) {
+        try {
+            this._collabPanel.handleEndPath(user.uniqueIdentifier);
+            this._clients.forEach((client) => {
+                if(user.uniqueIdentifier !== client.uniqueIdentifier){
+                    client.sendEndMagic(user.uniqueIdentifier);
+                }
+            });
+        }
+        catch (e) {
+            console.log("Error handleMagicPenEnd: " + e.message);
         }
     }
 }

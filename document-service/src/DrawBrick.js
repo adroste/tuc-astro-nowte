@@ -21,6 +21,7 @@ class DrawBrick {
         return {
             id: this._id,
             type: this._brickType,
+            // TODO correct path format?
             paths: paths,
             splines: this._splines,
         }
