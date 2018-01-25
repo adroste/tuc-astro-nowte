@@ -27,6 +27,7 @@ const Category = styled.div`
     border-top: 2px solid ${props => props.color};
     /*border-radius: 10px;*/
     margin: 2.5px;
+    display: flex; /* setting this to flex and ToggleIcons to inline-block disables wrap */
 `;
 
 

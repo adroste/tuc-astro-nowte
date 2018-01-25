@@ -11,6 +11,8 @@ export const topBorderGrowUntoggledTheme = `
     width: 40px;
     height: 40px;
     position: relative;
+    border-radius: 0 0 5px 5px;
+    transition: background 0.2s;
 
     &:after { 
         content: '' ; 
@@ -37,9 +39,7 @@ export const topBorderGrowUntoggledTheme = `
 
 export const topBorderGrowToggledTheme = `
     ${topBorderGrowUntoggledTheme}
-    /*background: ${COLOR_RGBA.RED};*/
     background: ${COLOR_CODES.GREY_LIGHT};
-    border-radius: 0 0 5px 5px;
     
     &:after { 
         height: 4px;
