@@ -33,7 +33,10 @@ class Client {
         this._connection.on('disconnect', () => this.handleDisconnect());
         this._connection.on('echo', (data) => this.handleEcho(data));
 
+        // brick
         this._connection.on('insertBrick',      (data) => this.verifiedHandle(() => this.handleInsertBrick(data)));
+        this._connection.on('removeBrick',      (data) => this.verifiedHandle(() => this.handleRemoveBrick(data)));
+        this._connection.on('moveBrick',        (data) => this.verifiedHandle(() => this.handleMoveBrick(data)));
 
         // path
         this._connection.on('beginPath',        (data) => this.verifiedHandle(() => this.handleBeginPath(data)));
@@ -43,6 +46,11 @@ class Client {
 
         // text
         this._connection.on('textInsert',       (data) => this.verifiedHandle(() => this.handleTextInsert(data)));
+
+        // collaboration
+        this._connection.on('beginMagic',       (data) => this.verifiedHandle(() => this.handleMagicPenBegin(data)));
+        this._connection.on('addMagicPoint',    (data) => this.verifiedHandle(() => this.handleMagicPenPoints(data)));
+        this._connection.on('endMagic',         (data) => this.verifiedHandle(() => this.handleMagicPenEnd(data)));
     }
 
     /**
@@ -110,6 +118,28 @@ class Client {
         });
     }
 
+    handleRemoveBrick(data) {
+        this._document.handleRemoveBrick(this, data.brickId);
+    }
+
+    sendRemovedBrick(brickId) {
+        this._connection.emit("removedBrick", {
+            brickId
+        });
+    }
+
+    handleMoveBrick(data) {
+        this._document.handleMoveBrick(this, data.brickId, data.heightIndex, data.columnIndex);
+    }
+
+    sendMovedBrick(brickId, heightIndex, columnIndex) {
+        this._connection.emit("movedBrick", {
+            brickId,
+            heightIndex,
+            columnIndex,
+        });
+    }
+
     handleBeginPath(data) {
         this._currentBrick = data.brickId;
         this._document.handleBeginPath(this, data.brickId, data.strokeStyle);
@@ -170,6 +200,37 @@ class Client {
         this._connection.emit('textInserted', {
             brickId: brickId,
             changes: changes,
+        });
+    }
+
+    handleMagicPenBegin(data) {
+        this._document.handleMagicPenBegin(this);
+    }
+
+    sendMagicPenBegin(userUniqueId) {
+        this._connection.emit('beginMagic', {
+             userUniqueId,
+        });
+    }
+
+    handleMagicPenPoints(data) {
+        this._document.handleMagicPenPoints(this, data.points);
+    }
+
+    sendMagicPoints(userUniqueId, points){
+        this._connection.emit('addMagicPoints', {
+            userUniqueId,
+            points,
+        });
+    }
+
+    handleMagicPenEnd(data) {
+        this._document.handleMagicPenEnd(this);
+    }
+
+    sendEndMagic(userUniqueId) {
+        this._connection.emit('endMagic', {
+            userUniqueId,
         });
     }
 
