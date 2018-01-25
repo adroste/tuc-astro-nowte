@@ -71,6 +71,8 @@ const createBorderTheme = (c1, c2, c3) => {
 export const greenBorderTheme = createBorderTheme(COLOR_CODES.GREY, COLOR_CODES.GREEN, COLOR_CODES.GREEN_DARKER);
 export const greyBorderTheme = createBorderTheme(COLOR_CODES.GREY, COLOR_CODES.GREY_DARKER, COLOR_CODES.GREY_DARK);
 export const redBorderTheme = createBorderTheme(COLOR_CODES.GREY, COLOR_CODES.RED, COLOR_CODES.RED_DARKER);
+export const whiteBorderTheme = createBorderTheme('white', COLOR_CODES.GREY_LIGHT, COLOR_CODES.GREY);
+
 
 
 const createFilledTheme = (c1, c2, c3) => {
