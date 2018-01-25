@@ -117,22 +117,28 @@ export class Editor extends React.Component {
         super(props);
 
         this.state = {
-            bricks: []
+            bricks: [],
+            activeTool: EditorToolsEnum.NONE,
         };
 
         this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
-        this.curPointerMode = EditorToolsEnum.PEN;
         this.curEraserThickness = 5;
         this.lastEraserPoint = null;
     }
+
+
+    handleToolChange = (tool) => {
+        this.setState({activeTool: tool});
+    };
 
 
     handleAddBrickClick = (brickType, heightIndex = this.props.bricks.length) => {
         this.props.onBrickAdd(brickType, heightIndex);
     };
 
+
     handlePathBegin = (brick) => {
-        switch (this.curPointerMode){
+        switch (this.state.activeTool){
             case EditorToolsEnum.PEN:
                 this.props.onPathBegin(brick, this.curStrokeStyle);
                 break;
@@ -145,7 +151,7 @@ export class Editor extends React.Component {
     };
 
     handlePathPoint = (brick, point) => {
-        switch (this.curPointerMode){
+        switch (this.state.activeTool){
             case EditorToolsEnum.PEN:
                 this.props.onPathPoint(brick, point);
                 break;
@@ -163,7 +169,7 @@ export class Editor extends React.Component {
     };
 
     handlePathEnd = (brick) => {
-        switch (this.curPointerMode){
+        switch (this.state.activeTool){
             case EditorToolsEnum.PEN:
                 this.props.onPathEnd(brick);
                 break;
@@ -234,39 +240,10 @@ export class Editor extends React.Component {
     render() {
         return (
             <Wrapper className={this.props.className}>
-                {/* <Button
-                    onClick={() => {
-                        this.curPointerMode = EditorToolsEnum.PEN;
-                        this.curStrokeStyle = new StrokeStyle({color: 'black', thickness: 3});
-                    }}
-                >
-                    Black Pen
-                </Button>
-                <Button
-                    onClick={() => {
-                        this.curPointerMode = EditorToolsEnum.PEN;
-                        this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
-                    }}
-                >
-                    Red Pen
-                </Button>
-                <Button
-                    onClick={() => {
-                        this.curPointerMode = EditorToolsEnum.PEN;
-                        this.curStrokeStyle = new StrokeStyle({color: 'green', thickness: 3})
-                    }}
-                >
-                    Green Pen
-                </Button>
-                <Button
-                    onClick={() => {
-                        this.curPointerMode = EditorToolsEnum.ERASER;
-                        this.curEraserThickness = 5;
-                    }}
-                >
-                    Eraser
-                </Button> */}
-                <Tooldock/>
+                <Tooldock
+                    onToolChange={this.handleToolChange}
+                    selectedTool={this.state.activeTool}
+                />
                 <PageOuter>
                     <PageInner>
                         {this.renderBricks()}

@@ -27,16 +27,20 @@ const Category = styled.div`
     border-top: 2px solid ${props => props.color};
     /*border-radius: 10px;*/
     margin: 2.5px;
+    display: flex; /* setting this to flex and ToggleIcons to inline-block disables wrap */
 `;
 
 
 export class Tooldock extends React.Component {
     /**
      * propTypes
+     * @property {EditorToolsEnum} selectedTool defines selected tool
+     * @property {function(tool: number)} onToolChange callback if user switches active tool
      */
     static get propTypes() {
         return {
-            
+            selectedTool: PropTypes.number.isRequired,
+            onToolChange: PropTypes.func.isRequired,
         };
     }
 
@@ -45,17 +49,8 @@ export class Tooldock extends React.Component {
     }
 
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            activeTool: EditorToolsEnum.NONE
-        };
-    }
-
-
     handleToggle = (tool) => () => {
-        this.setState({activeTool: tool});
+        this.props.onToolChange(tool);
     };
 
 
@@ -69,25 +64,25 @@ export class Tooldock extends React.Component {
                         imgSrc="/img/tools/draw_pen.svg"
                         label="Pen"
                         onToggle={this.handleToggle(EditorToolsEnum.PEN)}
-                        toggled={this.state.activeTool === EditorToolsEnum.PEN}
+                        toggled={this.props.selectedTool === EditorToolsEnum.PEN}
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/draw_eraser.svg"
                         label="Eraser"
                         onToggle={this.handleToggle(EditorToolsEnum.ERASER)}
-                        toggled={this.state.activeTool === EditorToolsEnum.ERASER}
+                        toggled={this.props.selectedTool === EditorToolsEnum.ERASER}
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/draw_lasso.svg"
                         label="Lasso"
                         onToggle={this.handleToggle(EditorToolsEnum.LASSO)}
-                        toggled={this.state.activeTool === EditorToolsEnum.LASSO}
+                        toggled={this.props.selectedTool === EditorToolsEnum.LASSO}
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/draw_pen_review.svg"
                         label="Pen (Review)"
                         onToggle={this.handleToggle(EditorToolsEnum.PEN_REVIEW)}
-                        toggled={this.state.activeTool === EditorToolsEnum.PEN_REVIEW}
+                        toggled={this.props.selectedTool === EditorToolsEnum.PEN_REVIEW}
                     />
                 </Category>
                 <Category
@@ -97,13 +92,13 @@ export class Tooldock extends React.Component {
                         imgSrc="/img/tools/text.svg"
                         label="Text"
                         onToggle={this.handleToggle(EditorToolsEnum.TEXT)}
-                        toggled={this.state.activeTool === EditorToolsEnum.TEXT}
+                        toggled={this.props.selectedTool === EditorToolsEnum.TEXT}
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/text_review.svg"
                         label="Text (Review)"
                         onToggle={this.handleToggle(EditorToolsEnum.TEXT_REVIEW)}
-                        toggled={this.state.activeTool === EditorToolsEnum.TEXT_REVIEW}
+                        toggled={this.props.selectedTool === EditorToolsEnum.TEXT_REVIEW}
                     />
                 </Category>
                 <Category
@@ -113,19 +108,19 @@ export class Tooldock extends React.Component {
                         imgSrc="/img/tools/brick_add.svg"
                         label="Add brick"
                         onToggle={this.handleToggle(EditorToolsEnum.BRICK_ADD)}
-                        toggled={this.state.activeTool === EditorToolsEnum.BRICK_ADD}
+                        toggled={this.props.selectedTool === EditorToolsEnum.BRICK_ADD}
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/brick_delete.svg"
                         label="Delete brick"
                         onToggle={this.handleToggle(EditorToolsEnum.BRICK_DELETE)}
-                        toggled={this.state.activeTool === EditorToolsEnum.BRICK_DELETE}
+                        toggled={this.props.selectedTool === EditorToolsEnum.BRICK_DELETE}
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/brick_move.svg"
                         label="Move/resize brick"
                         onToggle={this.handleToggle(EditorToolsEnum.BRICK_MOVE)}
-                        toggled={this.state.activeTool === EditorToolsEnum.BRICK_MOVE}
+                        toggled={this.props.selectedTool === EditorToolsEnum.BRICK_MOVE}
                     />
                 </Category>
                 <Category
@@ -135,13 +130,13 @@ export class Tooldock extends React.Component {
                         imgSrc="/img/tools/collab_cursor.svg"
                         label="Collaborative cursor"
                         onToggle={this.handleToggle(EditorToolsEnum.COLLAB_CURSOR)}
-                        toggled={this.state.activeTool === EditorToolsEnum.COLLAB_CURSOR}
+                        toggled={this.props.selectedTool === EditorToolsEnum.COLLAB_CURSOR}
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/collab_magicpen.svg"
                         label="Disappearing magic pen"
                         onToggle={this.handleToggle(EditorToolsEnum.MAGICPEN)}
-                        toggled={this.state.activeTool === EditorToolsEnum.MAGICPEN}
+                        toggled={this.props.selectedTool === EditorToolsEnum.MAGICPEN}
                     />
                 </Category>
             </Dock>
