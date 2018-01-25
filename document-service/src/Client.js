@@ -51,6 +51,7 @@ class Client {
         this._connection.on('beginMagic',       (data) => this.verifiedHandle(() => this.handleMagicPenBegin(data)));
         this._connection.on('addMagicPoint',    (data) => this.verifiedHandle(() => this.handleMagicPenPoints(data)));
         this._connection.on('endMagic',         (data) => this.verifiedHandle(() => this.handleMagicPenEnd(data)));
+        this._connection.on('clientPointer',    (data) => this.verifiedHandle(() => this.handlePointer(data)));
     }
 
     /**
@@ -231,6 +232,17 @@ class Client {
     sendEndMagic(userUniqueId) {
         this._connection.emit('endMagic', {
             userUniqueId,
+        });
+    }
+
+    handlePointer(data) {
+        this._document.handleClientPointer(this, data.point);
+    }
+
+    sendClientPointer(userUniqueId, point) {
+        this._connection.emit('clientPointer', {
+            userUniqueId,
+            point,
         });
     }
 

@@ -91,11 +91,14 @@ class Document {
     connectClient(client) {
         const idx = this._clients.findIndex((c) => c.uniqueIdentifier === client.uniqueIdentifier);
         if(idx >= 0){
-            console.log("ERROR: client tried to connect with the same unique indentifier as another client")
+            console.log("ERROR: client tried to connect with the same unique identifier as another client")
             return;
         }
 
         this._clients.push(client);
+        this._collabPanel.registerUser(client.uniqueIdentifier);
+
+        // TODO set init and client connect message
         console.log("added client");
     }
 
@@ -108,6 +111,9 @@ class Document {
 
         // remove element
         this._clients.splice(idx, 1);
+        this._collabPanel.unregisterUser(client.uniqueIdentifier);
+
+        // TODO send disconnect message
         console.log("removed client");
     }
 
@@ -341,7 +347,6 @@ class Document {
 
     handleMagicPenBegin(user) {
         try {
-            this._collabPanel.handleBeginPath(user.uniqueIdentifier);
             this._clients.forEach((client) => {
                  if(user.uniqueIdentifier !== client.uniqueIdentifier){
                      client.sendMagicPenBegin(user.uniqueIdentifier);
@@ -355,7 +360,8 @@ class Document {
 
     handleMagicPenPoints(user, points) {
         try {
-            this._collabPanel.handleAddPathPoints(user.uniqueIdentifier, points);
+            err.verifyArray("points", points, (value) => err.verifyPoint("point in points", value));
+
             this._clients.forEach((client) => {
                 if(user.uniqueIdentifier !== client.uniqueIdentifier){
                     client.sendMagicPoints(user.uniqueIdentifier, points);
@@ -369,7 +375,6 @@ class Document {
 
     handleMagicPenEnd(user) {
         try {
-            this._collabPanel.handleEndPath(user.uniqueIdentifier);
             this._clients.forEach((client) => {
                 if(user.uniqueIdentifier !== client.uniqueIdentifier){
                     client.sendEndMagic(user.uniqueIdentifier);
@@ -378,6 +383,22 @@ class Document {
         }
         catch (e) {
             console.log("Error handleMagicPenEnd: " + e.message);
+        }
+    }
+
+    handleClientPointer(user, point) {
+        try {
+            err.verifyPoint(point);
+
+            this._collabPanel.handleUserPointer(user.uniqueIdentifier, point);
+            this._clients.forEach((client) => {
+                if(user.uniqueIdentifier !== client.uniqueIdentifier){
+
+                }
+            });
+        }
+        catch (e) {
+            console.log("Error handleClientPointer: " + e.message);
         }
     }
 }

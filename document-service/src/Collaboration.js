@@ -1,31 +1,53 @@
 
+const colorTable = [
+      '#FF0000',
+      '#0000FF',
+      '#FFFF00',
+      '#00FF00',
+      '#00FFFF',
+      '#F39C12',
+      '#FF00FF',
+];
+
 class Collaboration{
 
     constructor(){
-        this._tempPaths = {};
+        // pointers of other users
+        this._pointer = {};
+
+        // colors of other users
+        this._colors = {};
+
+        this._curColorCode = 0;
     }
 
     // serialize data for new clients
     lean(){
         return {
-            // TODO information correct
-            paths: this._tempPaths,
+            pointer: this._pointer,
+            colors: this._colors,
         }
     }
 
-    handleBeginPath(userId) {
-        this._tempPaths[userId] = [];
+    registerUser(userId) {
+        // generate a new color
+        // TODO make a better algorithm maybe
+        this._colors[userId] = colorTable[this._curColorCode];
+        this._curColorCode = (this._curColorCode + 1) % colorTable.length;
     }
 
-    handleAddPathPoints(userId, points) {
-        const user = this._tempPaths[userId];
-        if(!user)
-            throw new Error("user has no magic path");
-        user.concat(points);
+    unregisterUser(userId) {
+        delete this._pointer[userId];
+        delete this._colors[userId];
     }
 
-    handleEndPath(userId) {
-        delete this._tempPaths[userId];
+    /**
+     * sets the current mouse position for the user
+     * @param userId
+     * @param point
+     */
+    handleUserPointer(userId, point) {
+        this._pointer[userId] = point;
     }
 }
 
