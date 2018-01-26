@@ -9,6 +9,7 @@ import {EditorToolsEnum} from "../../editor/EditorToolsEnum";
 import {BrickTypesEnum} from "../../editor/BrickTypesEnum";
 import {TextBrick} from "./bricks/TextBrick";
 import {Tooldock} from "./Tooldock";
+import {FixedOverlay, OverlayCanvas} from './OverlayCanvas';
 
 
 const Wrapper = styled.div`
@@ -20,7 +21,7 @@ const Wrapper = styled.div`
 
 
 const PageOuter = styled.div`
-    width: 210mm;
+    width: 210mm; /* TODO do not hardcode format */
     background-color: white;
     margin: auto;
     padding-right: 20mm;
@@ -29,6 +30,7 @@ const PageOuter = styled.div`
     padding-bottom: 10cm; /* scrolling dont stops at last element */
     box-shadow: 0px 0px 15px 0px #ddd;
     min-height: 100vh;
+    position: relative;
 `;
 
 
@@ -123,6 +125,7 @@ export class Editor extends React.Component {
         this.state = {
             bricks: [],
             activeTool: EditorToolsEnum.NONE,
+            offset: 0
         };
 
         this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
@@ -184,6 +187,15 @@ export class Editor extends React.Component {
             default:
         }
     };
+
+
+    // TODO remove this stupid js-scroll bs
+    handleWrapperScroll = () => {
+        this.setState({
+            offset: this.wrapperRef.scrollTop
+        });
+    };
+
 
     renderBricks = () => {
         let bricks = [];
@@ -249,7 +261,11 @@ export class Editor extends React.Component {
 
     render() {
         return (
-            <Wrapper className={this.props.className}>
+            <Wrapper 
+                innerRef={(ref) => this.wrapperRef = ref}
+                className={this.props.className}
+                onScroll={this.handleWrapperScroll}
+            >
                 {this.renderClients()}
                 <Tooldock
                     onToolChange={this.handleToolChange}
@@ -261,6 +277,10 @@ export class Editor extends React.Component {
                         <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}/>
                         <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.TEXT)}/>
                     </PageInner>
+                    <OverlayCanvas
+                        offset={this.state.offset}
+                        hasFocus={false}
+                    />
                 </PageOuter>
             </Wrapper>
         );

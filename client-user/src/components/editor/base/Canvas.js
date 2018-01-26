@@ -65,11 +65,13 @@ export class Canvas extends React.Component {
 
     componentDidMount() {
         // pointer-events api
-        this._canvas.addEventListener('pointerdown', this._handlePointerDown);
-        this._canvas.addEventListener('pointerup', this._handlePointerUp);
-        this._canvas.addEventListener('pointermove', this._handlePointerMove);
-        this._canvas.addEventListener('pointerleave', this._handlePointerLeave);
-        this._canvas.addEventListener('pointerenter', this._handlePointerEnter);
+        if (this.props.tool) {
+            this._canvas.addEventListener('pointerdown', this._handlePointerDown);
+            this._canvas.addEventListener('pointerup', this._handlePointerUp);
+            this._canvas.addEventListener('pointermove', this._handlePointerMove);
+            this._canvas.addEventListener('pointerleave', this._handlePointerLeave);
+            this._canvas.addEventListener('pointerenter', this._handlePointerEnter);
+        }
     }
 
 

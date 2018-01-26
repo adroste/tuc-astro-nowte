@@ -56,7 +56,7 @@ const AddShareControlsContainer = styled.div`
 
 const ValidatedInputFieldFlex = styled(ValidatedInputField)`
     flex: 1;
-`
+`;
 
 
 export default class ShareDialog extends React.Component {
