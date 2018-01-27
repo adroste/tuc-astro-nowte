@@ -24,7 +24,8 @@ export class ButtonIcon extends React.Component {
      * propTypes
      * @property {string} imgSrc, path to source of icon picture
      * @property {string} label description of icon
-     * @property {function(event: Object)} onClick callback when button was clicked
+     * @property {function(event: Object)} onClick callback when button was clicked     
+     * @property {boolean} [disabled=false] determines if button is disabled
      * @property {string} [theme] theme-template to apply
      */
     static get propTypes() {
@@ -38,6 +39,7 @@ export class ButtonIcon extends React.Component {
 
     static get defaultProps() {
         return {
+            disabled: false,
             theme: whiteBorderTheme
         };
     }
@@ -54,6 +56,7 @@ export class ButtonIcon extends React.Component {
                 className={this.props.className}
                 onClick={this.onClickHandler}
                 theme={this.props.theme}
+                disabled={this.props.disabled}
             >
                 <Icon src={this.props.imgSrc} title={this.props.label} alt={this.props.label}/>
             </ButtonFixedSize>

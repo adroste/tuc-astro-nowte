@@ -37,14 +37,14 @@ const ButtonInner = styled.div`
         outline: none;  
     }
     
-    ${props => props.theme}
-    
     &[disabled] {
         cursor: not-allowed;
         color: ${COLOR_CODES.GREY_LIGHT};
         border: 1px dashed ${COLOR_CODES.GREY_LIGHT};
         background: white;
     }  
+
+    ${props => props.theme}
 `;
 
 
@@ -161,7 +161,8 @@ export class Button extends React.Component {
     }
 
     onClickHandler = (e) => {
-        this.props.onClick(e);
+        if (!this.props.disabled)
+            this.props.onClick(e);
         // TODO improve focusing
         this.ref.blur();
     };

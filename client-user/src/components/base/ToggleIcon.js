@@ -32,8 +32,16 @@ export const topBorderGrowUntoggledTheme = `
     }
 
     &[disabled] {
-        background: none;
-    }
+        cursor: not-allowed;
+        border: none;
+        background: repeating-linear-gradient(
+            -55deg,
+            #ccc,
+            #ccc 3px,
+            #fff 3px,
+            #fff 6px
+          );
+    }  
 `;
 
 
@@ -62,6 +70,7 @@ export class ToggleIcon extends React.Component {
      * @property {string} label description of icon
      * @property {function(toggled: boolean, event: Object)} onToggle callback when button was clicked
      * @property {boolean} toggled defines toggled status
+     * @property {boolean} [disabled=false] determines if button is disabled
      * @property {string} [themeUntoggled] theme-template to apply in untoggled state
      * @property {string} [themeToggled] theme-template to apply in toggled state
      */
@@ -80,7 +89,8 @@ export class ToggleIcon extends React.Component {
         return {
             themeUntoggled: topBorderGrowUntoggledTheme,
             themeToggled: topBorderGrowToggledTheme,
-            toggled: true
+            toggled: true,
+            disabled: false
         };
     }
 
@@ -103,6 +113,7 @@ export class ToggleIcon extends React.Component {
                 label={this.props.label}
                 imgSrc={this.props.imgSrc}
                 theme={this.activeTheme}
+                disabled={this.props.disabled}
             />
         );
     }
