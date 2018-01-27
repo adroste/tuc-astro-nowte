@@ -19,6 +19,24 @@ class TextBrick extends DrawBrick{
         });
     }
 
+    save() {
+        return Object.assign(super.save(), {
+            text: this._text,
+        });
+    }
+
+    /**
+     * loads data that was previously saved by save()
+     * @param {object} data
+     * @return {object} reference to self
+     */
+    load(data) {
+        super.load(data);
+        this._text = data.text;
+
+        return this;
+    }
+
     /**
      * removed deleted count characters at index and inserts insertedText afterwise
      * @param {array} changes changes in order

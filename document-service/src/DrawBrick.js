@@ -27,6 +27,32 @@ class DrawBrick {
         }
     }
 
+    /**
+     * returns a javascript object that can be transformed to a json
+     * @return {object}
+     */
+    save() {
+        return {
+            id: this._id,
+            type: this._brickType,
+            // paths wont be saved since they are temporal
+            splines: this._splines,
+        };
+    }
+
+    /**
+     * loads data that was previously saved by save()
+     * @param {object} data
+     * @return {object} reference to self
+     */
+    load(data) {
+        this._id = data.id;
+        this._splines = data.splines;
+
+        return this;
+    }
+
+
     get _brickType(){
         return 0;
     }

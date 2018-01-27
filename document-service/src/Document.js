@@ -1,6 +1,7 @@
 const DrawBrick = require('./DrawBrick');
 const TextBrick = require('./TextBrick');
 const Collaboration = require('./Collaboration');
+const BrickType = require('./BrickTypesEnum');
 const err = require('./Error');
 
 class Document {
@@ -34,6 +35,47 @@ class Document {
             bricks: bricks,
             clients: this._collabPanel.lean(),
         }
+    }
+
+    /**
+     * returns a javascript object that can be transformed to a json
+     * @return {object}
+     */
+    save() {
+        return {
+            brickLayout: this._brickLayout,
+            bricks: Object.keys(this._bricks).map(brickId => this._bricks[brickId].save()),
+            currentBrickId: this._currentBrickId,
+            // collaboration does not need to be saved
+        };
+    }
+
+    /**
+     * loads data that was previously saved by save()
+     * @param {object} data
+     * @return {object} reference to self
+     */
+    load(data) {
+        this._brickLayout = data.brickLayout;
+        data.bricks.forEach(brickData => {
+            let doc = Document._loadBrick(brickData);
+            if(!doc)
+                return;
+            this._bricks[brickData.id] = doc;
+        });
+        this._currentBrickId = data.currentBrickId;
+
+        return this;
+    }
+
+    static _loadBrick(data) {
+        switch (data.type) {
+            case BrickType.DRAW:
+                return new DrawBrick(data.id).load(data);
+            case BrickType.TEXT:
+                return new TextBrick(data.id).load(data);
+        }
+        return null;
     }
 
     /**
