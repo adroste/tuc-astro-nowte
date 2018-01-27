@@ -24,7 +24,8 @@ class Client {
         this._document = document;
         this._id = null;
         this._name = null;
-        this._sessionToken = null;
+        // TODO replace with session token
+        this._sessionToken = ++pseudoSessionToken;
 
         // brick where the client is currently drawing (set in path begin)
         this._currentBrick = null;
@@ -268,9 +269,6 @@ class Client {
             console.log("Error (client) handleAuthentication: " + e.message);
             return;
         }
-
-        // TODO replace with session token
-        this._sessionToken = ++pseudoSessionToken;
 
         // establish connection
         this._document.connectClient(this);

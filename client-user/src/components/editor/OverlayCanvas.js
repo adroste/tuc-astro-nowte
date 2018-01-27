@@ -37,6 +37,38 @@ export class OverlayCanvas extends React.Component {
         return {};
     }
 
+    constructor(props) {
+        super(props);
+
+        let pen = new Pen();
+        pen.onPathBegin = this.handlePathBegin;
+        pen.onPathPoint = this.handlePathPoint;
+        pen.onPathEnd = this.handlePathEnd;
+
+        this.state = {
+            pen:  pen,
+        };
+    }
+
+    handlePathBegin = () => {
+        this.lastPoint = null;
+    };
+
+    lastPoint = null;
+
+    handlePathPoint = (point) => {
+        if(this.lastPoint !== null){
+            this.canvasRef.context.lineTo(point.x, point.y);
+        } else {
+            this.canvasRef.context.moveTo(point.x, point.y);
+        }
+        this.lastPoint = point;
+    };
+
+    handlePathEnd = () => {
+        this.canvasRef.context.stroke();
+    };
+
 
     render() {
         return (
@@ -48,7 +80,7 @@ export class OverlayCanvas extends React.Component {
                     innerRef={(ref) => this.canvasRef = ref}
                     resolutionX={1000}
                     resolutionY={2000}
-                    tool={new Pen()}
+                    tool={this.state.pen}
                 />
             </FixedOverlay>
         );

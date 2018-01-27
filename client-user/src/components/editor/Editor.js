@@ -279,7 +279,7 @@ export class Editor extends React.Component {
                     </PageInner>
                     <OverlayCanvas
                         offset={this.state.offset}
-                        hasFocus={false}
+                        hasFocus={(this.state.activeTool === EditorToolsEnum.MAGICPEN)}
                     />
                 </PageOuter>
             </Wrapper>
