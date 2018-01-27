@@ -77,7 +77,7 @@ export class OverlayCanvas extends React.Component {
                 offsetTop={this.props.offset}
             >
                 <Canvas
-                    innerRef={(ref) => this.canvasRef = ref}
+                    ref={(ref) => this.canvasRef = ref}
                     resolutionX={1000}
                     resolutionY={2000}
                     tool={this.state.pen}
