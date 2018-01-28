@@ -14,6 +14,7 @@ import {connect} from "react-redux";
 import * as ProjectActionsCreators from "../../actions/project";
 import * as AppActionsCreators from "../../actions/app";
 import {EditorHost} from "../../components/editor/EditorHost";
+import { FONT_SIZES } from '../../Globals';
 
 
 const marginTopElectronMacFrameless = css`
@@ -48,6 +49,16 @@ const ScrollContainer = styled.div`
 `;
 
 
+const HugeCenteredText = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: ${FONT_SIZES.HUGE};
+`;
+
+
 class ProjectScreen extends React.Component {
     /**
      * propTypes
@@ -69,17 +80,37 @@ class ProjectScreen extends React.Component {
         return {};
     }
 
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            selectedDocumentId: null
+        };
+    }
+
+
     handlePushDialog = (dialog) => {
         this.props.appActions.pushDialog(dialog);
     };
+
 
     handlePopDialog = () => {
         this.props.appActions.popDialog();
     };
 
+
     handleDeselectProject = () => {
         this.props.projectActions.deselect();
         this.props.history.push("/dashboard");
+    };
+
+
+    handleDocumentSelect = (title, documentId) => {
+        // TODO title param unused atm
+        this.setState({
+            selectedDocumentId: documentId
+        });
     };
 
 
@@ -102,17 +133,24 @@ class ProjectScreen extends React.Component {
                                 permissions={this.props.project.permissions}
                                 pushDialog={this.handlePushDialog}
                                 popDialog={this.handlePopDialog}
-                                onProjectDeselect={this.handleDeselectProject}
                                 user={this.props.user}
+                                onDocumentSelected={this.handleDocumentSelect}
                             />
                         </ScrollContainer>
                     </div>
                     
+                    {!this.state.selectedDocumentId ? (
+                    <HugeCenteredText>
+                        Please select a document
+                    </HugeCenteredText>
+                    ) : (
                     <EditorHost
-                        documentId={null}
+                        projectId={this.props.project.projectId}
+                        documentId={this.state.selectedDocumentId}
                         user={this.props.user}
                         onStatsChange={this.handleEditorStatsChange}
                     />
+                    )}
                 </SplitPane>
             </Wrapper>
         );

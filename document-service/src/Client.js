@@ -32,9 +32,12 @@ class Client {
 
         // setup listeners
 
-        this._connection.on('authentication', (data) => this.handleAuthentication(data));
-        this._connection.on('disconnect', () => this.handleDisconnect());
-        this._connection.on('echo', (data) => this.handleEcho(data));
+        this._connection.on('authentication',   (data, cb) => this.handleAuthentication(data, cb));
+        this._connection.on('disconnect',       () => this.handleDisconnect());
+        this._connection.on('echo',             (data, cb) => this.handleEcho(data, cb));
+
+        // document
+        this._connection.on('openDocument',     (data) => this.verifiedHandle(() => this.handleOpenDocument(data)));
 
         // brick
         this._connection.on('insertBrick',      (data) => this.verifiedHandle(() => this.handleInsertBrick(data)));
@@ -55,22 +58,6 @@ class Client {
         this._connection.on('addMagicPoint',    (data) => this.verifiedHandle(() => this.handleMagicPenPoints(data)));
         this._connection.on('endMagic',         (data) => this.verifiedHandle(() => this.handleMagicPenEnd(data)));
         this._connection.on('clientPointer',    (data) => this.verifiedHandle(() => this.handlePointer(data)));
-    }
-
-    /**
-     * calls the callback if isVerified() returns true
-     * @param callback function
-     */
-    verifiedHandle(callback) {
-        if(this.isVerified())
-            callback();
-    }
-
-    /**
-     * @return {boolean} true if the user has sent his sessionToken
-     */
-    isVerified() {
-        return this._id !== null;
     }
 
     /**
@@ -97,6 +84,22 @@ class Client {
         return this._sessionToken.toString();
     }
 
+    /**
+     * calls the callback if isVerified() returns true
+     * @param callback function
+     */
+    verifiedHandle(callback) {
+        if(this.isVerified())
+            callback();
+    }
+
+    /**
+     * @return {boolean} true if the user has sent his sessionToken
+     */
+    isVerified() {
+        return this._id !== null;
+    }
+
     isConnected() {
         return this._connection !== null;
     };
@@ -111,9 +114,9 @@ class Client {
     }
 
 
-    handleEcho(data) {
+    handleEcho(data, cb) {
         console.log('received echo');
-        this._connection.emit('echo', data);
+        cb(data);
     }
 
 
@@ -257,7 +260,8 @@ class Client {
         });
     }
 
-    handleAuthentication(data) {
+
+    handleAuthentication(data, cb) {
         try {
             err.verifyType("id", "string", data.userId);
             this._id = data.userId;
@@ -270,13 +274,32 @@ class Client {
             return;
         }
 
+        // TODO implement verification + not verified answer (attribute isVerified)
+        cb({
+            success: true
+        });
+    }
+
+
+    handleOpenDocument(data) {
+        try {
+            err.verifyType("documentId", "string", data.documentId);
+
+        }
+        catch (e) {
+            console.log("Error (client) handleOpenDocument: " + e.message);
+            return;
+        }
+
         // establish connection
         this._document.connectClient(this);
     }
 
+
     sendInitialization(data) {
         this._connection.emit('initialize', data);
     }
+
 
     sendClientConnected(userUniqueId, id, name, color) {
         this._connection.emit('clientConnect', {
@@ -286,6 +309,7 @@ class Client {
             color,
         });
     }
+
 
     sendClientDisconnected(userUniqueId) {
         this._connection.emit('clientDisconnect', {

@@ -107,9 +107,7 @@ export default class FileTree extends React.Component {
      * @property {function()} onFolderButtonClick called when the folder button was clicked
      * @property {function()} onFileButtonClick called when the file button was clicked
      * @property {function(node: object)} onDeleteClick called when the user wants to delete a file/folder
-     * @property {function()} onShareClick called when the share button was clicked
      * @property {boolean} displayButtons true if helper buttons for folder and document creation should be displayed
-     * @property {boolean} displayShared if true displays people symbol if a file/folder is marked as shared (isShared = true)
      */
     static get propTypes() {
         return {
@@ -123,7 +121,6 @@ export default class FileTree extends React.Component {
             onFolderButtonClick: PropTypes.func,
             onFileButtonClick: PropTypes.func,
             onDeleteClick: PropTypes.func.isRequired,
-            onShareClick: PropTypes.func.isRequired,
             displayButtons: PropTypes.bool,
         };
     }

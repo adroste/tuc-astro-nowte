@@ -45,6 +45,7 @@ export class EditorHost extends React.Component {
      */
     static get propTypes() {
         return {
+            projectId: PropTypes.string.isRequired,
             documentId: PropTypes.string.isRequired,
             user: PropTypes.object.isRequired,
             onStatsChange: PropTypes.func
@@ -74,11 +75,12 @@ export class EditorHost extends React.Component {
     constructor(props) {
         super(props);
 
+        // TODO FIXME IMPORTANT state is mutated directly via reference, definitely fix this ASAP
         this._bricks = [];
         // other clients that are connected
         this._clients = {};
         this.state = {
-            initialConnection: true,
+            initialized: false,
             connectionState: ConnectionStateEnum.DISCONNECTED,
             bricks: [],
             clients: {},
@@ -95,7 +97,6 @@ export class EditorHost extends React.Component {
         this._socket.on('connect', this.handleConnect);
         this._socket.on('disconnect', this.handleDisconnect);
         this._socket.on('reconnecting', this.handleReconnecting);
-        this._socket.on('echo', this.handleEcho);
 
         this._socket.on('initialize', this.handleInitialize);
         this._socket.on('clientConnect', this.handleOtherConnected);
@@ -113,17 +114,42 @@ export class EditorHost extends React.Component {
         this._socket.on('textInserted', this.handleTextInsertReceive);
     }
 
+    
     componentDidMount() {
         this.latencyInterval = setInterval(() => {
             if (this.state.connectionState !== ConnectionStateEnum.CONNECTED)
                 return;
-            this._socket.emit('echo', { timestamp: Date.now() });
+            this._socket.emit('echo', { timestamp: Date.now() }, this.handleEcho);
         }, 5000);
     }
 
+
     componentWillUnmount() {
+        this._socket.disconnect();
         clearInterval(this.latencyInterval);
     }
+
+
+    componentWillReceiveProps(nextProps) {
+        // only clear if documentId, projectId and userId has not changed
+        // ATTENTION: react can call this method even if props did not change (=> do not remove this change checks)
+        if (this.props.documentId === nextProps.documentId 
+            && this.props.projectId === nextProps.projectId
+            && this.props.user.userId === nextProps.user.userId)
+            return;
+
+        this._socket.disconnect();
+        this.setState({
+            initialized: false,
+            connectionState: ConnectionStateEnum.DISCONNECTED,
+            bricks: [],
+            clients: {},
+        }, () => {
+            // call connect, after state was updated
+            this._socket.connect();            
+        });
+    }
+
 
     getBrick = (brickId) => {
         // TODO user a better data structure
@@ -170,6 +196,7 @@ export class EditorHost extends React.Component {
         });
     };
 
+    
     setStats = (stats) => {
         const prevStats = JSON.stringify(this._stats);
         Object.assign(this._stats, stats);
@@ -177,9 +204,9 @@ export class EditorHost extends React.Component {
             this.props.onStatsChange(this._stats);
     };
 
+    
     handleConnect = () => {
         this.setState({
-            initialConnection: false,
             connectionState: ConnectionStateEnum.CONNECTED
         });
         console.log('connect');
@@ -188,9 +215,10 @@ export class EditorHost extends React.Component {
         this._socket.emit('authentication', {
             userId: this.props.user.userId,
             name: this.props.user.username,
-        });
+        }, this.handleAuthenticationResult);
     };
 
+    
     handleDisconnect = () => {
         this.setState({
             connectionState: ConnectionStateEnum.DISCONNECTED
@@ -198,12 +226,14 @@ export class EditorHost extends React.Component {
         console.log('disconnect');
     };
 
+    
     handleReconnecting = () => {
         this.setState({
             connectionState: ConnectionStateEnum.PENDING
         });
         console.log('reconnecting');
     };
+
 
     handleEcho = (data) => {
         if (data.hasOwnProperty('timestamp'))
@@ -212,12 +242,31 @@ export class EditorHost extends React.Component {
             });
     };
 
+
+    handleAuthenticationResult = (data) => {
+        // TODO
+        if (!data.success) {
+            console.log('authentication success = false => handling not implemented yet');
+            return;
+        }
+        
+        // open document if editor was not initialized before
+        if (!this.state.initialized) {
+            this._socket.emit('openDocument', {
+                projectId: this.props.projectId,
+                documentId: this.props.documentId
+            });
+        }
+    };
+
+
     handleInitialize = (data) => {
         this.initBricks(data.bricks);
         this.initClients(data.clients);
 
         // schedule redraw
         this.setState({
+            initialized: true,
             bricks: this._bricks,
             clients: this._clients,
         })
@@ -640,13 +689,20 @@ export class EditorHost extends React.Component {
     };
 
     render() {
+        // null indicates no overlay
+        let overlayText = null;
+        if (this.state.connectionState !== ConnectionStateEnum.CONNECTED)
+            overlayText = 'Connecting...';
+        else if (!this.state.initialized)
+            overlayText = 'Loading...';
+
         return (
             <Host>
-                {this.state.connectionState !== ConnectionStateEnum.CONNECTED &&
+                {overlayText &&
                 <Overlay>
-                    Connecting...
+                    {overlayText}
                 </Overlay>}
-                {!this.state.initialConnection &&
+                {this.state.initialized &&
                 <Editor
                     user={this.props.user}
                     bricks={this.state.bricks}

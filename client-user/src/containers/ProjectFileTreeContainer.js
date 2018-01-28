@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import FileTree from "../components/project/FileTree";
 import * as API from '../ServerApi'
 import InputDialog from "../components/dialogs/InputDialog";
-import ShareDialog from "../components/dialogs/ShareDialog";
 import {DialogResultEnum, DialogButtonsEnum} from "../components/dialogs/Common";
-import {Button, greenFilledTheme} from "../components/base/Button";
+import {greenFilledTheme} from "../components/base/Button";
 
 
 /**
@@ -17,8 +16,8 @@ export default class ProjectFileTreeContainer extends React.Component {
      * propTypes
      * @property {function(Dialog: object)} pushDialog callback when a dialog should be displayed
      * @property {function()} popDialog callback when a dialog should be closed
-     * @property {function()} onProjectDeselect called when the project should be deselected
      * @property {object} user user state
+     * @property {function(title: string, documentId: string)} onDocumentSelected callback when user selects a file/document
      */
     static get propTypes() {
         return {
@@ -27,8 +26,8 @@ export default class ProjectFileTreeContainer extends React.Component {
             projectId: PropTypes.string.isRequired,
             projectTitle: PropTypes.string.isRequired,
             permissions: PropTypes.number.isRequired,
-            onProjectDeselect: PropTypes.func.isRequired,
             user: PropTypes.object.isRequired,
+            onDocumentSelected: PropTypes.func.isRequired,
         };
     }
 
@@ -266,14 +265,15 @@ export default class ProjectFileTreeContainer extends React.Component {
     ///////////////
 
     handleFileLoad = (node) => {
-        alert(node.name + ": " + node.id);
-
         const path = this.getNodePath(node);
 
         this.activeNode.path = path;
         this.activeNode.id = node.id;
 
         this.recalcTreeView();
+
+        //alert(node.name + ": " + node.id); //debug
+        this.props.onDocumentSelected(node.name, node.id);
     };
 
     ///////////////
@@ -331,14 +331,6 @@ export default class ProjectFileTreeContainer extends React.Component {
         this.recalcTreeView();
     };
 
-    handleShareClick = () =>{
-        this.props.pushDialog(<ShareDialog
-            title="Share Project"
-            projectId={this.props.projectId}
-            onCancel={() => this.props.popDialog()}
-        />);
-    };
-
     ///////////////
     /// VIEW
     ///////////////
@@ -383,9 +375,6 @@ export default class ProjectFileTreeContainer extends React.Component {
     render() {
         return (
             <div>
-                <Button onClick={this.props.onProjectDeselect}>
-                    Projects
-                </Button>
                 <FileTree
                     label={this.props.projectTitle}
                     data={this.state.root.children}
@@ -399,15 +388,8 @@ export default class ProjectFileTreeContainer extends React.Component {
                     onFileButtonClick={this.handleFileButtonClick}
 
                     onDeleteClick={this.handleDeleteClick}
-
-                    onShareClick={this.handleShareClick}
                 />
             </div>
         );
     }
-
-    /*
-            displayButtons: PropTypes.bool,
-            displayShared: PropTypes.bool,
-     */
 }
