@@ -118,12 +118,6 @@ export class OverlayCanvas extends React.Component {
 
             c.beginPath();
 
-            const s = new StrokeStyle({
-                color: path.color,
-                thickness: 3,
-            });
-            s.apply(c);
-
             // TODO draw single point
             // make gradient lines
             for(let i = 0; i < path.points.length - 1; ++i) {
@@ -155,10 +149,23 @@ export class OverlayCanvas extends React.Component {
         return this.modifyColor(color, (color) => color * factor);
     };
 
+    /**
+     * mixed a color with a white line
+     * @param color
+     * @param factor
+     * @return {string}
+     */
     fadeColor = (color, factor) => {
         return this.modifyColor(color, (color) => color * factor + (1.0 - factor) * 255)
     };
 
+    /**
+     * modifies rgb values of a color
+     * @param {string} color
+     * @param {function(color: number)} callback this will be called for all rgb components of the color and the
+     * return value of each component will be in the result
+     * @return {string} color string after callback was applied on r g and b
+     */
     modifyColor = (color, callback) => {
         let res = "#";
         for(let i = 0; i < 3; ++i){

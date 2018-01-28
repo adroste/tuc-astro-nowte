@@ -117,6 +117,10 @@ export class EditorHost extends React.Component {
         this._socket.on('eraseSplines', this.handleEraseSplinesReceive);
 
         this._socket.on('textInserted', this.handleTextInsertReceive);
+
+        this._socket.on('beginMagic', this.handleMagicBeginReceive);
+        this._socket.on('addMagicPoints', this.handleMagicPointReceive);
+        this._socket.on('endMagic', this.handleMagicEndReceive);
     }
 
     
@@ -697,6 +701,23 @@ export class EditorHost extends React.Component {
 
     };
 
+    handleMagicBeginReceive = (data) => {
+        const userUniqueId = data.userUniqueId;
+
+        let color = this._clients[userUniqueId].color;
+        if(!color)
+            color = '#ffffff';
+
+        // insert paths front
+        let paths = this._magicPaths;
+        // add new path
+        paths.unshift({
+            userUniqueId: userUniqueId,
+            color: color,
+            points: [],
+        });
+    };
+
     handleMagicBegin = () => {
         // insert paths front
         let paths = this._magicPaths;
@@ -707,7 +728,33 @@ export class EditorHost extends React.Component {
             points: [],
         });
 
-        // TODO socket
+        this._socket.emit('beginMagic');
+    };
+
+    handleMagicPointReceive = (data) => {
+        const userUniqueId = data.userUniqueId;
+        const points = data.points;
+
+        // find path
+        let paths = this._magicPaths;
+        // find the first path with undefined id
+        const cur = paths.find(path => path.userUniqueId === userUniqueId);
+        if(!cur)
+            return;
+
+        for(let pt of points){
+            // add point
+            // TODO interpolate alpha
+            cur.points.push({
+                point: pt,
+                // path point is opaque
+                alpha: 1.0,
+            });
+        }
+
+        this.setState({
+            magicPaths: this._magicPaths,
+        });
     };
 
     handleMagicPoint = (point) => {
@@ -715,7 +762,7 @@ export class EditorHost extends React.Component {
         // find path
         let paths = this._magicPaths;
         // find the first path with undefined id
-        const cur = paths.find(path => paths.userUniqueId === undefined);
+        const cur = paths.find(path => path.userUniqueId === undefined);
         if(!cur)
             return;
 
@@ -729,14 +776,19 @@ export class EditorHost extends React.Component {
         this.setState({
             magicPaths: this._magicPaths,
         });
-        // TODO socket
+
+        this._socket.emit('addMagicPoint', {
+            points: [point],
+        });
     };
 
-    handleMagicEnd = () => {
+    handleMagicEndReceive = (data) => {
+        const userUniqueId = data.userUniqueId;
+
         // find path
         let paths = this._magicPaths;
         // find the first path with undefined id
-        const cur = paths.find(path => paths.userUniqueId === undefined);
+        const cur = paths.find(path => path.userUniqueId === userUniqueId);
         if(!cur)
             return;
 
@@ -744,7 +796,22 @@ export class EditorHost extends React.Component {
         this.setState({
             magicPaths: this._magicPaths,
         });
-        // TODO socket
+    };
+
+    handleMagicEnd = () => {
+        // find path
+        let paths = this._magicPaths;
+        // find the first path with undefined id
+        const cur = paths.find(path => path.userUniqueId === undefined);
+        if(!cur)
+            return;
+
+        cur.finished = true;
+        this.setState({
+            magicPaths: this._magicPaths,
+        });
+
+        this._socket.emit('endMagic');
     };
 
     doMagicUpdate = () => {
