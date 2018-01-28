@@ -6,6 +6,7 @@ import {Pen} from "../../editor/drawing/canvas-tools/Pen";
 import {StrokeStyle} from "../../editor/drawing/StrokeStyle";
 import {Path} from "../../geometry/Path";
 import {clamp} from "../../utilities/math";
+import {Point} from "../../geometry/Point";
 
 
 
@@ -55,7 +56,7 @@ export class OverlayCanvas extends React.Component {
 
         let pen = new Pen();
         pen.onPathBegin = this.props.onPathBegin;
-        pen.onPathPoint = this.props.onPathPoint;
+        pen.onPathPoint = (point) => this.props.onPathPoint(new Point(point.x, point.y + this.props.offset));
         pen.onPathEnd = this.props.onPathEnd;
 
         //pen.onPathBegin = this.handlePathBegin;
@@ -107,7 +108,7 @@ export class OverlayCanvas extends React.Component {
         c.lineWidth = 3;
         c.lineJoin = 'round';
         c.lineCap = 'round';
-        // alpha blending
+        const offset = this.props.offset;
 
         // redraw all lines
         for(let path of this.props.paths) {
@@ -119,21 +120,20 @@ export class OverlayCanvas extends React.Component {
             c.beginPath();
 
             // TODO draw single point
+
             // make gradient lines
             for(let i = 0; i < path.points.length - 1; ++i) {
                 const p1 = path.points[i].point;
                 const p2 = path.points[i + 1].point;
-                let gradient = c.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
-                //gradient.addColorStop(0, 'rgba(0,0,0,' + path.points[i].alpha + ')');
-                //gradient.addColorStop(1, 'rgba(0,0,0,' + path.points[i + 1].alpha + ')');
+                let gradient = c.createLinearGradient(p1.x, p1.y - offset, p2.x, p2.y - offset);
 
                 gradient.addColorStop(0, this.fadeColor(path.color, path.points[i].alpha));
                 gradient.addColorStop(1, this.fadeColor(path.color, path.points[i].alpha));
                 c.strokeStyle = gradient;
 
                 c.beginPath();
-                c.moveTo(p1.x, p1.y);
-                c.lineTo(p2.x, p2.y);
+                c.moveTo(p1.x, p1.y - offset);
+                c.lineTo(p2.x, p2.y - offset);
                 c.stroke();
             }
         }
