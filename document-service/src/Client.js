@@ -284,7 +284,7 @@ class Client {
     handleOpenDocument(data) {
         try {
             err.verifyType("documentId", "string", data.documentId);
-
+            err.verifyType("projectId", "string", data.projectId);
         }
         catch (e) {
             console.log("Error (client) handleOpenDocument: " + e.message);
@@ -297,6 +297,7 @@ class Client {
 
 
     sendInitialization(data) {
+        console.log('send init');
         this._connection.emit('initialize', data);
     }
 

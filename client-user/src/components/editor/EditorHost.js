@@ -250,13 +250,10 @@ export class EditorHost extends React.Component {
             return;
         }
         
-        // open document if editor was not initialized before
-        if (!this.state.initialized) {
-            this._socket.emit('openDocument', {
-                projectId: this.props.projectId,
-                documentId: this.props.documentId
-            });
-        }
+        this._socket.emit('openDocument', {
+            projectId: this.props.projectId,
+            documentId: this.props.documentId
+        });
     };
 
 
