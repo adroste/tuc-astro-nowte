@@ -33,6 +33,7 @@ export class ButtonIcon extends React.Component {
             imgSrc: PropTypes.string.isRequired,
             label: PropTypes.string.isRequired,
             onClick: PropTypes.func.isRequired,
+            disabled: PropTypes.bool,
             theme: PropTypes.string
         };
     }

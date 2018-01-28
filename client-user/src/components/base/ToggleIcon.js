@@ -80,6 +80,7 @@ export class ToggleIcon extends React.Component {
             label: PropTypes.string.isRequired,
             onToggle: PropTypes.func.isRequired,
             toggled: PropTypes.bool.isRequired,
+            disabled: PropTypes.bool,
             themeUntoggled: PropTypes.string,
             themeToggled: PropTypes.string
         };

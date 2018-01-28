@@ -77,14 +77,14 @@ export class Tooldock extends React.Component {
                         label="Lasso"
                         onToggle={this.handleToggle(EditorToolsEnum.LASSO)}
                         toggled={this.props.selectedTool === EditorToolsEnum.LASSO}
-                        disabled="true"
+                        disabled
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/draw_pen_review.svg"
                         label="Pen (Review)"
                         onToggle={this.handleToggle(EditorToolsEnum.PEN_REVIEW)}
                         toggled={this.props.selectedTool === EditorToolsEnum.PEN_REVIEW}
-                        disabled="true"
+                        disabled
                     />
                 </Category>
                 <Category
@@ -101,7 +101,7 @@ export class Tooldock extends React.Component {
                         label="Text (Review)"
                         onToggle={this.handleToggle(EditorToolsEnum.TEXT_REVIEW)}
                         toggled={this.props.selectedTool === EditorToolsEnum.TEXT_REVIEW}
-                        disabled="true"                        
+                        disabled                     
                     />
                 </Category>
                 <Category
@@ -112,21 +112,21 @@ export class Tooldock extends React.Component {
                         label="Add brick"
                         onToggle={this.handleToggle(EditorToolsEnum.BRICK_ADD)}
                         toggled={this.props.selectedTool === EditorToolsEnum.BRICK_ADD}
-                        disabled="true"                                                
+                        disabled
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/brick_delete.svg"
                         label="Delete brick"
                         onToggle={this.handleToggle(EditorToolsEnum.BRICK_DELETE)}
                         toggled={this.props.selectedTool === EditorToolsEnum.BRICK_DELETE}
-                        disabled="true"                                                
+                        disabled
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/brick_move.svg"
                         label="Move/resize brick"
                         onToggle={this.handleToggle(EditorToolsEnum.BRICK_MOVE)}
                         toggled={this.props.selectedTool === EditorToolsEnum.BRICK_MOVE}
-                        disabled="true"                                                
+                        disabled                                                
                     />
                 </Category>
                 <Category
