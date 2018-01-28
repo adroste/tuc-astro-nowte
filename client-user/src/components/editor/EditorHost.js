@@ -79,11 +79,15 @@ export class EditorHost extends React.Component {
         this._bricks = [];
         // other clients that are connected
         this._clients = {};
+
+        this._magicPaths = [];
         this.state = {
             initialized: false,
             connectionState: ConnectionStateEnum.DISCONNECTED,
             bricks: [],
             clients: {},
+            magicPaths: [],
+            color: '#000000'
         };
 
 
@@ -266,6 +270,7 @@ export class EditorHost extends React.Component {
             initialized: true,
             bricks: this._bricks,
             clients: this._clients,
+            color: data.color,
         })
     };
 
@@ -685,6 +690,46 @@ export class EditorHost extends React.Component {
 
     };
 
+    handleMagicBegin = () => {
+        // insert paths front
+        let paths = this._magicPaths;
+        // add new path
+        paths.unshift({
+            // don't add a user unique id for the local user
+            color: this.state.color,
+            points: [],
+        });
+
+        // TODO socket
+    };
+
+    handleMagicPoint = (point) => {
+        // duration of the point in seconds
+        // find path
+        let paths = this._magicPaths;
+        // find the first path with undefined id
+        const cur = paths.find(path => paths.userUniqueId === undefined);
+        if(!cur)
+            return;
+
+        // add point
+        cur.points.push({
+            point: point,
+            // path point is opaque
+            alpha: 1.0,
+        });
+
+        this.setState({
+            magicPaths: this._magicPaths,
+        });
+        // TODO socket
+    };
+
+    handleMagicEnd = () => {
+        // don't do anything for now
+        // TODO socket
+    };
+
     render() {
         // null indicates no overlay
         let overlayText = null;
@@ -704,6 +749,7 @@ export class EditorHost extends React.Component {
                     user={this.props.user}
                     bricks={this.state.bricks}
                     clients={this.state.clients}
+                    magicPaths={this.state.magicPaths}
 
                     onBrickAdd={this.handleAddBrickClick}
                     onBrickRemove={this.handleRemoveBrickClick}
@@ -716,6 +762,10 @@ export class EditorHost extends React.Component {
                     onErase={this.handleErase}
 
                     onTextChange={this.handleTextChange}
+
+                    onMagicBegin={this.handleMagicBegin}
+                    onMagicPoint={this.handleMagicPoint}
+                    onMagicEnd={this.handleMagicEnd}
                 />}
             </Host>
         );

@@ -138,9 +138,14 @@ class Document {
             return;
         }
 
+
+        const userColor = this._collabPanel.registerUser(client.uniqueIdentifier, client.id, client.name);
+
         // send information about current document
-        client.sendInitialization(this.lean());
-        this._collabPanel.registerUser(client.uniqueIdentifier, client.id, client.name);
+        client.sendInitialization(Object.assign(this.lean(), {
+            // color information etc.
+            color: userColor,
+        }));
 
         const clientInfo = this._collabPanel.getUserInfo(client.uniqueIdentifier);
         this._clients.forEach((other) => {

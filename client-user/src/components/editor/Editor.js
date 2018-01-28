@@ -82,6 +82,7 @@ export class Editor extends React.Component {
      * propTypes
      * @property {array} bricks brick layout [[brick1, brick2], [brick3], ...]. brick1 and brick2 are in the same row. brick3 is in the next row.
      * @property {object} clients other clients that are currently connected (dictionary: key=userUniqueId value={id, name, color})
+     * @property {array} magicPaths collaboration paths [{userUniqueId, color, points: {point, alpha}}]
      *
      * @property {function(brickType: BrickTypesEnum, rowIndex: number, columnIndex: number)} onBrickAdd requests brick creation.
      *           columnIndex = undefined => use the whole row. columnIndex = 0 => insert as left brick. columnIndex = 1 => insert as right brick.
@@ -95,12 +96,17 @@ export class Editor extends React.Component {
      * @property {function(brick, point, point, eraserThickness)} onErase indicates that all splines between the two points should be erase with respect to the eraser thickness
      *
      * @property {function(brick, text)} onTextChange indicates that the text in a text brick has changed
+     *
+     * @property {function()} onMagicBegin indicates the start of a user drawn magic path.
+     * @property {function(Point)} onMagicPoint indicates the addition of a new point to the current magic path
+     * @property {function()} onMagicEnd indicates that the user finished drawing
      */
     static get propTypes() {
         return {
             user: PropTypes.object.isRequired,
             bricks: PropTypes.array.isRequired,
             clients: PropTypes.object.isRequired,
+            magicPaths: PropTypes.array.isRequired,
 
             onBrickAdd: PropTypes.func.isRequired,
 
@@ -111,6 +117,11 @@ export class Editor extends React.Component {
             onErase: PropTypes.func.isRequired,
 
             onTextChange: PropTypes.func.isRequired,
+
+            onMagicBegin: PropTypes.func.isRequired,
+            onMagicPoint: PropTypes.func.isRequired,
+            onMagicEnd: PropTypes.func.isRequired,
+
         };
     }
 
@@ -254,9 +265,9 @@ export class Editor extends React.Component {
 
     renderClients = () => {
         // TODO render the clients
-        for(let uniqueId of Object.keys(this.props.clients)){
+        /*for(let uniqueId of Object.keys(this.props.clients)){
             alert(JSON.stringify(this.props.clients[uniqueId]));
-        }
+        }*/
     };
 
     render() {
@@ -280,6 +291,11 @@ export class Editor extends React.Component {
                     <OverlayCanvas
                         offset={this.state.offset}
                         hasFocus={(this.state.activeTool === EditorToolsEnum.MAGICPEN)}
+                        paths={this.props.magicPaths}
+
+                        onPathBegin={this.props.onMagicBegin}
+                        onPathPoint={this.props.onMagicPoint}
+                        onPathEnd={this.props.onMagicEnd}
                     />
                 </PageOuter>
             </Wrapper>

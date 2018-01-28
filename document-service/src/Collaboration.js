@@ -34,16 +34,21 @@ class Collaboration{
      * @param userId unique user id (e.g. session token)
      * @param id general user id
      * @param name username
+     * @return returns the user color code
      */
     registerUser(userId, id, name) {
         // generate a new color
         // TODO make a better algorithm maybe
+        const color = colorTable[this._curColorCode];
+
         this._userInfo[userId] = {
-            color: colorTable[this._curColorCode],
+            color: color,
             id: id,
             name: name,
         };
         this._curColorCode = (this._curColorCode + 1) % colorTable.length;
+
+        return color;
     }
 
     /**
