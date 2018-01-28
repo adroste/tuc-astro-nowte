@@ -5,6 +5,7 @@ import {Canvas} from "./base/Canvas";
 import {Pen} from "../../editor/drawing/canvas-tools/Pen";
 import {StrokeStyle} from "../../editor/drawing/StrokeStyle";
 import {Path} from "../../geometry/Path";
+import {clamp} from "../../utilities/math";
 
 
 
@@ -99,9 +100,14 @@ export class OverlayCanvas extends React.Component {
 
         // clear entire screen
         const c = this.canvasRef.context;
-        //c.clearRect(0, 0, this.canvasRef.width, this.canvasRef.height);
+        c.clearRect(0, 0, 1000, 2000);
         if (!this.props.paths.length)
             return;
+
+        c.lineWidth = 3;
+        c.lineJoin = 'round';
+        c.lineCap = 'round';
+        // alpha blending
 
         // redraw all lines
         for(let path of this.props.paths) {
@@ -118,14 +124,56 @@ export class OverlayCanvas extends React.Component {
             });
             s.apply(c);
 
-            // draw the line
-            c.moveTo(path.points[0].point.x, path.points[0].point.y);
-            for(let i = 1; i < path.points.length; ++i) {
-                c.lineTo(path.points[i].point.x, path.points[i].point.y);
+            // TODO draw single point
+            // make gradient lines
+            for(let i = 0; i < path.points.length - 1; ++i) {
+                const p1 = path.points[i].point;
+                const p2 = path.points[i + 1].point;
+                let gradient = c.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+                //gradient.addColorStop(0, 'rgba(0,0,0,' + path.points[i].alpha + ')');
+                //gradient.addColorStop(1, 'rgba(0,0,0,' + path.points[i + 1].alpha + ')');
+
+                gradient.addColorStop(0, this.fadeColor(path.color, path.points[i].alpha));
+                gradient.addColorStop(1, this.fadeColor(path.color, path.points[i].alpha));
+                c.strokeStyle = gradient;
+
+                c.beginPath();
+                c.moveTo(p1.x, p1.y);
+                c.lineTo(p2.x, p2.y);
+                c.stroke();
             }
-            c.stroke();
         }
     };
+
+    /**
+     * multipies a color with a certain factor
+     * @param {string} color color in hex format (#ff00ff) must be length of 7
+     * @param {number} factor scalar
+     * @return {string} color in hex format
+     */
+    multiplyColor = (color, factor) => {
+        return this.modifyColor(color, (color) => color * factor);
+    };
+
+    fadeColor = (color, factor) => {
+        return this.modifyColor(color, (color) => color * factor + (1.0 - factor) * 255)
+    };
+
+    modifyColor = (color, callback) => {
+        let res = "#";
+        for(let i = 0; i < 3; ++i){
+            let val = parseInt(color[2 * i +1] + color[2 * i + 2], 16);
+            val = Math.floor(clamp(callback(val), 0, 255));
+            // convert to string
+            val = val.toString(16);
+            while (val.length < 2) val = "0" + val;
+
+            res += val;
+        }
+        return res;
+    };
+
+
 
     render() {
         return (

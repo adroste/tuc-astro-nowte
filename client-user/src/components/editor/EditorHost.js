@@ -38,6 +38,7 @@ const Overlay = styled.div`
     font-size: 20px;    
 `;
 
+const MAGIC_TIMER_INTERVAL = 50;
 
 export class EditorHost extends React.Component {
     /**
@@ -125,12 +126,18 @@ export class EditorHost extends React.Component {
                 return;
             this._socket.emit('echo', { timestamp: Date.now() }, this.handleEcho);
         }, 5000);
+
+        this.magicTimer = setInterval(
+            () => this.doMagicUpdate(),
+            MAGIC_TIMER_INTERVAL
+        );
     }
 
 
     componentWillUnmount() {
         this._socket.disconnect();
         clearInterval(this.latencyInterval);
+        clearInterval(this.magicTimer);
     }
 
 
@@ -726,8 +733,69 @@ export class EditorHost extends React.Component {
     };
 
     handleMagicEnd = () => {
-        // don't do anything for now
+        // find path
+        let paths = this._magicPaths;
+        // find the first path with undefined id
+        const cur = paths.find(path => paths.userUniqueId === undefined);
+        if(!cur)
+            return;
+
+        cur.finished = true;
+        this.setState({
+            magicPaths: this._magicPaths,
+        });
         // TODO socket
+    };
+
+    doMagicUpdate = () => {
+        // update collaboration magic
+        if(this._magicPaths.length === 0)
+            return;
+
+        // time delta in seconds
+        let dt = MAGIC_TIMER_INTERVAL / 1000;
+
+        // a line should be visible for 5 seconds
+        let dalpha = dt / 5.0;
+
+        // update paths
+        this._magicPaths.forEach(path => {
+            path.points.forEach(point => {
+                point.alpha = Math.max(0, point.alpha - dalpha);
+            });
+        });
+
+        // remove points that have 0 alpha (remove the last point only if they are finished)
+        this._magicPaths = this._magicPaths.filter(path => {
+
+            // remove some points
+            while (path.points.length > 0){
+                if(path.points[0].alpha > 0)
+                    break;
+                // remove this point?
+                if(path.points.length > 1) {
+                    // there is a successor
+                    if(path.points[1].alpha <= 0){
+                        // remove the points, line would not be visible
+                        path.points.shift();
+                        continue;
+                    }
+                } else if (path.finished) {
+                    // only point left => can be removed
+                    path.points.shift();
+                    continue;
+                }
+                break;
+            }
+
+            // keep the path if it is not finished or it has still points in it
+            return !path.finished || path.points.length > 0;
+        });
+
+        let copy = JSON.parse(JSON.stringify(this._magicPaths));
+        this.setState({
+            magicPaths: copy,
+        });
     };
 
     render() {
