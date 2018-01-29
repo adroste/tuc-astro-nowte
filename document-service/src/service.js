@@ -6,7 +6,7 @@
 const httpServer = require('http').createServer();
 const socket = require('socket.io')(httpServer);
 const Client = require('./Client');
-const Document = require('./Document');
+const DocumentsManager = require('./DocumentsManager');
 
 const port = Number.parseInt(process.argv[2]);
 if (isNaN(port) || port < 1024 || port > 49151) {
@@ -15,11 +15,13 @@ if (isNaN(port) || port < 1024 || port > 49151) {
 
 }
 
-// initialize document
-const document = new Document();
+
+// TODO service identifier
+
+const documentsManager = new DocumentsManager();
 
 socket.on('connection', (clientConnection) => {
-    let client = new Client(clientConnection, document);
+    let client = new Client(clientConnection, documentsManager);
 });
 
 

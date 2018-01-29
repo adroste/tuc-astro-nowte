@@ -9,9 +9,9 @@ let pseudoSessionToken = 1;
 class Client {
     /**
      * @param {Object} connection socket.io connection
-     * @param {Object} document current document
+     * @param {DocumentsManager} documentsManager instance of DocumentsManager
      */
-    constructor(connection, document) {
+    constructor(connection, documentsManager) {
         if (this._connection === null)
             return;
 
@@ -21,7 +21,22 @@ class Client {
          * @private
          */
         this._connection = connection;
-        this._document = document;
+
+        /**
+         * documents manager
+         * @type {DocumentsManager}
+         * @private
+         */
+        this._documentsManager = documentsManager;
+
+        /**
+         * Opened document
+         * @type {Document}
+         * @private
+         */
+        this._document = null;
+
+
         this._id = null;
         this._name = null;
         // TODO replace with session token
@@ -37,27 +52,27 @@ class Client {
         this._connection.on('echo',             (data, cb) => this.handleEcho(data, cb));
 
         // document
-        this._connection.on('openDocument',     (data) => this.verifiedHandle(() => this.handleOpenDocument(data)));
+        this._connection.on('openDocument',     (data) => this.verifiedHandle(this.isAuthenticated(), () => this.handleOpenDocument(data)));
 
         // brick
-        this._connection.on('insertBrick',      (data) => this.verifiedHandle(() => this.handleInsertBrick(data)));
-        this._connection.on('removeBrick',      (data) => this.verifiedHandle(() => this.handleRemoveBrick(data)));
-        this._connection.on('moveBrick',        (data) => this.verifiedHandle(() => this.handleMoveBrick(data)));
+        this._connection.on('insertBrick',      (data) => this.verifiedHandle(this.isInitialized(), () => this.handleInsertBrick(data)));
+        this._connection.on('removeBrick',      (data) => this.verifiedHandle(this.isInitialized(), () => this.handleRemoveBrick(data)));
+        this._connection.on('moveBrick',        (data) => this.verifiedHandle(this.isInitialized(), () => this.handleMoveBrick(data)));
 
         // path
-        this._connection.on('beginPath',        (data) => this.verifiedHandle(() => this.handleBeginPath(data)));
-        this._connection.on('addPathPoint',     (data) => this.verifiedHandle(() => this.handleAddPathPoint(data)));
-        this._connection.on('endPath',          (data) => this.verifiedHandle(() => this.handleEndPath(data)));
-        this._connection.on('eraseSplines',     (data) => this.verifiedHandle(() => this.handleEraseSplines(data)));
+        this._connection.on('beginPath',        (data) => this.verifiedHandle(this.isInitialized(), () => this.handleBeginPath(data)));
+        this._connection.on('addPathPoint',     (data) => this.verifiedHandle(this.isInitialized(), () => this.handleAddPathPoint(data)));
+        this._connection.on('endPath',          (data) => this.verifiedHandle(this.isInitialized(), () => this.handleEndPath(data)));
+        this._connection.on('eraseSplines',     (data) => this.verifiedHandle(this.isInitialized(), () => this.handleEraseSplines(data)));
 
         // text
-        this._connection.on('textInsert',       (data) => this.verifiedHandle(() => this.handleTextInsert(data)));
+        this._connection.on('textInsert',       (data) => this.verifiedHandle(this.isInitialized(), () => this.handleTextInsert(data)));
 
         // collaboration
-        this._connection.on('beginMagic',       (data) => this.verifiedHandle(() => this.handleMagicPenBegin(data)));
-        this._connection.on('addMagicPoint',    (data) => this.verifiedHandle(() => this.handleMagicPenPoints(data)));
-        this._connection.on('endMagic',         (data) => this.verifiedHandle(() => this.handleMagicPenEnd(data)));
-        this._connection.on('clientPointer',    (data) => this.verifiedHandle(() => this.handlePointer(data)));
+        this._connection.on('beginMagic',       (data) => this.verifiedHandle(this.isInitialized(), () => this.handleMagicPenBegin(data)));
+        this._connection.on('addMagicPoint',    (data) => this.verifiedHandle(this.isInitialized(), () => this.handleMagicPenPoints(data)));
+        this._connection.on('endMagic',         (data) => this.verifiedHandle(this.isInitialized(), () => this.handleMagicPenEnd(data)));
+        this._connection.on('clientPointer',    (data) => this.verifiedHandle(this.isInitialized(), () => this.handlePointer(data)));
     }
 
     /**
@@ -84,21 +99,35 @@ class Client {
         return this._sessionToken.toString();
     }
 
+
     /**
-     * calls the callback if isVerified() returns true
-     * @param callback function
+     * Calls the callback if verified is true
+     * @param {boolean} verified determines if callback func is executed
+     * @param {function} callback function to execute
      */
-    verifiedHandle(callback) {
-        if(this.isVerified())
+    verifiedHandle(verified, callback) {
+        if(verified)
             callback();
     }
 
+
     /**
-     * @return {boolean} true if the user has sent his sessionToken
+     * Checks if current session is initialized (user-auth & open document)
+     * @returns {boolean} true if client initialization is done
      */
-    isVerified() {
+    isInitialized() {
+        return this.isAuthenticated() && this._document !== null;
+    }
+
+
+    /**
+     * Checks if user has authenticated
+     * @returns {boolean}
+     */
+    isAuthenticated() {
         return this._id !== null;
     }
+
 
     isConnected() {
         return this._connection !== null;
@@ -107,15 +136,16 @@ class Client {
 
     // handlers
     handleDisconnect() {
-        if(this._connection){
+        if (this._connection)
             this._connection = null;
+        if (this.isInitialized())
             this._document.disconnectClient(this);
-        }
+
     }
 
 
     handleEcho(data, cb) {
-        console.log('received echo');
+        console.log('received echo from: ' + this._id);
         cb(data);
     }
 
@@ -291,13 +321,16 @@ class Client {
             return;
         }
 
+        // TODO check if user ist allowed to open document / document exists (put this into DocumentsManager)
+        this._document = this._documentsManager.getDocument(data.projectId, data.documentId);
+
         // establish connection
         this._document.connectClient(this);
     }
 
 
     sendInitialization(data) {
-        console.log('send init');
+        console.log('send init to: ' + this._id);
         this._connection.emit('initialize', data);
     }
 

@@ -154,7 +154,7 @@ class Document {
         });
 
         this._clients.push(client);
-        console.log("added client");
+        console.log("added client: " + client.id);
     }
 
     disconnectClient(client) {
@@ -172,7 +172,7 @@ class Document {
             other.sendClientDisconnected(client.uniqueIdentifier);
         });
 
-        console.log("removed client");
+        console.log("removed client: " + client.id);
     }
 
     /**
