@@ -6,7 +6,10 @@ const err = require('./Error');
 
 class Document {
 
-    constructor() {
+    constructor(saveCallback, exitCallback) {
+        this.saveCallback = saveCallback;
+        this.exitCallback = exitCallback;
+
         // document layout of bricks [[id1, id2], [id3], ...]
         this._brickLayout = [];
         // dictionary of brick object key=id value=Brick
@@ -19,6 +22,7 @@ class Document {
         // collaboration panel for magic pen and user pointers
         this._collabPanel = new Collaboration();
     }
+
 
     // serialize all data for newly connected clients
     lean() {
@@ -37,6 +41,7 @@ class Document {
         }
     }
 
+
     /**
      * returns a javascript object that can be transformed to a json
      * @return {object}
@@ -49,6 +54,7 @@ class Document {
             // collaboration does not need to be saved
         };
     }
+
 
     /**
      * loads data that was previously saved by save()
@@ -68,6 +74,7 @@ class Document {
         return this;
     }
 
+
     static _loadBrick(data) {
         switch (data.type) {
             case BrickType.DRAW:
@@ -77,6 +84,7 @@ class Document {
         }
         return null;
     }
+
 
     /**
      * @param id brick id
@@ -90,6 +98,7 @@ class Document {
             throw new Error("brick id invalid");
         return brick;
     }
+
 
     /**
      * @param id id of the brick to be removed
@@ -116,6 +125,7 @@ class Document {
         return true;
     }
 
+
     /**
      * @param brickId
      * @return {{heightIndex: number, columnIndex: number}}
@@ -130,6 +140,7 @@ class Document {
         });
         return {heightIndex, columnIndex};
     }
+
 
     connectClient(client) {
         const idx = this._clients.findIndex((c) => c.uniqueIdentifier === client.uniqueIdentifier);
@@ -157,6 +168,7 @@ class Document {
         console.log("added client: " + client.id);
     }
 
+
     disconnectClient(client) {
         const idx = this._clients.findIndex((c) => c.uniqueIdentifier === client.uniqueIdentifier);
         if (idx < 0)
@@ -173,7 +185,16 @@ class Document {
         });
 
         console.log("removed client: " + client.id);
+
+        // if last client disconnected, exit gracefully
+        if (this._clients.length === 0) {
+            if (this.saveCallback)
+                this.saveCallback();
+            if (this.exitCallback)
+                this.exitCallback();
+        }
     }
+
 
     /**
      * tries to insert a new brick
@@ -219,6 +240,7 @@ class Document {
         }
     }
 
+
     handleRemoveBrick(user, brickId) {
         try {
             err.verifyType("brickId", "number", brickId);
@@ -233,6 +255,7 @@ class Document {
             console.log("Error handleRemoveBrick: " + e.message);
         }
     }
+
 
     handleMoveBrick(user, brickId, heightIndex, columnIndex) {
         try {
