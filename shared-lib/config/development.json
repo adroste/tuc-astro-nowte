@@ -1,8 +1,9 @@
 {
-    "server": {
-        "url": "http://localhost:3000",
-        "http-port": 3000,
-        "mongo-url": "mongodb://localhost:27017/nowte-debug"
+    "rest-api-service": {
+        "http-port": 3000
+    },
+    "mongodb": {
+        "url": "mongodb://localhost:27017/nowte-debug"
     },
     "web-frontend": {
         "url": "http://localhost:3001"

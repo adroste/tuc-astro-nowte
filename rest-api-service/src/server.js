@@ -15,7 +15,7 @@ const logger = require('morgan');
 const userRoutes = require('./routes/userRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 
-const PORT =  ConfigTool.get('server.http-port');
+const PORT =  ConfigTool.get('rest-api-service.http-port');
 const app = express();
 
 
