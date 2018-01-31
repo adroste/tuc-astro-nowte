@@ -1,5 +1,5 @@
 {
-  "name": "document-service",
+  "name": "nowte-document-service",
   "version": "0.0.1",
   "description": "",
   "private": true,
@@ -11,7 +11,8 @@
   "author": "progmem",
   "license": "UNLICENSED",
   "devDependencies": {
-    "nodemon": "^1.14.11"
+    "nodemon": "^1.14.11",
+    "nowte-shared-lib": "file:../shared-lib"
   },
   "dependencies": {
     "socket.io": "^2.0.4"
