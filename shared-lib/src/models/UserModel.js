@@ -52,7 +52,7 @@ const userSchema = new Schema({
         default: false
     },
     sessions: [sessionSchema]
-}, { usePushEach: true }); // TODO remove with mongoose v5
+});
 
 /**
  * Mongoose Model of User Schema
