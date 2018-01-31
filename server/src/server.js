@@ -5,14 +5,15 @@
 
 'use strict';
 
-const ConfigTool = require('./ConfigTool');
+const lib = require('nowte-shared-lib');
+const ConfigTool = lib.ConfigTool;
+const db = lib.dbConnection;
 const express = require('express');
 const cors = require('cors');
 const jsonParser = require('body-parser').json;
 const logger = require('morgan');
-const userRoutes = require('./api/routes/userRoutes');
-const fileRoutes = require('./api/routes/fileRoutes');
-const db = require('./init/mongo-init');
+const userRoutes = require('./routes/userRoutes');
+const fileRoutes = require('./routes/fileRoutes');
 
 const PORT =  ConfigTool.get('server.http-port');
 const app = express();

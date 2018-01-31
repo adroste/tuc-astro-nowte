@@ -5,7 +5,7 @@
 
 'use strict';
 
-const ErrorUtil = require('../api/utilities/ErrorUtil');
+const ErrorUtil = require('../utilities/ErrorUtil');
 const ConfigTool = require('../ConfigTool');
 const nodemailer = require('nodemailer');
 

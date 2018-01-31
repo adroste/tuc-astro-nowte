@@ -5,11 +5,11 @@
 
 'use strict';
 
-const ConfigTool = require('../../ConfigTool');
+const ConfigTool = require('../ConfigTool');
 const UserUtil = require('../utilities/UserUtil');
 const ErrorUtil = require('../utilities/ErrorUtil');
 const mongoose = require('mongoose');
-const mailer = require('../../init/mailer-init');
+const mailer = require('../init/mailer-init');
 const UserModel = require('../models/UserModel');
 
 

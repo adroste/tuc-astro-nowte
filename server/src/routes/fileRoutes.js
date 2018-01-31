@@ -5,11 +5,12 @@
 
 'use strict';
 
+const lib = require('nowte-shared-lib');
 const express = require('express');
-const UserController = require('../controller/UserController');
-const FileController = require('../controller/FileController');
+const UserController = lib.controller.UserController;
+const FileController = lib.controller.FileController;
 const RoutesUtil = require('../utilities/RoutesUtil');
-const ErrorUtil = require('../utilities/ErrorUtil');
+const ErrorUtil = lib.utilities.ErrorUtil;
 
 
 /**

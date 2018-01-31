@@ -6,7 +6,7 @@
 'use strict';
 
 
-const ConfigTool = require('../../ConfigTool');
+const ConfigTool = require('../ConfigTool');
 const ProjectModel = require('../models/ProjectModel');
 const DocumentModel = require('../models/DocumentModel');
 const UserModel = require('../models/UserModel');

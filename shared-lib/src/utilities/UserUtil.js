@@ -2,7 +2,7 @@
  * @author progmem
  * @date 04.12.17
  */
-const ConfigTool = require('../../ConfigTool');
+const ConfigTool = require('../ConfigTool');
 const ErrorUtil = require('./ErrorUtil');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');

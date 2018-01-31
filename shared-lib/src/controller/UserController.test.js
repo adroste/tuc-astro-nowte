@@ -8,7 +8,7 @@
 const UserController = require('./UserController');
 const UserModel = require('../models/UserModel');
 const UserUtil = require('../utilities/UserUtil');
-const db = require('../../init/mongo-init');
+const db = require('../init/mongo-init');
 
 
 async function clearUsers() {

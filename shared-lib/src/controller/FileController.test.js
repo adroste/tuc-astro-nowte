@@ -11,7 +11,7 @@ const ProjectModel = require('../models/ProjectModel');
 const FileController = require('./FileController');
 const UserController = require('./UserController');
 const PermissionsEnum = require('../utilities/PermissionsEnum');
-const db = require('../../init/mongo-init');
+const db = require('../init/mongo-init');
 
 
 async function clearAll() {
