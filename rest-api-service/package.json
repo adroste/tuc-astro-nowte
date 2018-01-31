@@ -1,11 +1,11 @@
 {
-  "name": "nowte-rest-api",
+  "name": "nowte-rest-api-service",
   "version": "0.0.1",
   "description": "",
   "private": true,
   "main": "src/server.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "start": "nodemon src/server.js",
     "build-doc": "./node_modules/.bin/esdoc"
   },
