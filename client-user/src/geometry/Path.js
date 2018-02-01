@@ -155,6 +155,36 @@ export class Path {
         // start point
         context.moveTo(this.points[startIndex].x, this.points[startIndex].y);
 
+        // experimental:
+        // draw catmull rom splines
+
+        /*for (let i = startIndex + 1; i < this.points.length; i++) {
+            const p1 = this.points[i - 1];
+            const p2 = this.points[i];
+
+            // use standard tangents
+            let t1 = p2.subtract(p1);
+            let t2 = t1;
+
+            // calculate tangents
+            // take previous point for tangent
+            if(i - 2 >= 0)
+                t1 = p2.subtract(this.points[i - 2]).multiply(0.5);
+            // take next point for tangent
+            if(i + 1 < this.points.length)
+                t2 = this.points[i + 1].subtract(p1).multiply(0.5);
+
+            // compute control points
+            const c1 = p1.add(t1.multiply(1.0 / 3.0));
+            const c2 = p2.subtract(t2.multiply(1.0 / 3.0));
+
+            context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
+            //context.lineTo(this.points[i].x, this.points[i].y);
+        }*/
+
+
+        // start point
+
         for (let i = startIndex + 1; i < this.points.length; i++) {
             context.lineTo(this.points[i].x, this.points[i].y);
         }

@@ -123,17 +123,33 @@ export class OverlayCanvas extends React.Component {
 
             // make gradient lines
             for(let i = 0; i < path.points.length - 1; ++i) {
-                const p1 = path.points[i].point;
-                const p2 = path.points[i + 1].point;
+                const p1 = Point.fromObject(path.points[i].point);
+                const p2 = Point.fromObject(path.points[i + 1].point);
                 let gradient = c.createLinearGradient(p1.x, p1.y - offset, p2.x, p2.y - offset);
 
                 gradient.addColorStop(0, this.fadeColor(path.color, path.points[i].alpha));
                 gradient.addColorStop(1, this.fadeColor(path.color, path.points[i].alpha));
                 c.strokeStyle = gradient;
 
+                // calculate catmull rom control points
+                let t1 = p2.subtract(p1);
+                let t2 = t1.clone();
+
+                // take previous point for tangent
+                if(i - 1 >= 0)
+                    t1 = p2.subtract(path.points[i - 1].point).multiply(0.5);
+                // take next point for tangent
+                if(i + 2 < path.points.length)
+                    t2 = Point.fromObject(path.points[i + 2].point).subtract(p1).multiply(0.5);
+
+                // compute control points
+                const c1 = p1.add(t1.multiply(1.0 / 3.0));
+                const c2 = p2.subtract(t2.multiply(1.0 / 3.0));
+
                 c.beginPath();
                 c.moveTo(p1.x, p1.y - offset);
-                c.lineTo(p2.x, p2.y - offset);
+                //c.lineTo(p2.x, p2.y - offset);
+                c.bezierCurveTo(c1.x, c1.y - offset, c2.x, c2.y - offset, p2.x, p2.y - offset);
                 c.stroke();
             }
         }
