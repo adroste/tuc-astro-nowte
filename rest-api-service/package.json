@@ -1,0 +1,30 @@
+{
+  "name": "nowte-rest-api-service",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "test": "jest --runInBand",
+    "start": "nodemon src/server.js",
+    "build-doc": "./node_modules/.bin/esdoc"
+  },
+  "author": "progmem",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "morgan": "^1.9.0",
+    "nowte-shared-lib": "file:../shared-lib"
+  },
+  "devDependencies": {
+    "esdoc": "^1.0.4",
+    "esdoc-ecmascript-proposal-plugin": "^1.0.0",
+    "esdoc-external-nodejs-plugin": "^1.0.0",
+    "esdoc-node": "^1.0.2",
+    "esdoc-standard-plugin": "^1.0.0",
+    "jest": "^21.2.1",
+    "nodemon": "^1.12.1"
+  }
+}

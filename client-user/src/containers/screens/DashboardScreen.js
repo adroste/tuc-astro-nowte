@@ -84,10 +84,14 @@ class DashboardScreen extends React.Component {
     }
 
     handleLogOutClick = () => {
-        API.logout(this.props.user.token ,() => {
+        // do client logout before api-call, to ensure that logout always works
+        // TODO serverside: if logout was done with error, ensure hat login won't persist in db
+        this.props.userActions.logout();
+        this.props.history.push("/");
+        API.logout(this.props.user.token, () => {
             // reset data
-            this.props.userActions.logout();
-            this.props.history.push("/");
+            //this.props.userActions.logout();
+            //this.props.history.push("/");            
         }, this.handleError);
     };
 
