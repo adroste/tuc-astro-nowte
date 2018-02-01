@@ -9,7 +9,8 @@ import {EditorToolsEnum} from "../../editor/EditorToolsEnum";
 import {BrickTypesEnum} from "../../editor/BrickTypesEnum";
 import {TextBrick} from "./bricks/TextBrick";
 import {Tooldock} from "./Tooldock";
-import {FixedOverlay, OverlayCanvas} from './OverlayCanvas';
+import {OverlayCanvas} from './OverlayCanvas';
+import {UserSymbols} from './base/UserSymbols';
 
 
 const Wrapper = styled.div`
@@ -263,12 +264,6 @@ export class Editor extends React.Component {
         return bricks;
     };
 
-    renderClients = () => {
-        // TODO render the clients
-        /*for(let uniqueId of Object.keys(this.props.clients)){
-            alert(JSON.stringify(this.props.clients[uniqueId]));
-        }*/
-    };
 
     render() {
         return (
@@ -277,7 +272,9 @@ export class Editor extends React.Component {
                 className={this.props.className}
                 onScroll={this.handleWrapperScroll}
             >
-                {this.renderClients()}
+                <UserSymbols
+                    clients={this.props.clients}
+                />
                 <Tooldock
                     onToolChange={this.handleToolChange}
                     selectedTool={this.state.activeTool}
