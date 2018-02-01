@@ -4,6 +4,8 @@
  */
 
 
+const lib = require('nowte-shared-lib');
+const DocumentController = lib.controller.DocumentController;
 const Document = require('./Document');
 
 
@@ -40,14 +42,19 @@ class DocumentsManager {
      * @returns {Document}
      * @private
      */
-    _openDocument(projectId, documentId) {
+    async _openDocument(projectId, documentId) {
         // TODO load doc from database
         // TODO check if requested document is assigned to this service
+        const dat = await DocumentController.loadDocument(projectId, documentId);
 
         const document = new Document(
             null,                                               // save callback
             () => this._closeDocument(projectId, documentId)    // exit callback
         );
+
+        console.log(JSON.stringify(dat));
+        if (dat && Object.keys(dat).length > 0)
+            document.load(dat);
 
         this._openDocuments.push({
             projectId,
@@ -61,10 +68,24 @@ class DocumentsManager {
     }
 
 
+    _saveDocument(projectId, documentId) {
+        const idx = this._findIndexOpenDocument(projectId, documentId);
+        if (idx < 0)
+            return;
+
+        // TODO save to db
+        const dat = this._openDocuments[idx].document.save();
+        // attention async
+        DocumentController.saveDocument(projectId, documentId, dat).then();
+    }
+
+
     _closeDocument(projectId, documentId) {
         const idx = this._findIndexOpenDocument(projectId, documentId);
         if (idx < 0)
             return;
+
+        this._saveDocument(projectId, documentId);
 
         const d = this._openDocuments[idx];
         // TODO disconnect remaining clients
@@ -83,13 +104,13 @@ class DocumentsManager {
      * @returns {Document}
      * @todo check if user ist allowed to open document / document exists
      */
-    getDocument(projectId, documentId) {
+    async getDocument(projectId, documentId) {
         const idx = this._findIndexOpenDocument(projectId, documentId);
 
         if (idx >= 0)
             return this._openDocuments[idx].document;
 
-        return this._openDocument(projectId, documentId);
+        return await this._openDocument(projectId, documentId);
     }
 }
 

@@ -322,10 +322,11 @@ class Client {
         }
 
         // TODO check if user ist allowed to open document / document exists (put this into DocumentsManager)
-        this._document = this._documentsManager.getDocument(data.projectId, data.documentId);
-
-        // establish connection
-        this._document.connectClient(this);
+        this._documentsManager.getDocument(data.projectId, data.documentId).then(document => {
+            this._document = document;
+            // establish connection
+            this._document.connectClient(this);
+        });
     }
 
 

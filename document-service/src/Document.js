@@ -190,6 +190,7 @@ class Document {
         if (this._clients.length === 0) {
             if (this.saveCallback)
                 this.saveCallback();
+            // TODO call exit after specific timeout
             if (this.exitCallback)
                 this.exitCallback();
         }
