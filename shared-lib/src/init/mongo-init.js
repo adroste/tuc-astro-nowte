@@ -14,7 +14,6 @@ mongoose.Promise = Promise;
 
 // mongodb connection
 mongoose.connect(MONGO_URL, {
-    useMongoClient: true,
     promiseLibrary: global.Promise
 });
 

@@ -52,7 +52,6 @@ class DocumentsManager {
             () => this._closeDocument(projectId, documentId)    // exit callback
         );
 
-        console.log(JSON.stringify(dat));
         if (dat && Object.keys(dat).length > 0)
             document.load(dat);
 
