@@ -40,11 +40,11 @@ export class Path {
         this.points = points;
 
         /**
-         * Bounding box
+         * Bounding box _bbox
          * @type {Rect}
          * @private
          */
-        this._bbox = this._calcBoundingBox();
+        this._calcBoundingBox();
     }
 
 
@@ -81,10 +81,12 @@ export class Path {
         // update bbox
         if(this._bbox) {
             // adjust bbox
-            this._bbox.x1 = Math.min(this._bbox.x1, point.x);
-            this._bbox.y1 = Math.min(this._bbox.y1, point.y);
-            this._bbox.x2 = Math.max(this._bbox.x2, point.x);
-            this._bbox.y2 = Math.max(this._bbox.y2, point.y);
+            const i = this.points.length - 1;
+            if(i - 1 >= 0){
+                // adjust due to new control point (catmull rom)
+                this._includePointInBBox(i - 1);
+            }
+            this._includePointInBBox(i);
         }
         else {
             // bbox was not calculated before due to lack of points
@@ -92,6 +94,35 @@ export class Path {
         }
     }
 
+    _includePointInBBox(index){
+        let pt = this.points[index];
+        let tangent = this._calcTangent(index).multiply(0.3333);
+        this._bbox.includePoint(pt);
+        if(index < this.points.length - 1)
+            this._bbox.includePoint(pt.add(tangent));
+        if(index > 0)
+            this._bbox.includePoint(pt.subtract(tangent));
+    }
+
+    /**
+     * calculates a tangent for a point
+     * @param index point index (must be valid)
+     * @returns {Point} tangent
+     * @private
+     */
+    _calcTangent(index) {
+        if(index - 1 >= 0)
+        {
+            // point can be computed normally
+            if(index + 1 < this.points.length)
+                return this.points[index + 1].subtract(this.points[index - 1]).multiply(0.5);
+            // no successor
+            return this.points[index].subtract(this.points[index - 1]);
+        } else if(index + 1 < this.points.length){
+            // no predecessor
+            return this.points[index + 1].subtract(this.points[index]);
+        } else return new Point(0.0, 0.0);
+    }
 
     /**
      * converts the path into a spline
@@ -114,17 +145,11 @@ export class Path {
         if(this.points.length < 1)
             return null;
 
-        let topLeft = this.points[0].clone();
-        let bottomRight = this.points[0].clone();
+        this._bbox = Rect.fromPoints(this.points[0], this.points[0]);
 
-        for(let pt of this.points){
-            topLeft.x = Math.min(topLeft.x, pt.x);
-            topLeft.y = Math.min(topLeft.y, pt.y);
-            bottomRight.x = Math.max(bottomRight.x, pt.x);
-            bottomRight.y = Math.max(bottomRight.y, pt.y);
+        for(let i = 0; i < this.points.length; ++i){
+            this._includePointInBBox(i);
         }
-
-        return Rect.fromPoints(topLeft, bottomRight);
     }
 
 
@@ -152,13 +177,14 @@ export class Path {
         if(startIndex + 1 >= this.points.length)
             return; // nothing to be drawn
 
+        //startIndex = Math.max(startIndex - 1, 0);
         // start point
         context.moveTo(this.points[startIndex].x, this.points[startIndex].y);
 
         // experimental:
         // draw catmull rom splines
 
-        /*for (let i = startIndex + 1; i < this.points.length; i++) {
+        for (let i = startIndex + 1; i < this.points.length; i++) {
             const p1 = this.points[i - 1];
             const p2 = this.points[i];
 
@@ -180,7 +206,7 @@ export class Path {
 
             context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
             //context.lineTo(this.points[i].x, this.points[i].y);
-        }*/
+        }
 
 
         // start point

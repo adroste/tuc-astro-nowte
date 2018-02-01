@@ -195,4 +195,15 @@ export class Rect {
         return rect && (this.x1 <= rect.x2 && this.x2 >= rect.x1) &&
             (this.y1 <= rect.y2 && this.y2 >= rect.y1);
     }
+
+    /**
+     * fits the rect to include the bounding box
+     * @param {Point} point
+     */
+    includePoint(point) {
+        this.x1 = Math.min(this.x1, point.x);
+        this.y1 = Math.min(this.y1, point.y);
+        this.x2 = Math.max(this.x2, point.x);
+        this.y2 = Math.max(this.y2, point.y);
+    }
 }
