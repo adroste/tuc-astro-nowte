@@ -199,6 +199,11 @@ export class Editor extends React.Component {
         }
     };
 
+    mayBrickDraw = () => {
+        return (this.state.activeTool === EditorToolsEnum.PEN) ||
+            (this.state.activeTool === EditorToolsEnum.ERASER);
+    };
+
 
     // TODO remove this stupid js-scroll bs
     handleWrapperScroll = () => {
@@ -237,6 +242,7 @@ export class Editor extends React.Component {
                     paths={brick.paths}
                     splines={brick.splines}
                     text={brick.text}
+                    mayDraw={this.mayBrickDraw()}
 
                     onPathBegin={() => this.handlePathBegin(brick)}
                     onPathPoint={(point) => this.handlePathPoint(brick, point)}

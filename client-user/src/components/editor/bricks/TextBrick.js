@@ -6,6 +6,12 @@ import {TextLayer} from "../layer/TextLayer";
 import {DrawLayer} from "../layer/DrawLayer";
 
 
+const FocusableDrawLayer = styled(DrawLayer)`
+    ${props => !props.hasFocus && 'pointer-events: none;'}
+`;
+
+
+
 export class TextBrick extends React.Component {
     /**
      * propTypes
@@ -20,6 +26,7 @@ export class TextBrick extends React.Component {
      * @property {function()} onPathEnd indicates that the user finished drawing
      *
      * @property {function(string)} onTextChange indicates that the text was changed by the user
+     * @property {bool} mayDraw indicates if the draw layer should have focus
      */
     static get propTypes() {
         return {
@@ -34,6 +41,7 @@ export class TextBrick extends React.Component {
             onPathEnd: PropTypes.func.isRequired,
 
             onTextChange: PropTypes.func.isRequired,
+            mayDraw: PropTypes.bool.isRequired,
         };
     }
 
@@ -58,14 +66,15 @@ export class TextBrick extends React.Component {
                     onChange={this.props.onTextChange}
                     text={this.props.text}
                 />
-                {/* <DrawLayer
+                <FocusableDrawLayer
+                    hasFocus={this.props.mayDraw}
                     paths={this.props.paths}
                     splines={this.props.splines}
 
                     onPathBegin={this.props.onPathBegin}
                     onPathPoint={this.props.onPathPoint}
                     onPathEnd={this.props.onPathEnd}
-                /> */}
+                />
 
             </BrickWrapper>
         );
