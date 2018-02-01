@@ -1,12 +1,12 @@
 
 const colorTable = [
-      '#FF0000',
-      '#0000FF',
-      '#FFFF00',
-      '#00FF00',
-      '#00FFFF',
-      '#F39C12',
-      '#FF00FF',
+      '#ad2e24',
+      '#2e2ebd',
+      '#bbbb2e',
+      '#2e802e',
+      '#3e9090',
+      '#cd662e',
+      '#a000a0',
 ];
 
 class Collaboration{
