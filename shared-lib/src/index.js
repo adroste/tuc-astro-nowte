@@ -9,6 +9,7 @@ const mailer = require('./init/mailer-init');
 
 const FileController = require('./controller/FileController');
 const UserController = require('./controller/UserController');
+const DocumentController = require('./controller/DocumentController');
 
 const DocumentModel = require('./models/DocumentModel');
 const ProjectModel = require('./models/ProjectModel');
@@ -26,7 +27,8 @@ module.exports = {
     mailer: mailer,
     controller: {
         FileController: FileController,
-        UserController: UserController
+        UserController: UserController,
+        DocumentController: DocumentController
     },
     models: {
         DocumentModel: DocumentModel,
