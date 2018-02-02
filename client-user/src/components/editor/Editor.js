@@ -101,6 +101,8 @@ export class Editor extends React.Component {
      * @property {function()} onMagicBegin indicates the start of a user drawn magic path.
      * @property {function(Point)} onMagicPoint indicates the addition of a new point to the current magic path
      * @property {function()} onMagicEnd indicates that the user finished drawing
+     *
+     * @property {function(point)} onPointerMove supplies client mouse coordinates
      */
     static get propTypes() {
         return {
@@ -123,6 +125,7 @@ export class Editor extends React.Component {
             onMagicPoint: PropTypes.func.isRequired,
             onMagicEnd: PropTypes.func.isRequired,
 
+            onPointerMove: PropTypes.func.isRequired,
         };
     }
 
@@ -217,7 +220,7 @@ export class Editor extends React.Component {
     handleMouseMove = (e) => {
         const x = e.pageX - this.pageOuterRef.getBoundingClientRect().x;
         const y = e.pageY + this.wrapperRef.scrollTop;
-        console.log('x:' + x + ', y:' + y);
+        this.props.onPointerMove({x,y});
     };
 
 

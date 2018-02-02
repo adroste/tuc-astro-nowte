@@ -121,6 +121,8 @@ export class EditorHost extends React.Component {
         this._socket.on('beginMagic', this.handleMagicBeginReceive);
         this._socket.on('addMagicPoints', this.handleMagicPointReceive);
         this._socket.on('endMagic', this.handleMagicEndReceive);
+
+        this._socket.on('clientPointer', this.handleClientPointerReceive);
     }
 
     
@@ -865,6 +867,26 @@ export class EditorHost extends React.Component {
         });
     };
 
+    handleClientPointerReceive = (data) => {
+        const userUniqueId = data.userUniqueId;
+        const point = data.point;
+
+        const client = this._clients[userUniqueId];
+        if(!client)
+            return;
+
+        client.mouse = point;
+        this.setState({
+            clients: this._clients,
+        });
+    };
+
+    handleClientPointer = (pos) => {
+        this._socket.emit('clientPointer', {
+            point: pos,
+        });
+    };
+
     render() {
         // null indicates no overlay
         let overlayText = null;
@@ -901,6 +923,8 @@ export class EditorHost extends React.Component {
                     onMagicBegin={this.handleMagicBegin}
                     onMagicPoint={this.handleMagicPoint}
                     onMagicEnd={this.handleMagicEnd}
+
+                    onPointerMove={this.handleClientPointer}
                 />}
             </Host>
         );

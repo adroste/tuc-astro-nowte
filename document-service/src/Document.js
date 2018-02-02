@@ -470,7 +470,7 @@ class Document {
 
     handleClientPointer(user, point) {
         try {
-            err.verifyPoint(point);
+            err.verifyPoint("point", point);
 
             this._collabPanel.handleUserPointer(user.uniqueIdentifier, point);
             this._clients.forEach((client) => {
