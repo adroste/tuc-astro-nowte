@@ -11,6 +11,9 @@ import {TextBrick} from "./bricks/TextBrick";
 import {Tooldock} from "./Tooldock";
 import {OverlayCanvas} from './OverlayCanvas';
 import {UserSymbols} from './base/UserSymbols';
+import {ClientPointers} from './base/ClientPointers';
+import throttle from 'lodash/throttle';
+
 
 
 const Wrapper = styled.div`
@@ -217,10 +220,16 @@ export class Editor extends React.Component {
     };
 
 
+    sendPointerMoveThrottled = throttle((point) => {
+        // console.log(JSON.stringify(point));
+        this.props.onPointerMove(point);
+    }, 100);
+
+
     handleMouseMove = (e) => {
         const x = e.pageX - this.pageOuterRef.getBoundingClientRect().x;
         const y = e.pageY + this.wrapperRef.scrollTop;
-        this.props.onPointerMove({x,y});
+        this.sendPointerMoveThrottled({x, y});
     };
 
 
@@ -289,6 +298,7 @@ export class Editor extends React.Component {
                 onScroll={this.handleWrapperScroll}
                 onMouseMove={this.handleMouseMove}
             >
+                
                 <UserSymbols
                     clients={this.props.clients}
                 />
@@ -299,6 +309,9 @@ export class Editor extends React.Component {
                 <PageOuter
                     innerRef={(ref) => this.pageOuterRef = ref}
                 >
+                    <ClientPointers
+                        clients={this.props.clients}
+                    />
                     <PageInner>
                         {this.renderBricks()}
                         <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}/>

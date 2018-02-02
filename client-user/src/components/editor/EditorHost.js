@@ -879,6 +879,7 @@ export class EditorHost extends React.Component {
         this.setState({
             clients: this._clients,
         });
+        //this.forceUpdate();
     };
 
     handleClientPointer = (pos) => {
