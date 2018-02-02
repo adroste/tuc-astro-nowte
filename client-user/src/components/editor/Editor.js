@@ -214,6 +214,13 @@ export class Editor extends React.Component {
     };
 
 
+    handleMouseMove = (e) => {
+        const x = e.pageX - this.pageOuterRef.getBoundingClientRect().x;
+        const y = e.pageY + this.wrapperRef.scrollTop;
+        console.log('x:' + x + ', y:' + y);
+    };
+
+
     renderBricks = () => {
         let bricks = [];
         let curHeight = 0;
@@ -277,6 +284,7 @@ export class Editor extends React.Component {
                 innerRef={(ref) => this.wrapperRef = ref}
                 className={this.props.className}
                 onScroll={this.handleWrapperScroll}
+                onMouseMove={this.handleMouseMove}
             >
                 <UserSymbols
                     clients={this.props.clients}
@@ -285,7 +293,9 @@ export class Editor extends React.Component {
                     onToolChange={this.handleToolChange}
                     selectedTool={this.state.activeTool}
                 />
-                <PageOuter>
+                <PageOuter
+                    innerRef={(ref) => this.pageOuterRef = ref}
+                >
                     <PageInner>
                         {this.renderBricks()}
                         <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}/>

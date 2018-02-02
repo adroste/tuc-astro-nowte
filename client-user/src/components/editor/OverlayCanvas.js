@@ -126,7 +126,7 @@ export class OverlayCanvas extends React.Component {
                 const p1 = Point.fromObject(path.points[i].point);
                 const p2 = Point.fromObject(path.points[i + 1].point);
                 let gradient = c.createLinearGradient(p1.x, p1.y - offset, p2.x, p2.y - offset);
-
+                
                 gradient.addColorStop(0, this.fadeColor(path.color, path.points[i].alpha));
                 gradient.addColorStop(1, this.fadeColor(path.color, path.points[i].alpha));
                 c.strokeStyle = gradient;
@@ -209,6 +209,7 @@ export class OverlayCanvas extends React.Component {
                     resolutionX={1000}
                     resolutionY={2000}
                     tool={this.state.pen}
+                    
                 />
             </FixedOverlay>
         );

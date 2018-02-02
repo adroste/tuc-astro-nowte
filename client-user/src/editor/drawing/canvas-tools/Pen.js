@@ -40,7 +40,8 @@ export class Pen {
 
         this.onPathBegin();
         this.onPathPoint(mouse);
-        e.preventDefault();
+        // commmented out, to retrieve mouse move events in Editor wrapper
+        //e.preventDefault();
     }
 
 
