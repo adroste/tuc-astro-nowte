@@ -16,11 +16,13 @@ const StyledEditor = styled(Editor)`
 export class TextLayer extends React.Component {
     /**
      * propTypes
+     * @property {string} className used for styling
      * @property {function(string)} onChange indicates that the text was changed by the user
      * @property {string} text text that should be displayed in the editor
      */
     static get propTypes() {
         return {
+            className: PropTypes.string,
             onChange: PropTypes.func.isRequired,
             text: PropTypes.string.isRequired,
         };
@@ -84,6 +86,7 @@ export class TextLayer extends React.Component {
         });
     }
 
+
     componentWillReceiveProps(nextProps) {
         if(nextProps.text !== this.props.text){
             // update state
@@ -100,6 +103,13 @@ export class TextLayer extends React.Component {
             });
         }
     }
+
+
+    shouldComponentUpdate(nextProps) {
+        return this.props.className !== nextProps.className
+            || this.props.text !== nextProps.text;
+    }
+
 
     getValue = () => {
 

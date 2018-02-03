@@ -42,25 +42,36 @@ const lightGreyDropTheme = `
 export class DropButton extends React.Component {
     /**
      * propTypes
-     * @property {function()} onClick callback when button was clicked
+     * @property {string} className used for styling
+     * @property {function(event: Object)} onClick callback when button was clicked
      */
     static get propTypes() {
         return {
+            className: PropTypes.string,
             onClick: PropTypes.func.isRequired,
         };
     }
 
     static get defaultProps() {
         return {
-
         };
     }
+
+
+    shouldComponentUpdate(nextProps) {
+        return this.props.className !== nextProps.className;
+    }
+
+
+    onClickHandler = (e) => {
+        this.props.onClick(e);
+    };
 
 
     render() {
         return (
             <div className={this.props.className}>
-                <Button large focusable={false} theme={lightGreyDropTheme} onClick={this.props.onClick}>
+                <Button large focusable={false} theme={lightGreyDropTheme} onClick={this.onClickHandler}>
                     <ContentWrapper>
                         +
                     </ContentWrapper>

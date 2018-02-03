@@ -20,6 +20,7 @@ const Pointer = styled.div.attrs({
     height: 20px;
     border-radius: 50%;
     z-index: 910;
+    transition: left 0.1s linear, top 0.1s linear;
 `;
 
 

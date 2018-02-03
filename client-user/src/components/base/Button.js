@@ -120,6 +120,7 @@ export const lightGreyRoundedTheme = `
 export class Button extends React.Component {
     /**
      * propTypes
+     * @property {string} className used for styling
      * @property {function(event: Object)} onClick callback when button was clicked
      * @property {boolean} [center=false] if set button will be center inside block
      * @property {boolean} [large=false] if set text size will be bigger
@@ -133,6 +134,7 @@ export class Button extends React.Component {
      */
     static get propTypes() {
         return {
+            className: PropTypes.string,
             onClick: PropTypes.func.isRequired,
             center: PropTypes.bool,
             large: PropTypes.bool,
@@ -159,6 +161,21 @@ export class Button extends React.Component {
             theme: greenBorderTheme
         };
     }
+
+
+    shouldComponentUpdate(nextProps) {
+        return this.props.className !== nextProps.className
+            || this.props.center !== nextProps.center
+            || this.props.large !== nextProps.large
+            || this.props.theme !== nextProps.theme
+            || this.props.focusable !== nextProps.focusable
+            || this.props.disabled !== nextProps.disabled
+            || this.props.marginLeft !== nextProps.marginLeft
+            || this.props.marginRight !== nextProps.marginRight            
+            || this.props.marginTop !== nextProps.marginTop
+            || this.props.marginBottom !== nextProps.marginBottom;
+    }
+
 
     onClickHandler = (e) => {
         if (!this.props.disabled)

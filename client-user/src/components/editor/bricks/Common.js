@@ -2,10 +2,13 @@ import styled from 'styled-components';
 import { COLOR_CODES } from '../../../Globals';
 
 
-export const BrickWrapper = styled.div`
+export const BrickWrapper = styled.div.attrs({
+    style: ({widthCm, heightPx}) => ({
+        width: widthCm + 'cm',
+        height: heightPx + 'px'
+    })
+})`
     position: relative;
-    width: ${props => props.widthCm}cm;
-    height: ${props => props.heightPx}px;
     overflow: hidden;
     
     &:focus {

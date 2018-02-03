@@ -19,12 +19,14 @@ const CanvasInner = styled.canvas`
 export class Canvas extends React.Component {
     /**
      * propTypes
+     * @property {string} className used for styling
      * @property {number} resolutionX bitmap resolution in pixel (width)
      * @property {number} resolutionY bitmap resolution in pixel (height)
      * @property {Object} [tool] specific tool that controls canvas
      */
     static get propTypes() {
         return {
+            className: PropTypes.string,
             resolutionX: PropTypes.number.isRequired,
             resolutionY: PropTypes.number.isRequired,
             tool: PropTypes.object
@@ -72,6 +74,13 @@ export class Canvas extends React.Component {
             this._canvas.addEventListener('pointerleave', this._handlePointerLeave);
             this._canvas.addEventListener('pointerenter', this._handlePointerEnter);
         }
+    }
+
+
+    shouldComponentUpdate(nextProps) {
+        return this.props.className !== nextProps.className
+            || this.props.resolutionX !== nextProps.resolutionX
+            || this.props.resolutionY !== nextProps.resolutionY;
     }
 
 

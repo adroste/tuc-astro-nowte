@@ -49,6 +49,11 @@ export class Tooldock extends React.Component {
     }
 
 
+    shouldComponentUpdate(nextProps) {
+        return this.props.selectedTool !== nextProps.selectedTool;
+    }
+
+
     handleToggle = (tool) => () => {
         this.props.onToolChange(tool);
     };

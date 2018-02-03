@@ -21,6 +21,7 @@ const CanvasLayer = styled(Canvas)`
 export class DrawLayer extends React.Component {
     /**
      * propTypes
+     * @property {string} className used for styling
      * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
      * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
      *
@@ -30,6 +31,7 @@ export class DrawLayer extends React.Component {
      */
     static get propTypes() {
         return {
+            className: PropTypes.string,
             paths: PropTypes.array.isRequired,
             splines: PropTypes.array.isRequired,
 
@@ -81,10 +83,18 @@ export class DrawLayer extends React.Component {
         this.updatePathAndSpline(this.props.paths, this.props.splines);
     }
 
-    componentWillUpdate(nextProps, nextState) {
+
+    componentWillReceiveProps(nextProps) {
+        // TODO optimize, this method can get called with SAME UNCHANGED props by react
         this.updatePathAndSpline(nextProps.paths, nextProps.splines);
     }
 
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return this.props.className !== nextProps.className || this.state.activeTool !== nextState.activeTool;
+    }
+
+    
     /**
      * draws paths and splines that are not already drawn and erases deleted paths/splines
      */
