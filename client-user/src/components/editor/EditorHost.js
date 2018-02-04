@@ -16,6 +16,7 @@ import {Point} from "../../geometry/Point";
 import {Capsule} from "../../geometry/Capsule";
 import {BrickTypesEnum} from "../../editor/BrickTypesEnum";
 
+
 const Host = styled.div`
     position: relative;
     width: 100%;
@@ -39,6 +40,8 @@ const Overlay = styled.div`
 `;
 
 const MAGIC_TIMER_INTERVAL = 50;
+const RERENDER_THROTTLE_MS = 100;
+
 
 export class EditorHost extends React.Component {
     /**
@@ -72,6 +75,22 @@ export class EditorHost extends React.Component {
      * @private
      */
     _stats = {};
+
+
+    /**
+     * time of last render
+     * @type {number}
+     * @private
+     */
+    _lastRender = 0;
+
+
+    /**
+     * references timeout for rerender if throttled
+     * @private
+     */
+    _rerenderThrottleTimeout = null;
+
 
     constructor(props) {
         super(props);
@@ -143,7 +162,7 @@ export class EditorHost extends React.Component {
     componentWillUnmount() {
         this._socket.disconnect();
         clearInterval(this.latencyInterval);
-        clearInterval(this.magicTimer);
+        clearInterval(this.magicTimer); 
     }
 
 
@@ -165,6 +184,26 @@ export class EditorHost extends React.Component {
             // call connect, after state was updated
             this._socket.connect();            
         });
+    }
+
+
+    shouldComponentUpdate() {
+        const diff = Date.now() - this._lastRender;
+        if (diff > RERENDER_THROTTLE_MS)
+            return true;
+        if (!this._rerenderThrottleTimeout)
+            this._rerenderThrottleTimeout = setTimeout(() => {
+                this.setState(this.state);
+            }, RERENDER_THROTTLE_MS - diff);
+        return false;
+    }
+
+
+    componentWillUpdate() {
+        console.log('diff since last update: ' + (Date.now() - this._lastRender));
+        this._lastRender = Date.now();
+        clearTimeout(this._rerenderThrottleTimeout);
+        this._rerenderThrottleTimeout = null;
     }
 
 
@@ -282,7 +321,7 @@ export class EditorHost extends React.Component {
         this.setState({
             initialized: true,
             bricks: this._bricks,
-            clients: this._clients,
+            clients: JSON.parse(JSON.stringify(this._clients)),
             color: data.color,
         })
     };
@@ -352,7 +391,7 @@ export class EditorHost extends React.Component {
         };
 
         this.setState({
-            clients: this._clients,
+            clients: JSON.parse(JSON.stringify(this._clients)),
         });
     };
 
@@ -361,7 +400,7 @@ export class EditorHost extends React.Component {
         delete this._clients[userUniqueId];
 
         this.setState({
-            clients: this._clients,
+            clients: JSON.parse(JSON.stringify(this._clients)),
         });
     };
 
@@ -402,7 +441,8 @@ export class EditorHost extends React.Component {
         bricks.splice(heightIndex, 0, [newBrick]);
 
 
-        this.forceUpdate();
+        // trigger update
+        this.setState(this.state);
     };
 
     handleRemoveBrickClick = (brickId) => {
@@ -506,7 +546,8 @@ export class EditorHost extends React.Component {
             curPath.path.addPoint(Point.fromObject(point));
         }
 
-        this.forceUpdate();
+        // trigger update
+        this.setState(this.state);
     };
 
     handlePathPoint = (brick, point) => {
@@ -522,8 +563,9 @@ export class EditorHost extends React.Component {
             points: [point.lean()],
         });
 
-        // redraw
-        this.forceUpdate();
+        // trigger update
+        this._lastRender = 0; // instant render        
+        this.setState(this.state);
     };
 
     handleEndPathReceive = (data) => {
@@ -552,7 +594,8 @@ export class EditorHost extends React.Component {
             spline: convertedSpline,
         });
 
-        this.forceUpdate();
+        // trigger update
+        this.setState(this.state);
     };
 
     handlePathEnd = (brick) => {
@@ -585,8 +628,9 @@ export class EditorHost extends React.Component {
             spline: spline,
         });
 
-        // force rerender
-        this.forceUpdate();
+        // trigger update
+        this._lastRender = 0; // instant render        
+        this.setState(this.state);
     };
 
     handleEraseSplinesReceive = (data) => {
@@ -608,7 +652,8 @@ export class EditorHost extends React.Component {
             return idDict[value.id] !== true;
         }));
 
-        this.forceUpdate();
+        // trigger update
+        this.setState(this.state);
     };
 
     handleErase = (brick, point1, point2, thickness) => {
@@ -634,7 +679,9 @@ export class EditorHost extends React.Component {
                 ids: removedSplines,
             });
 
-            this.forceUpdate();
+            // trigger update
+            this._lastRender = 0; // instant render            
+            this.setState(this.state);
         }
     };
 
@@ -673,7 +720,8 @@ export class EditorHost extends React.Component {
         // set new text
         brick.text = newText;
 
-        this.forceUpdate();
+        // trigger update
+        this.setState(this.state);
     };
 
     handleTextChange = (brick, text) => {
@@ -699,8 +747,8 @@ export class EditorHost extends React.Component {
         // set local properties
         brick.text = text;
 
-        this.forceUpdate();
-
+        // trigger update
+        this.setState(this.state);
     };
 
     handleMagicBeginReceive = (data) => {
@@ -775,6 +823,7 @@ export class EditorHost extends React.Component {
             alpha: 1.0,
         });
 
+        this._lastRender = 0; // instant render
         this.setState({
             magicPaths: this._magicPaths,
         });
@@ -809,6 +858,7 @@ export class EditorHost extends React.Component {
             return;
 
         cur.finished = true;
+        this._lastRender = 0; // instant render
         this.setState({
             magicPaths: this._magicPaths,
         });
@@ -877,9 +927,8 @@ export class EditorHost extends React.Component {
 
         client.mouse = point;
         this.setState({
-            clients: this._clients,
+            clients: JSON.parse(JSON.stringify(this._clients)),
         });
-        //this.forceUpdate();
     };
 
     handleClientPointer = (pos) => {
