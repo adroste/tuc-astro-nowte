@@ -205,15 +205,11 @@ export class Path {
             const c2 = p2.subtract(t2.multiply(1.0 / 3.0));
 
             context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
-            //context.lineTo(this.points[i].x, this.points[i].y);
         }
 
-
-        // start point
-
-        for (let i = startIndex + 1; i < this.points.length; i++) {
+        /*for (let i = startIndex + 1; i < this.points.length; i++) {
             context.lineTo(this.points[i].x, this.points[i].y);
-        }
+        }*/
         context.stroke();
     }
 }
