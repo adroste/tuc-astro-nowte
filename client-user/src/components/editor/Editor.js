@@ -143,6 +143,7 @@ export class Editor extends React.Component {
         this.state = {
             bricks: [],
             activeTool: EditorToolsEnum.TEXT,
+            collabCursorActive: false,
             offset: 0
         };
 
@@ -154,6 +155,11 @@ export class Editor extends React.Component {
 
     handleToolChange = (tool) => {
         this.setState({activeTool: tool});
+    };
+
+
+    handleCollabCursorChange = (active) => {
+        this.setState({collabCursorActive: active});
     };
 
 
@@ -305,13 +311,17 @@ export class Editor extends React.Component {
                 <Tooldock
                     onToolChange={this.handleToolChange}
                     selectedTool={this.state.activeTool}
+                    collabCursorActive={this.state.collabCursorActive}
+                    onCollabCursorToggleChange={this.handleCollabCursorChange}
                 />
                 <PageOuter
                     innerRef={(ref) => this.pageOuterRef = ref}
                 >
-                    <ClientPointers
-                        clients={this.props.clients}
-                    />
+                    {this.state.collabCursorActive &&
+                        <ClientPointers
+                            clients={this.props.clients}
+                        />
+                    }
                     <PageInner>
                         {this.renderBricks()}
                         <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}/>

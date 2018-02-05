@@ -35,12 +35,16 @@ export class Tooldock extends React.Component {
     /**
      * propTypes
      * @property {EditorToolsEnum} selectedTool defines selected tool
+     * @property {boolean} collabCursorActive defines state of collab cursor button
      * @property {function(tool: number)} onToolChange callback if user switches active tool
+     * @property {function(active: boolean)} onCollabCursorToggleChange callback if user toggles collaborative cursor tool
      */
     static get propTypes() {
         return {
             selectedTool: PropTypes.number.isRequired,
+            collabCursorActive: PropTypes.bool.isRequired,
             onToolChange: PropTypes.func.isRequired,
+            onCollabCursorToggleChange: PropTypes.func.isRequired
         };
     }
 
@@ -50,12 +54,18 @@ export class Tooldock extends React.Component {
 
 
     shouldComponentUpdate(nextProps) {
-        return this.props.selectedTool !== nextProps.selectedTool;
+        return this.props.selectedTool !== nextProps.selectedTool
+            || this.props.collabCursorActive !== nextProps.collabCursorActive;
     }
 
 
     handleToggle = (tool) => () => {
         this.props.onToolChange(tool);
+    };
+
+
+    handleCollabCursorToggle = () => {
+        this.props.onCollabCursorToggleChange(!this.props.collabCursorActive);
     };
 
 
@@ -140,8 +150,8 @@ export class Tooldock extends React.Component {
                     <ToggleIcon 
                         imgSrc="/img/tools/collab_cursor.svg"
                         label="Collaborative cursor"
-                        onToggle={this.handleToggle(EditorToolsEnum.COLLAB_CURSOR)}
-                        toggled={this.props.selectedTool === EditorToolsEnum.COLLAB_CURSOR}
+                        onToggle={this.handleCollabCursorToggle}
+                        toggled={this.props.collabCursorActive}
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/collab_magicpen.svg"
