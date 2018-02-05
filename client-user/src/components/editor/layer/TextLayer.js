@@ -105,10 +105,10 @@ export class TextLayer extends React.Component {
     }
 
 
-    shouldComponentUpdate(nextProps) {
-        return this.props.className !== nextProps.className
-            || this.props.text !== nextProps.text;
-    }
+    // shouldComponentUpdate(nextProps) {
+    //     return this.props.className !== nextProps.className
+    //         || this.props.text !== nextProps.text;
+    // }
 
 
     getValue = () => {
