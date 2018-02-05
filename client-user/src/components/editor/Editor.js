@@ -45,13 +45,12 @@ const PageInner = styled.div`
 
 
 const AppendBrickButton = styled(Button).attrs({
-    center: true,
     large: true,
-    theme: lightGreyRoundedTheme,
-    children: '+'
+    theme: lightGreyRoundedTheme
 })`
-    width: 50%;
-    margin: 40px 0;
+    display: inline-block;
+    width: 200px;
+    margin: 40px 20px;
 `;
 
 
@@ -264,7 +263,6 @@ export class Editor extends React.Component {
                 (<TextBrick
                     key={brick.id}
                     widthCm={17}
-                    heightPx={400}
                     paths={brick.paths}
                     splines={brick.splines}
                     text={brick.text}
@@ -324,8 +322,12 @@ export class Editor extends React.Component {
                     }
                     <PageInner>
                         {this.renderBricks()}
-                        <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}/>
-                        <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.TEXT)}/>
+                        <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}>
+                            Add Draw-Brick
+                        </AppendBrickButton>
+                        <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.TEXT)}>
+                            Add Text-Brick
+                        </AppendBrickButton>
                     </PageInner>
                     <OverlayCanvas
                         offset={this.state.offset}
