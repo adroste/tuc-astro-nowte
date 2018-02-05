@@ -12,8 +12,8 @@ import {BrickWrapper} from "./Common";
 export class DrawBrick extends React.Component {
     /**
      * propTypes
-     * @property {number} width width as css unit cm, e.g. 17 => "17cm"
-     * @property {number} height height as css unit px, e.g. 100 => "100px"
+     * @property {number} width width as css px
+     * @property {number} height height as css px
      * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
      * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
      *
@@ -23,8 +23,8 @@ export class DrawBrick extends React.Component {
      */
     static get propTypes() {
         return {
-            widthCm: PropTypes.number.isRequired,
-            heightPx: PropTypes.number.isRequired,
+            width: PropTypes.number.isRequired,
+            height: PropTypes.number.isRequired,
             paths: PropTypes.array.isRequired,
             splines: PropTypes.array.isRequired,
 
@@ -44,8 +44,8 @@ export class DrawBrick extends React.Component {
             <BrickWrapper
                 innerRef={ref => this.wrapperRef = ref}
                 className={this.props.className}
-                widthCm={this.props.widthCm}
-                heightPx={this.props.heightPx}
+                width={this.props.width}
+                height={this.props.height}
                 tabIndex="0"
                 onClick={() => {
                     this.wrapperRef.focus();
@@ -58,6 +58,8 @@ export class DrawBrick extends React.Component {
                 }}
             >
                 <DrawLayer
+                    width={this.props.width}
+                    height={this.props.height}
                     paths={this.props.paths}
                     splines={this.props.splines}
 

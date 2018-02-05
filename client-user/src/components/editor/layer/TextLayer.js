@@ -1,16 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import Measure from 'react-measure';
 import {LayerWrapper} from './Common';
-import throttle from 'lodash/throttle';
 import { Editor } from 'slate-react';
 import { Value } from 'slate';
 import Plain from 'slate-plain-serializer';
-
-const StyledEditor = styled(Editor)`
-    width: 100%;
-    height: 100%;
-`;
 
 
 export class TextLayer extends React.Component {
@@ -19,12 +14,14 @@ export class TextLayer extends React.Component {
      * @property {string} className used for styling
      * @property {function(string)} onChange indicates that the text was changed by the user
      * @property {string} text text that should be displayed in the editor
+     * @property {function(boundingRect: DOMRect)} onResize callback if size changes
      */
     static get propTypes() {
         return {
             className: PropTypes.string,
             onChange: PropTypes.func.isRequired,
             text: PropTypes.string.isRequired,
+            onResize: PropTypes.func
         };
     }
 
@@ -116,13 +113,29 @@ export class TextLayer extends React.Component {
         return this.state.value;
     };
 
+
+    handleResize = (contentRect) => {
+        if (this.props.onResize)
+            this.props.onResize(contentRect.bounds);
+    };
+
+
     render() {
         return (
             <LayerWrapper className={this.props.className}>
-                <StyledEditor
-                    value={this.getValue()}
-                    onChange={this.handleChange}
-                />
+                <Measure
+                    bounds
+                    onResize={this.handleResize}
+                >
+                    {({measureRef}) => (
+                        <div ref={measureRef}>
+                            <Editor
+                                value={this.getValue()}
+                                onChange={this.handleChange}
+                            />
+                        </div>
+                    )}
+                </Measure>
             </LayerWrapper>
         );
     }

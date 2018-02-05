@@ -250,8 +250,8 @@ export class Editor extends React.Component {
                 brick.type === BrickTypesEnum.DRAW?
                 (<DrawBrick
                     key={brick.id}
-                    widthCm={17}
-                    heightPx={400}
+                    width={17 * 37.8}
+                    height={400}
                     paths={brick.paths}
                     splines={brick.splines}
 
@@ -262,7 +262,7 @@ export class Editor extends React.Component {
                     :
                 (<TextBrick
                     key={brick.id}
-                    widthCm={17}
+                    width={17 * 37.8}
                     paths={brick.paths}
                     splines={brick.splines}
                     text={brick.text}

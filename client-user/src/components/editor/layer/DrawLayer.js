@@ -22,6 +22,8 @@ export class DrawLayer extends React.Component {
     /**
      * propTypes
      * @property {string} className used for styling
+     * @property {number} height (visible) height in css px
+     * @property {number} width (visible) width in css px
      * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
      * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
      *
@@ -32,6 +34,8 @@ export class DrawLayer extends React.Component {
     static get propTypes() {
         return {
             className: PropTypes.string,
+            height: PropTypes.number.isRequired,
+            width: PropTypes.number.isRequired,
             paths: PropTypes.array.isRequired,
             splines: PropTypes.array.isRequired,
 
@@ -86,12 +90,19 @@ export class DrawLayer extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         // TODO optimize, this method can get called with SAME UNCHANGED props by react
+        // if (this.props.height !== nextProps.height || this.props.width !== nextProps.width) {
+        //     this.drawnPaths = {};
+        //     this.drawnSplines = [];
+        // }
         this.updatePathAndSpline(nextProps.paths, nextProps.splines);
     }
 
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.className !== nextProps.className || this.state.activeTool !== nextState.activeTool;
+        return this.props.className !== nextProps.className 
+            || this.state.activeTool !== nextState.activeTool
+            || this.props.width !== nextProps.width
+            || this.props.height !== nextProps.height;
     }
 
     
@@ -264,14 +275,14 @@ export class DrawLayer extends React.Component {
                 {/* Working layer for user tool*/}
                 <CanvasLayer
                     innerRef={(ref) => this.contentLayer = ref}
-                    resolutionX={1200}
-                    resolutionY={800}
+                    resolutionX={this.props.width * 2}
+                    resolutionY={this.props.height * 2}
                 />
                 {/* layer for persistent content */}
                 <CanvasLayer
                     innerRef={(ref) => this.workingLayer = ref}
-                    resolutionX={1200}
-                    resolutionY={800}
+                    resolutionX={this.props.width * 2}
+                    resolutionY={this.props.height * 2}
                     tool={this.state.activeTool}
                 />
             </LayerWrapper>

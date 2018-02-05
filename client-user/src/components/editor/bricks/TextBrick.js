@@ -15,7 +15,7 @@ const FocusableDrawLayer = styled(DrawLayer)`
 export class TextBrick extends React.Component {
     /**
      * propTypes
-     * @property {number} widthCm width as css unit cm, e.g. 17 => "17cm"
+     * @property {number} width width as css px
      * @property {array} paths temporary user paths that are currently drawn. wrapped with {id: number, path: Path}
      * @property {array} splines finished splines. wrapped with {id: number, spline: Spline}
      * @property {string} text text for the text editor
@@ -29,7 +29,7 @@ export class TextBrick extends React.Component {
      */
     static get propTypes() {
         return {
-            widthCm: PropTypes.number.isRequired,
+            width: PropTypes.number.isRequired,
             paths: PropTypes.array.isRequired,
             splines: PropTypes.array.isRequired,
             text: PropTypes.string.isRequired,
@@ -48,12 +48,28 @@ export class TextBrick extends React.Component {
     }
 
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            height: 0
+        };
+    }
+
+
+    handleResize = (boundingRect) => {
+        this.setState({
+            height: boundingRect.height
+        });
+    };
+
+
     render() {
         return (
             <BrickWrapper
                 innerRef={ref => this.wrapperRef = ref}
                 className={this.props.className}
-                widthCm={this.props.widthCm}
+                width={this.props.width}
+                height={this.state.height}
                 tabIndex="0"
                 onClick={() => {
                     //this.wrapperRef.focus();
@@ -62,9 +78,12 @@ export class TextBrick extends React.Component {
                 <TextLayer
                     onChange={this.props.onTextChange}
                     text={this.props.text}
+                    onResize={this.handleResize}
                 />
                 <FocusableDrawLayer
                     hasFocus={this.props.mayDraw}
+                    width={this.props.width}
+                    height={this.state.height}
                     paths={this.props.paths}
                     splines={this.props.splines}
 

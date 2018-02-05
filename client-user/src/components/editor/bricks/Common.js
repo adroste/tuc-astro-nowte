@@ -3,9 +3,9 @@ import { COLOR_CODES } from '../../../Globals';
 
 
 export const BrickWrapper = styled.div.attrs({
-    style: ({widthCm, heightPx}) => ({
-        width: widthCm + 'cm',
-        height: heightPx ? (heightPx + 'px') : 'auto'
+    style: ({width, height}) => ({
+        width: width + 'px',
+        height: height ? (height + 'px') : 'auto'
     })
 })`
     position: relative;
