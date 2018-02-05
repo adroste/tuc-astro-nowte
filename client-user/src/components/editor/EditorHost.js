@@ -200,7 +200,6 @@ export class EditorHost extends React.Component {
 
 
     componentWillUpdate() {
-        console.log('diff since last update: ' + (Date.now() - this._lastRender));
         this._lastRender = Date.now();
         clearTimeout(this._rerenderThrottleTimeout);
         this._rerenderThrottleTimeout = null;

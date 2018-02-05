@@ -142,7 +142,7 @@ export class Editor extends React.Component {
 
         this.state = {
             bricks: [],
-            activeTool: EditorToolsEnum.NONE,
+            activeTool: EditorToolsEnum.TEXT,
             offset: 0
         };
 
