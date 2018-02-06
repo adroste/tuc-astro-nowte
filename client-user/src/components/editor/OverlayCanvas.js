@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import Measure from 'react-measure';
 import {Canvas} from "./base/Canvas";
 import {Pen} from "../../editor/drawing/canvas-tools/Pen";
 import {StrokeStyle} from "../../editor/drawing/StrokeStyle";
@@ -64,6 +65,8 @@ export class OverlayCanvas extends React.Component {
         //pen.onPathEnd = this.handlePathEnd;
 
         this.state = {
+            width: 0,
+            height: 0,
             pen:  pen,
         };
     }
@@ -101,7 +104,7 @@ export class OverlayCanvas extends React.Component {
 
         // clear entire screen
         const c = this.canvasRef.context2d;
-        c.clearRect(0, 0, 1000, 2000);
+        c.clearRect(0, 0, this.state.width, this.state.height);
         if (!this.props.paths.length)
             return;
 
@@ -197,6 +200,18 @@ export class OverlayCanvas extends React.Component {
     };
 
 
+    handleNeedsRedraw = () => {
+        this.renderPaths();
+    };
+
+
+    handleResize = (contentRect) => {
+        this.setState({
+            width: contentRect.bounds.width,
+            height: contentRect.bounds.height
+        });
+    };
+
 
     render() {
         return (
@@ -204,13 +219,22 @@ export class OverlayCanvas extends React.Component {
                 hasFocus={this.props.hasFocus}
                 offsetTop={this.props.offset}
             >
-                <Canvas
-                    ref={(ref) => this.canvasRef = ref}
-                    resolutionX={1000}
-                    resolutionY={2000}
-                    tool={this.state.pen}
-                    
-                />
+                <Measure
+                    bounds
+                    onResize={this.handleResize}
+                >
+                    {({measureRef}) => (
+                        <div ref={measureRef} style={{height: '100%'}}>
+                            <Canvas
+                                ref={(ref) => this.canvasRef = ref}
+                                resolutionX={this.state.width}
+                                resolutionY={this.state.height}
+                                tool={this.state.pen}
+                                onNeedsRedraw={this.handleNeedsRedraw}
+                            />
+                        </div>
+                    )}
+                </Measure>
             </FixedOverlay>
         );
     }
