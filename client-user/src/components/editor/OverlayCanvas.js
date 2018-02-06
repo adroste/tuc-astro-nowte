@@ -76,15 +76,15 @@ export class OverlayCanvas extends React.Component {
 
     handlePathPoint = (point) => {
         if(this.lastPoint !== null){
-            this.canvasRef.context.lineTo(point.x, point.y);
+            this.canvasRef.context2d.lineTo(point.x, point.y);
         } else {
-            this.canvasRef.context.moveTo(point.x, point.y);
+            this.canvasRef.context2d.moveTo(point.x, point.y);
         }
         this.lastPoint = point;
     };
 
     handlePathEnd = () => {
-        this.canvasRef.context.stroke();
+        this.canvasRef.context2d.stroke();
     };
 
     componentDidMount() {
@@ -100,7 +100,7 @@ export class OverlayCanvas extends React.Component {
             return;
 
         // clear entire screen
-        const c = this.canvasRef.context;
+        const c = this.canvasRef.context2d;
         c.clearRect(0, 0, 1000, 2000);
         if (!this.props.paths.length)
             return;

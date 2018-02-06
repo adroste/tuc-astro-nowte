@@ -155,22 +155,22 @@ export class Path {
 
     /**
      * Draws path in rendering context
-     * @param {Object} context 2d rendering context of canvas
+     * @param {Object} context2d 2d rendering context of canvas
      * @param {number} [startIndex=0] index of the first path point. This point and all subsequent points will be drawn.
      */
-    draw(context, startIndex = 0) {
+    draw(context2d, startIndex = 0) {
         if (this.points.length < 1)
             return;
 
-        context.beginPath();
-        this.strokeStyle.apply(context);
+        context2d.beginPath();
+        this.strokeStyle.apply(context2d);
 
         // draw single point
         if (this.points.length === 1 && startIndex < 1) {
             // strokeStyle = fillStyle, thickness = radius
-            context.fillStyle = this.strokeStyle.color;
-            context.arc(this.points[0].x, this.points[0].y, this.strokeStyle.thickness / 2, 0, 2 * Math.PI, true);
-            context.fill();
+            context2d.fillStyle = this.strokeStyle.color;
+            context2d.arc(this.points[0].x, this.points[0].y, this.strokeStyle.thickness / 2, 0, 2 * Math.PI, true);
+            context2d.fill();
             return;
         }
 
@@ -179,7 +179,7 @@ export class Path {
 
         //startIndex = Math.max(startIndex - 1, 0);
         // start point
-        context.moveTo(this.points[startIndex].x, this.points[startIndex].y);
+        context2d.moveTo(this.points[startIndex].x, this.points[startIndex].y);
 
         // experimental:
         // draw catmull rom splines
@@ -204,12 +204,12 @@ export class Path {
             const c1 = p1.add(t1.multiply(1.0 / 3.0));
             const c2 = p2.subtract(t2.multiply(1.0 / 3.0));
 
-            context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
+            context2d.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
         }
 
         /*for (let i = startIndex + 1; i < this.points.length; i++) {
-            context.lineTo(this.points[i].x, this.points[i].y);
+            context2d.lineTo(this.points[i].x, this.points[i].y);
         }*/
-        context.stroke();
+        context2d.stroke();
     }
 }

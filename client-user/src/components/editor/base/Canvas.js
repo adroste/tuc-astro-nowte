@@ -22,6 +22,7 @@ export class Canvas extends React.Component {
      * @property {string} className used for styling
      * @property {number} resolutionX bitmap resolution in pixel (width)
      * @property {number} resolutionY bitmap resolution in pixel (height)
+     * @property {function()} onNeedsRedraw callback if canvas needs a full redraw
      * @property {Object} [tool] specific tool that controls canvas
      */
     static get propTypes() {
@@ -29,6 +30,7 @@ export class Canvas extends React.Component {
             className: PropTypes.string,
             resolutionX: PropTypes.number.isRequired,
             resolutionY: PropTypes.number.isRequired,
+            onNeedsRedraw: PropTypes.func.isRequired,
             tool: PropTypes.object
         };
     }
@@ -36,13 +38,6 @@ export class Canvas extends React.Component {
     static get defaultProps() {
         return {};
     }
-
-
-    /**
-     * canvas 2d context
-     * @type {Object}
-     */
-    _context = null;
 
     /**
      * canvas object
@@ -52,16 +47,10 @@ export class Canvas extends React.Component {
     _canvas = null;
 
 
-    get context() {
+    get context2d() {
         // _context could be defined as empty object (if context gets lost)
         // therefore you must check if api functions (like beginPath) are defined
-        if (!this._context || !this._context.beginPath)
-            this._context = this._canvas.getContext("2d");
-        return this._context;
-    }
-
-    set context(obj) {
-        this._context = obj;
+        return this._canvas.getContext("2d");
     }
 
 
@@ -74,6 +63,15 @@ export class Canvas extends React.Component {
             this._canvas.addEventListener('pointerleave', this._handlePointerLeave);
             this._canvas.addEventListener('pointerenter', this._handlePointerEnter);
         }
+    }
+
+
+    componentDidUpdate(prevProps) {
+        if (this.props.resolutionX !== prevProps.resolutionX || this.props.resolutionY !== prevProps.resolutionY)
+            // componentDidUpdate is called before refs are set, to fix this, we wrap the method call in a small timeout
+            setTimeout(() => {
+                this.props.onNeedsRedraw();
+            }, 1);
     }
 
 

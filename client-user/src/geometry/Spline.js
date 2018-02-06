@@ -105,34 +105,34 @@ export class Spline {
 
     /**
      * Draws spline in rendering context
-     * @param {Object} context 2d rendering context of canvas
+     * @param {Object} context2d 2d rendering context of canvas
      */
-    draw(context) {
+    draw(context2d) {
         if (this.spoints.length < 1)
             return;
 
-        context.beginPath();
-        this.strokeStyle.apply(context);
+        context2d.beginPath();
+        this.strokeStyle.apply(context2d);
 
         // draw single point
         if (this.spoints.length === 1) {
             // strokeStyle = fillStyle, thickness = radius
-            context.fillStyle = this.strokeStyle.color;
-            context.arc(this.spoints[0].point.x, this.spoints[0].point.y, this.strokeStyle.thickness / 2, 0, 2 * Math.PI, true);
-            context.fill();
+            context2d.fillStyle = this.strokeStyle.color;
+            context2d.arc(this.spoints[0].point.x, this.spoints[0].point.y, this.strokeStyle.thickness / 2, 0, 2 * Math.PI, true);
+            context2d.fill();
             return;
         }
 
         // start point
-        context.moveTo(this.spoints[0].point.x, this.spoints[0].point.y);
+        context2d.moveTo(this.spoints[0].point.x, this.spoints[0].point.y);
 
         for(let i = 1; i < this.spoints.length; i++) {
             // draw cubic spline
             const c1 = this.spoints[i - 1].getOutPoint();
             const c2 = this.spoints[i].getInPoint();
-            context.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, this.spoints[i].point.x, this.spoints[i].point.y);
+            context2d.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, this.spoints[i].point.x, this.spoints[i].point.y);
         }
-        context.stroke();
+        context2d.stroke();
     }
 
     /**

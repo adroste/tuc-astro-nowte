@@ -90,10 +90,6 @@ export class DrawLayer extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         // TODO optimize, this method can get called with SAME UNCHANGED props by react
-        // if (this.props.height !== nextProps.height || this.props.width !== nextProps.width) {
-        //     this.drawnPaths = {};
-        //     this.drawnSplines = [];
-        // }
         this.updatePathAndSpline(nextProps.paths, nextProps.splines);
     }
 
@@ -143,7 +139,7 @@ export class DrawLayer extends React.Component {
             if(!bbox)
                 return;
             // clear bounding box
-            this.workingLayer.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
+            this.workingLayer.context2d.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
 
             // determine which paths needed to be redrawn due to the clear rect
             for(let otherPathId of Object.keys(this.drawnPaths)) {
@@ -172,7 +168,7 @@ export class DrawLayer extends React.Component {
             }
 
             // draw the remaining segments
-            drawnPath.path.draw(this.workingLayer.context, drawnPath.drawnSegments);
+            drawnPath.path.draw(this.workingLayer.context2d, drawnPath.drawnSegments);
             // indicate which segments were drawn
             drawnPath.drawnSegments = drawnPath.path.points.length - 1;
         }
@@ -237,7 +233,7 @@ export class DrawLayer extends React.Component {
             const bbox = spline.spline.boundingBox;
 
             // clear area
-            this.contentLayer.context.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
+            this.contentLayer.context2d.clearRect(bbox.x1, bbox.y1, bbox.width, bbox.height);
 
             // determine splines that needed to be redrawn due to the clear rect
             for(let otherSpline of this.drawnSplines) {
@@ -251,7 +247,7 @@ export class DrawLayer extends React.Component {
 
         // redraw some splines
         for(let splineId in redrawSplines) {
-            redrawSplines[splineId].draw(this.contentLayer.context);
+            redrawSplines[splineId].draw(this.contentLayer.context2d);
         }
     };
 
@@ -262,12 +258,20 @@ export class DrawLayer extends React.Component {
             const curSpline = splines[idx];
 
             // draw spline
-            curSpline.spline.draw(this.contentLayer.context);
+            curSpline.spline.draw(this.contentLayer.context2d);
 
             // add spline to drawnSplines list
             this.drawnSplines.push(curSpline);
         }
     };
+
+
+    handleNeedsRedraw = () => {
+        this.drawnPaths = {};
+        this.drawnSplines = [];
+        this.updatePathAndSpline(this.props.paths, this.props.splines);        
+    };
+
 
     render() {
         return (
@@ -277,6 +281,7 @@ export class DrawLayer extends React.Component {
                     innerRef={(ref) => this.contentLayer = ref}
                     resolutionX={this.props.width * 2}
                     resolutionY={this.props.height * 2}
+                    onNeedsRedraw={this.handleNeedsRedraw}
                 />
                 {/* layer for persistent content */}
                 <CanvasLayer
@@ -284,6 +289,7 @@ export class DrawLayer extends React.Component {
                     resolutionX={this.props.width * 2}
                     resolutionY={this.props.height * 2}
                     tool={this.state.activeTool}
+                    onNeedsRedraw={this.handleNeedsRedraw}
                 />
             </LayerWrapper>
         );
