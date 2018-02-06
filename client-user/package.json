@@ -20,6 +20,7 @@
     "react": "^15.6.2",
     "react-contextmenu": "^2.9.2",
     "react-dom": "^15.6.2",
+    "react-measure": "^2.0.2",
     "react-modal-dialog": "^4.0.7",
     "react-redux": "^5.0.6",
     "react-router": "^4.2.0",
