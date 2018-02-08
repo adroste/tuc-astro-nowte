@@ -13,6 +13,7 @@ import {OverlayCanvas} from './OverlayCanvas';
 import {UserSymbols} from './base/UserSymbols';
 import {ClientPointers} from './base/ClientPointers';
 import throttle from 'lodash/throttle';
+import { COLOR_CODES } from '../../Globals';
 
 
 
@@ -69,13 +70,13 @@ const InsertBrickButton = styled(DropButton)`
         bottom: 0; 
         left: 60px; 
         right: -60px; 
-        background: transparent;
+        background: ${COLOR_CODES.GREY};
         transition: background 0.3s;
         pointer-events: none;
     }
     
     &:hover:after {
-        background: #ccc;
+        background: ${COLOR_CODES.GREY_DARKER};
     }
 `;
 
@@ -114,6 +115,8 @@ export class Editor extends React.Component {
             magicPaths: PropTypes.array.isRequired,
 
             onBrickAdd: PropTypes.func.isRequired,
+            onBrickRemove: PropTypes.func.isRequired,
+            onBrickMove: PropTypes.func.isRequired,
 
             onPathBegin: PropTypes.func.isRequired,
             onPathPoint: PropTypes.func.isRequired,
@@ -282,7 +285,9 @@ export class Editor extends React.Component {
             const leHeight = curHeight;
             bricks.push(
                 <div key={getRowId(row)}>
-                    <InsertBrickButton onClick={() => this.handleAddBrickClick(leHeight)}/>
+                    {this.state.activeTool === EditorToolsEnum.BRICK_ADD && (
+                        <InsertBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW, leHeight)}/>
+                    )}
                     {listRowItems(row)}
                 </div>
             );

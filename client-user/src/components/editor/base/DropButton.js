@@ -8,6 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {Button} from "../../base/Button";
+import { COLOR_CODES } from '../../../Globals';
 
 
 const ContentWrapper = styled.div`
@@ -16,16 +17,16 @@ const ContentWrapper = styled.div`
 `;
 
 
-const lightGreyDropTheme = `
+const greyDropTheme = `
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0;
     width: 45px;
     height: 45px;
-    border: 1px solid transparent;
+    border: 1px solid ${COLOR_CODES.GREY};
     border-radius: 50% 0 50% 50% / 50% 0 50% 50%;
-    color: transparent;
+    color: ${COLOR_CODES.GREY};
     transition: color 0.3s, border-color 0.3s;
     transform: rotateZ(+45deg);
     font-size: 28px;
@@ -33,8 +34,8 @@ const lightGreyDropTheme = `
     &:hover, 
     &:focus {
         background-color: #fff;
-        border-color: #777;
-        color: #777;
+        border-color: ${COLOR_CODES.GREY_DARKER};
+        color: ${COLOR_CODES.GREY_DARKER};
     }
 `;
 
@@ -71,7 +72,7 @@ export class DropButton extends React.Component {
     render() {
         return (
             <div className={this.props.className}>
-                <Button large focusable={false} theme={lightGreyDropTheme} onClick={this.onClickHandler}>
+                <Button large focusable={false} theme={greyDropTheme} onClick={this.onClickHandler}>
                     <ContentWrapper>
                         +
                     </ContentWrapper>

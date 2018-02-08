@@ -127,7 +127,6 @@ export class Tooldock extends React.Component {
                         label="Add brick"
                         onToggle={this.handleToggle(EditorToolsEnum.BRICK_ADD)}
                         toggled={this.props.selectedTool === EditorToolsEnum.BRICK_ADD}
-                        disabled
                     />
                     <ToggleIcon 
                         imgSrc="/img/tools/brick_delete.svg"
