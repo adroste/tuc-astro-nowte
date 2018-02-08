@@ -41,8 +41,7 @@ const Wrapper = styled.div`
 
 
 const ScrollContainer = styled.div`
-    height: 100%;
-    width: 100%;
+    flex: 1;
     overflow: scroll;
     scroll-behavior: smooth;
     ${props => props.padded && paddingStyle}
@@ -56,6 +55,14 @@ const HugeCenteredText = styled.div`
     align-items: center;
     justify-content: center;
     font-size: ${FONT_SIZES.HUGE};
+`;
+
+
+const PaneWrapperFlexCols = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%
 `;
 
 
@@ -120,7 +127,7 @@ class ProjectScreen extends React.Component {
         return (
             <Wrapper>
                 <SplitPane defaultSizePxLeft={250} minSizePxLeft={200} maxSizePxLeft={450}>
-                    <div>
+                    <PaneWrapperFlexCols>
                         <HeaderLeftPane>
                             <Button onClick={this.handleDeselectProject}>
                                 {"<"} Workspaces
@@ -137,19 +144,19 @@ class ProjectScreen extends React.Component {
                                 onDocumentSelected={this.handleDocumentSelect}
                             />
                         </ScrollContainer>
-                    </div>
+                    </PaneWrapperFlexCols>
                     
                     {!this.state.selectedDocumentId ? (
-                    <HugeCenteredText>
-                        Please select a document
-                    </HugeCenteredText>
+                        <HugeCenteredText>
+                            Please select a document
+                        </HugeCenteredText>
                     ) : (
-                    <EditorHost
-                        projectId={this.props.project.projectId}
-                        documentId={this.state.selectedDocumentId}
-                        user={this.props.user}
-                        onStatsChange={this.handleEditorStatsChange}
-                    />
+                        <EditorHost
+                            projectId={this.props.project.projectId}
+                            documentId={this.state.selectedDocumentId}
+                            user={this.props.user}
+                            onStatsChange={this.handleEditorStatsChange}
+                        />
                     )}
                 </SplitPane>
             </Wrapper>
