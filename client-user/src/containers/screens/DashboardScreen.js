@@ -135,7 +135,7 @@ class DashboardScreen extends React.Component {
                     <ScrollContainer>
                         <ProjectSelectionContentContainer>
                             <Heading2>
-                                Projects
+                                Workspaces
                             </Heading2>
                             <ProjectSelectContainer
                                 pushDialog={this.handlePushDialog}

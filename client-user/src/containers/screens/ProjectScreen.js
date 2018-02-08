@@ -123,7 +123,7 @@ class ProjectScreen extends React.Component {
                     <div>
                         <HeaderLeftPane>
                             <Button onClick={this.handleDeselectProject}>
-                                {"<"} Projects
+                                {"<"} Workspaces
                             </Button>
                         </HeaderLeftPane>
                         <ScrollContainer padded>

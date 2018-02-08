@@ -105,8 +105,8 @@ export default class ProjectSelectContainer extends React.Component {
 
         this.props.pushDialog(
             <InputDialog
-                title="Create Project"
-                placeholder="project name"
+                title="Create Workspace"
+                placeholder="workspace title"
                 onResult={handleResult}
                 buttons={DialogButtonsEnum.OK}
                 buttonOkYesText="Create"
@@ -155,7 +155,7 @@ export default class ProjectSelectContainer extends React.Component {
 
         this.props.pushDialog(
             <MessageBoxDialog
-                title="Delete Project"
+                title="Delete Workspace"
                 onResult={handleResult}
                 buttons={DialogButtonsEnum.YES_NO}
                 buttonOkYesText="Delete"
@@ -179,7 +179,7 @@ export default class ProjectSelectContainer extends React.Component {
 
     handleProjectShareClick = (project) => (e) => {
         this.props.pushDialog(<ShareDialog
-            title="Share Project"
+            title="Share Workspace"
             projectId={project.id}
             onClose={() => this.props.popDialog()}
             user={this.props.user}
@@ -243,7 +243,7 @@ export default class ProjectSelectContainer extends React.Component {
                     onClick={this.handleCreateProjectClick}
                     theme={greenFilledTheme}
                 >
-                    Create Project
+                    Create Workspace
                 </Button>
                 {this.getProjectView()}
             </div>
