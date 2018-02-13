@@ -1,11 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import {Treebeard, decorators} from "react-treebeard"
 import "./FileTree.css"
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 // TODO wtf?
 import {  } from "react-contextmenu";
 import {ButtonIcon} from "../base/ButtonIcon";
+
+
+const HelperButtonsWrapper = styled.div`
+    text-align: right;
+`;
 
 
 // styles
@@ -250,10 +256,18 @@ export default class FileTree extends React.Component {
 
         const displayHelperButtons = () => {
             return (
-                <div>
-                    <ButtonIcon imgSrc={"./img/file_add.svg"} label="doc" onClick={() => this.onCreateFileClick(null)}/>
-                    <ButtonIcon imgSrc={"./img/folder_add.svg"} label="folder" onClick={() => this.onCreateFolderClick(null)}/>
-                </div>
+                <HelperButtonsWrapper>
+                    <ButtonIcon 
+                        imgSrc={"./img/file_add.svg"} 
+                        label={`create document`}
+                        onClick={() => this.onCreateFileClick(null)}
+                    />
+                    <ButtonIcon 
+                        imgSrc={"./img/folder_add.svg"} 
+                        label="create folder" 
+                        onClick={() => this.onCreateFolderClick(null)}
+                    />
+                </HelperButtonsWrapper>
             );
         };
 

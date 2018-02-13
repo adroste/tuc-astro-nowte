@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {COLOR_CODES} from "../../Globals";
 import {Button, whiteBorderTheme} from './Button';
+import { PopUpBox } from './PopUpBox';
 
 
 const ButtonFixedSize = styled(Button)`
@@ -52,15 +53,28 @@ export class ButtonIcon extends React.Component {
 
 
     render() {
+        const {className, theme, disabled, imgSrc, label} = this.props;
+
         return (
-            <ButtonFixedSize 
-                className={this.props.className}
-                onClick={this.onClickHandler}
-                theme={this.props.theme}
-                disabled={this.props.disabled}
+            <PopUpBox
+                inline
+                below
+                activeOnClick={false}
+                content={
+                    <span>
+                        {label}
+                    </span>
+                }
             >
-                <Icon src={this.props.imgSrc} title={this.props.label} alt={this.props.label}/>
-            </ButtonFixedSize>
+                <ButtonFixedSize 
+                    className={className}
+                    onClick={this.onClickHandler}
+                    theme={theme}
+                    disabled={disabled}
+                >
+                    <Icon src={imgSrc} alt={label}/>
+                </ButtonFixedSize>
+            </PopUpBox>
         );
     }
 }

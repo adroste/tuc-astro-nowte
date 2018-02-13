@@ -76,6 +76,7 @@ export class UserSymbols extends React.Component {
                 <PopUpBox
                     key={key}
                     activeOnClick={false}
+                    right
                     content={
                         <span>
                             {client.name}

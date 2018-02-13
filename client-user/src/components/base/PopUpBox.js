@@ -6,8 +6,7 @@ import { COLOR_CODES } from '../../Globals';
 
 const Wrapper = styled.div`
     position: relative;
-    width: 100%;
-    height: 100%;
+    display: ${props => props.inline ? 'inline-block' : 'block'};
 
     &:hover, 
     &:focus {
@@ -19,10 +18,8 @@ const Wrapper = styled.div`
 
 const Box = styled.div`
     position: absolute;
+    z-index: 413;
     background: white;
-    top: 50%;
-    left: calc(100% + 15px);
-    transform: translateY(-50%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -60,7 +57,11 @@ const Box = styled.div`
         z-index: 0;
     }
 
-    ${props => props.left && `
+    ${props => props.right && `
+        top: 50%;
+        left: calc(100% + 15px);
+        transform: translateY(-50%);
+
         &:after 
         {
             content: '';            
@@ -82,7 +83,11 @@ const Box = styled.div`
         }`
     }
 
-    ${props => props.top && `
+    ${props => props.below && `
+        left: 50%;
+        top: calc(100% + 15px);
+        transform: translateX(-50%);
+
         &:after 
         {
             content: '';            
@@ -113,13 +118,19 @@ export class PopUpBox extends React.Component {
      * @property {boolean} [active=null] overrides active state
      * @property {boolean} [activeOnClick=true] indicates if popup is toggable by clicking
      * @property {boolean} [activeOnHover=true] indicates whether popup should be displayed while hovering
+     * @property {boolean} [inline=false] indicates whether element should be rendered as 'inline-block' or 'block'
+     * @property {boolean} [right] indicates whether popup should be display right of component
+     * @property {boolean} [below] indicates whether popup should be display below component
      */
     static get propTypes() {
         return {
             content: PropTypes.object.isRequired,
             active: PropTypes.bool,
             activeOnClick: PropTypes.bool,
-            activeOnHover: PropTypes.bool
+            activeOnHover: PropTypes.bool,
+            inline: PropTypes.bool,
+            right: PropTypes.bool,
+            below: PropTypes.bool,
         };
     }
 
@@ -127,7 +138,8 @@ export class PopUpBox extends React.Component {
         return {
             active: null,
             activeOnClick: true,
-            activeOnHover: true
+            activeOnHover: true,
+            inline: false,
         };
     }
 
@@ -163,7 +175,7 @@ export class PopUpBox extends React.Component {
 
 
     render() {
-        const {active, activeOnClick, activeOnHover} = this.props;
+        const {active, activeOnClick, activeOnHover, inline, right, below} = this.props;
         const onMouseOver = activeOnHover ? this.handleMouseHover(true) : null;
         const onMouseOut = activeOnHover ? this.handleMouseHover(false) : null;
         const onClick = activeOnClick ? this.handleClick : null;
@@ -178,11 +190,13 @@ export class PopUpBox extends React.Component {
                 onClick={onClick}
                 tabIndex="0"
                 onBlur={onBlur}
+                inline={inline}                
             >
                 {this.props.children}
                 <Box
-                    left
                     active={activeState}
+                    right={right}
+                    below={below}
                 >
                     {this.props.content}
                 </Box>
