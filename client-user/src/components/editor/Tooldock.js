@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import {CirclePicker} from 'react-color';
 import {COLOR_RGBA, COLOR_CODES} from '../../Globals';
 import {ToggleIcon} from '../base/ToggleIcon';
 import { EditorToolsEnum } from '../../editor/EditorToolsEnum';
+import { PopUpBox } from '../base/PopUpBox';
 
 
 const Dock = styled.div`
@@ -38,13 +40,17 @@ export class Tooldock extends React.Component {
      * @property {boolean} collabCursorActive defines state of collab cursor button
      * @property {function(tool: number)} onToolChange callback if user switches active tool
      * @property {function(active: boolean)} onCollabCursorToggleChange callback if user toggles collaborative cursor tool
+     * @property {object} strokeStyle current stroke styling
+     * @property {function(strokeStyle: object)} onStrokeStyleChange callback if user changes stroke styling
      */
     static get propTypes() {
         return {
             selectedTool: PropTypes.number.isRequired,
             collabCursorActive: PropTypes.bool.isRequired,
             onToolChange: PropTypes.func.isRequired,
-            onCollabCursorToggleChange: PropTypes.func.isRequired
+            onCollabCursorToggleChange: PropTypes.func.isRequired,
+            strokeStyle: PropTypes.object.isRequired,
+            onStrokeStyleChange: PropTypes.func.isRequired,
         };
     }
 
@@ -59,13 +65,25 @@ export class Tooldock extends React.Component {
     }
 
 
-    handleToggle = (tool) => () => {
+    handleToggle = (tool) => (toggled, e) => {
         this.props.onToolChange(tool);
+
+        // only prevent bubble if button state goes from untoggled to toggled (toggled == true)
+        if (toggled) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
     };
 
 
     handleCollabCursorToggle = () => {
         this.props.onCollabCursorToggleChange(!this.props.collabCursorActive);
+    };
+
+
+    handlePenColorChange = (color, e) => {
+        console.log(color);
+        this.props.onStrokeStyleChange(this.props.strokeStyle.set('color', color.hex));
     };
 
 
@@ -75,12 +93,24 @@ export class Tooldock extends React.Component {
                 <Category
                     color={COLOR_RGBA.BLUE}
                 >
-                    <ToggleIcon 
-                        imgSrc="/img/tools/draw_pen.svg"
-                        label="Pen"
-                        onToggle={this.handleToggle(EditorToolsEnum.PEN)}
-                        toggled={this.props.selectedTool === EditorToolsEnum.PEN}
-                    />
+                    <PopUpBox
+                        active={this.props.selectedTool !== EditorToolsEnum.PEN ? false : undefined}
+                        activeOnHover={false}
+                        below
+                        content={
+                            <CirclePicker
+                                color={this.props.strokeStyle.get('color')}
+                                onChange={this.handlePenColorChange}
+                            />
+                        }
+                    >
+                        <ToggleIcon 
+                            imgSrc="/img/tools/draw_pen.svg"
+                            label="Pen"
+                            onToggle={this.handleToggle(EditorToolsEnum.PEN)}
+                            toggled={this.props.selectedTool === EditorToolsEnum.PEN}
+                        />
+                    </PopUpBox>
                     <ToggleIcon 
                         imgSrc="/img/tools/draw_eraser.svg"
                         label="Eraser"

@@ -18,6 +18,7 @@
     "npm": "^5.6.0",
     "prop-types": "^15.6.0",
     "react": "^15.6.2",
+    "react-color": "^2.13.8",
     "react-contextmenu": "^2.9.2",
     "react-dom": "^15.6.2",
     "react-measure": "^2.0.2",

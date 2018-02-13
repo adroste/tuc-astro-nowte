@@ -126,11 +126,11 @@ export class Editor extends React.Component {
         this.state = {
             bricks: [],
             activeTool: EditorToolsEnum.TEXT,
+            strokeStyle: new StrokeStyle({color: '#f44336', thickness: 3}),
             collabCursorActive: false,
             offset: 0
         };
 
-        this.curStrokeStyle = new StrokeStyle({color: 'red', thickness: 3});
         this.curEraserThickness = 5;
         this.lastEraserPoint = null;
     }
@@ -146,6 +146,11 @@ export class Editor extends React.Component {
     };
 
 
+    handleStrokeStyleChange = (strokeStyle) => {
+        this.setState({strokeStyle});
+    };
+
+
     handleAddBrickClick = (brickType, heightIndex = this.props.bricks.length) => {
         this.props.onBrickAdd(brickType, heightIndex);
     };
@@ -154,7 +159,7 @@ export class Editor extends React.Component {
     handlePathBegin = (brick) => {
         switch (this.state.activeTool){
             case EditorToolsEnum.PEN:
-                this.props.onPathBegin(brick, this.curStrokeStyle);
+                this.props.onPathBegin(brick, this.state.strokeStyle);
                 break;
             case EditorToolsEnum.ERASER:
                 // reset eraser
@@ -297,6 +302,8 @@ export class Editor extends React.Component {
                     selectedTool={this.state.activeTool}
                     collabCursorActive={this.state.collabCursorActive}
                     onCollabCursorToggleChange={this.handleCollabCursorChange}
+                    strokeStyle={this.state.strokeStyle}
+                    onStrokeStyleChange={this.handleStrokeStyleChange}
                 />
                 <PageOuter
                     innerRef={(ref) => this.pageOuterRef = ref}
