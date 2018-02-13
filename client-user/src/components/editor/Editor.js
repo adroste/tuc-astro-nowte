@@ -14,6 +14,7 @@ import {UserSymbols} from './base/UserSymbols';
 import {ClientPointers} from './base/ClientPointers';
 import throttle from 'lodash/throttle';
 import { COLOR_CODES } from '../../Globals';
+import { InsertBrickButtonStrip } from './base/InsertBrickButtonStrip';
 
 
 
@@ -55,29 +56,9 @@ const AppendBrickButton = styled(Button).attrs({
 `;
 
 
-const InsertBrickButton = styled(DropButton)`
-    height: 0;
-    position: relative;
-    left: -60px;
-    top: -23px;
-    
-    &:after { 
-        content: '' ; 
-        display: block ; 
-        position: absolute;
-        height: 1px;
-        top: 23px; 
-        bottom: 0; 
-        left: 60px; 
-        right: -60px; 
-        background: ${COLOR_CODES.GREY};
-        transition: background 0.3s;
-        pointer-events: none;
-    }
-    
-    &:hover:after {
-        background: ${COLOR_CODES.GREY_DARKER};
-    }
+const AppendBrickButtonsContainer = styled.div`
+    display: flex;
+    justify-content: center;
 `;
 
 
@@ -286,7 +267,7 @@ export class Editor extends React.Component {
             bricks.push(
                 <div key={getRowId(row)}>
                     {this.state.activeTool === EditorToolsEnum.BRICK_ADD && (
-                        <InsertBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW, leHeight)}/>
+                        <InsertBrickButtonStrip onBrickAdd={(type) => this.handleAddBrickClick(type, leHeight)}/>
                     )}
                     {listRowItems(row)}
                 </div>
@@ -327,12 +308,14 @@ export class Editor extends React.Component {
                     }
                     <PageInner>
                         {this.renderBricks()}
-                        <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}>
-                            Add Draw-Brick
-                        </AppendBrickButton>
-                        <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.TEXT)}>
-                            Add Text-Brick
-                        </AppendBrickButton>
+                        <AppendBrickButtonsContainer>
+                            <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.DRAW)}>
+                                Append Draw-Brick
+                            </AppendBrickButton>
+                            <AppendBrickButton onClick={() => this.handleAddBrickClick(BrickTypesEnum.TEXT)}>
+                                Append Text-Brick
+                            </AppendBrickButton>         
+                        </AppendBrickButtonsContainer>          
                     </PageInner>
                     <OverlayCanvas
                         offset={this.state.offset}

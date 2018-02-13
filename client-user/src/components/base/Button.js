@@ -26,7 +26,7 @@ const ButtonInner = styled.div`
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: ${props => props.large ? '20px' : '14px'};
+    font-size: ${props => props.large ? '18px' : '14px'};
     user-select: none;
     cursor: pointer;
     
